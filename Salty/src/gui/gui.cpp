@@ -20,7 +20,7 @@ namespace big
 		io.Fonts->Clear();
 
 		//write new font
-		ImFont* font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\verdana.ttf", 18.0f);
+		ImFont* font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\tahoma.ttf", 18.0f);
 		(font != NULL) ? io.FontDefault = font : io.Fonts->AddFontDefault();
 		io.Fonts->Build();
 
@@ -118,19 +118,22 @@ namespace big
 					base_tab::render_local_tab();
 					ImGui::EndTabItem();
 				}
+
 				if (ImGui::BeginTabItem("Vehicle"))
 				{
 					base_tab::render_vehicle_tab();
 					ImGui::EndTabItem();
 				}
-				if (*g_pointers->m_is_session_started)
+
+				if (ImGui::BeginTabItem("Online"))
 				{
-					if (ImGui::BeginTabItem("Online"))
-					{
+					if (*g_pointers->m_is_session_started)
 						base_tab::render_online_tab();
-						ImGui::EndTabItem();
-					}
+					else
+						ImGui::Text("You must be in a session in order to use online features");
+					ImGui::EndTabItem();
 				}
+
 				if (ImGui::BeginTabItem("Settings"))
 				{
 					base_tab::render_settings_tab();

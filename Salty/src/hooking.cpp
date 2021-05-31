@@ -465,9 +465,14 @@ namespace big
 				buffer->m_data[0] = 0;
 				//return false;
 			}
+			else
+			{
+				sync_src = src;
+				sync_type = rage::TAKEOVER;
+			}
 		}
 
-		sync_type = rage::NETWORK;
+		//sync_type = rage::NETWORK;
 		sync_object_type = -1;
 		sync_src = src;
 

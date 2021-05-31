@@ -156,7 +156,7 @@ namespace big::base_tab
 
 	void render_online_tab()
 	{
-		if (ImGui::BeginTabBar("##tabs4", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
+		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("ESP"))
 			{
@@ -332,6 +332,18 @@ namespace big::base_tab
 
 				ImGui::End();
 
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Protex"))
+			{
+				ImGui::Checkbox("Crash protection", &big::features::protection);
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Recovery"))
+			{
+		
 				ImGui::EndTabItem();
 			}
 

@@ -37,6 +37,9 @@ namespace big::features
 
 	///////////////////////////// below vars added by me
 
+	bool features_crashprotection = protection;
+	bool features_eventprotection = true;
+
 	bool Lfeatures_godmode = true;
 	bool Lfeatures_noragdoll = true;
 	bool Lfeatures_neverwanted = false;
@@ -78,7 +81,6 @@ namespace big::features
 
 	enum class logtype
 	{
-
 		LOG_NONE,
 		LOG_INFO,
 		LOG_WARN,
@@ -123,7 +125,7 @@ namespace big::features
 	{
 		if (first) 
 		{
-			log_map("~b~~r~T~g~r~b~a~r~i~g~n~b~e~r~r ~g~i~b~n~r~i~g~t~b~i~r~a~g~l~b~i~r~z~g~e~b~d~r~. ~g~H~b~a~r~v~g~e ~b~f~r~u~g~n~b~!", logtype::LOG_NONE);
+			log_map("~b~Trainer installation successful. Have fun!", logtype::LOG_NONE);
 			first = false;
 		}
 		else
@@ -181,10 +183,7 @@ namespace big::features
 		return vector;
 	}
 
-	float deg_to_rad(float deg)
-	{
-		return deg * 3.141592653589793f / 180.f;
-	}
+	float deg_to_rad(float deg) { return deg * 3.141592653589793f / 180.f; }
 
 	Vector3 transformRotToDir(Vector3 nig)
 	{
