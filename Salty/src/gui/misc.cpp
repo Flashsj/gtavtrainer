@@ -268,10 +268,7 @@ namespace big::misc
 		return true;
 	}
 
-	string get_address(uint32_t ip, uint16_t port)
-	{
-		return format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port);
-	}
+	string get_address(uint32_t ip, uint16_t port) { return format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port); }
 
 	void log_buff(bool __log, int32_t sync_type, int16_t object_type, int index, int length, uint32_t value, bool blocked, const char* status)
 	{
@@ -336,9 +333,8 @@ namespace big::misc
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
 			else
-			{
 				log += CSV(",,,,");
-			}
+
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : "INVALID");
 			log += CSV(object_id);
 			log += CSV(object_flag);
@@ -391,9 +387,8 @@ namespace big::misc
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
 			else
-			{
 				log += CSV(",,,,");
-			}
+
 			log += CSV(",,,,");
 			log += CSV(event_id);
 			log += CSV(bitset);
@@ -411,9 +406,7 @@ namespace big::misc
 			log += CSV(",,,,,,,,DATA");
 
 			for (uint32_t i = 0; i < n; i++)
-			{
 				log += CSV(data[i]);
-			}
 
 			log_blue(true, log.c_str(), blocked);
 		}
@@ -432,10 +425,7 @@ namespace big::misc
 			case rage::HELI: return IS(model, rage::heli);
 			case rage::OBJECT: return IS(model, rage::object);
 			case rage::PED: return IS(model, rage::ped);
-			case rage::PICKUP: return 
-				(model == 0 || IS(model, rage::pickup_model)) &&
-				(netSyncTree->m_sync_tree_node->pickup() ==0 || IS(netSyncTree->m_sync_tree_node->pickup(), rage::pickup)) &&
-				(netSyncTree->m_sync_tree_node->weapon_component() == 0 || IS(netSyncTree->m_sync_tree_node->weapon_component(), rage::weapon_component));
+			case rage::PICKUP: return (model == 0 || IS(model, rage::pickup_model)) && (netSyncTree->m_sync_tree_node->pickup() == 0 || IS(netSyncTree->m_sync_tree_node->pickup(), rage::pickup)) && (netSyncTree->m_sync_tree_node->weapon_component() == 0 || IS(netSyncTree->m_sync_tree_node->weapon_component(), rage::weapon_component));
 			case rage::PICKUP_PLACEMENT: return true;
 			case rage::PLANE: return IS(model, rage::plane);
 			case rage::SUBMARINE: return IS(model, rage::submarine);
@@ -478,9 +468,7 @@ namespace big::misc
 	bool object_close(rage::netSyncTree* netSyncTree, int32_t sync_type, int32_t sync_flag, int16_t object_type)
 	{
 		if (sync_type == rage::CREATE && sync_flag == 1)
-		{
 			return distance(netSyncTree, object_type) < SPAWN_RADIUS;
-		}
 		return false;
 	}
 
@@ -514,13 +502,9 @@ namespace big::misc
 
 			//events / second
 			for (int i = 0; i < CREATE_FLOOD; i++)
-			{
 				if (users[user_id]->create_time[i] > now - PERIOD) flood++;
-			}
 			if (flood < CREATE_FLOOD)
-			{
 				users[user_id]->create_time[users[user_id]->create++ % CREATE_FLOOD] = now;
-			}
 
 			return flood == CREATE_FLOOD;
 		}
@@ -540,14 +524,10 @@ namespace big::misc
 
 			//events / second
 			for (int i = 0; i < EVENT_FLOOD; i++)
-			{
 				if (users[user_id]->event_time[i] > now - PERIOD) flood++;
-			}	
 			
 			if (flood < EVENT_FLOOD)
-			{
 				users[user_id]->event_time[users[user_id]->event++ % EVENT_FLOOD] = now;
-			}
 
 			return flood == EVENT_FLOOD || bitset > 10;
 		}
@@ -572,7 +552,8 @@ namespace big::misc
 
 	bool block_crash(int32_t n, const uint8_t* data)
 	{
-#define SIG(index, a) {index, LEN(a), a}
+
+		#define SIG(index, a) {index, LEN(a), a}
 
 		struct signature { int32_t index; int32_t n; uint8_t* data; };
 
@@ -681,7 +662,8 @@ namespace big::misc
 
 	void NETWORK_CAN_BAIL(rage::scrNativeCallContext* src)
 	{
-		char __b[256] = ""; sprintf(__b, ",NATIVE,OVERRIDE,NETWORK_CAN_BAIL,,,,,,,,%s,", SCRIPT::GET_THIS_SCRIPT_NAME());
+		char __b[256] = ""; 
+		sprintf(__b, ",NATIVE,OVERRIDE,NETWORK_CAN_BAIL,,,,,,,,%s,", SCRIPT::GET_THIS_SCRIPT_NAME());
 		misc::log_green(LOG_NATIVE, __b, true);
 		src->set_return_value<BOOL>(FALSE);
 	}
@@ -699,7 +681,8 @@ namespace big::misc
 		}
 		else
 		{
-			char __b[256] = ""; sprintf(__b, ",NATIVE,OK,REQUEST_SCRIPT,,,,,,,,%s,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _scriptName);
+			char __b[256] = ""; 
+			sprintf(__b, ",NATIVE,OK,REQUEST_SCRIPT,,,,,,,,%s,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _scriptName);
 			misc::log_green(LOG_NATIVE, __b, false);
 			SCRIPT::REQUEST_SCRIPT(_scriptName);
 		}
@@ -708,7 +691,8 @@ namespace big::misc
 	extern void NETWORK_SESSION_GET_KICK_VOTE(rage::scrNativeCallContext* src)
 	{
 		Player _player = src->get_arg<Player>(0);
-		char __b[256] = ""; sprintf(__b, ",NATIVE,OVERRIDE,NETWORK_SESSION_GET_KICK_VOTE,,,,,,,,%s,0x%X", SCRIPT::GET_THIS_SCRIPT_NAME(), _player);
+		char __b[256] = ""; 
+		sprintf(__b, ",NATIVE,OVERRIDE,NETWORK_SESSION_GET_KICK_VOTE,,,,,,,,%s,0x%X", SCRIPT::GET_THIS_SCRIPT_NAME(), _player);
 		misc::log_green(LOG_NATIVE, __b, true);
 		src->set_return_value<BOOL>(FALSE);
 	}
@@ -721,7 +705,8 @@ namespace big::misc
 
 		if (FIND(_statName, blocked_stat))
 		{
-			char __b[256] = ""; sprintf(__b, ",NATIVE,OVERRIDE,STAT_SET_INT,,,,,,,,%s,0x%X,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value, _save == 0 ? "FALSE" : "TRUE");
+			char __b[256] = ""; 
+			sprintf(__b, ",NATIVE,OVERRIDE,STAT_SET_INT,,,,,,,,%s,0x%X,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value, _save == 0 ? "FALSE" : "TRUE");
 			misc::log_green(LOG_NATIVE, __b, true);
 			src->set_return_value<BOOL>(TRUE);
 		}
@@ -731,7 +716,8 @@ namespace big::misc
 
 			if (!FIND(_statName, ignore))
 			{
-				char __b[256] = ""; sprintf(__b, ",NATIVE,OK,STAT_SET_INT,,,,,,,,%s,0x%X,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value, _save == 0 ? "FALSE" : "TRUE");
+				char __b[256] = ""; 
+				sprintf(__b, ",NATIVE,OK,STAT_SET_INT,,,,,,,,%s,0x%X,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value, _save == 0 ? "FALSE" : "TRUE");
 				misc::log_green(LOG_NATIVE, __b, false);
 			}
 			src->set_return_value<BOOL>(STATS::STAT_SET_INT(_statName, _value, _save));
@@ -747,13 +733,15 @@ namespace big::misc
 
 		if (FIND(_statName, blocked_stat))
 		{
-			char __b[256] = ""; sprintf(__b, ",NATIVE,OVERRIDE,STAT_SET_BOOL_MASKED,,,,,,,,%s,0x%X,%s,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value == 0 ? "FALSE" : "TRUE", _mask, _save == 0 ? "FALSE" : "TRUE");
+			char __b[256] = ""; 
+			sprintf(__b, ",NATIVE,OVERRIDE,STAT_SET_BOOL_MASKED,,,,,,,,%s,0x%X,%s,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value == 0 ? "FALSE" : "TRUE", _mask, _save == 0 ? "FALSE" : "TRUE");
 			misc::log_green(LOG_NATIVE, __b, true);
 			src->set_return_value<BOOL>(TRUE);
 		}
 		else
 		{
-			char __b[256] = ""; sprintf(__b, ",NATIVE,OK,STAT_SET_BOOL_MASKED,,,,,,,,%s,0x%X,%s,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value == 0 ? "FALSE" : "TRUE", _mask, _save == 0 ? "FALSE" : "TRUE");
+			char __b[256] = ""; 
+			sprintf(__b, ",NATIVE,OK,STAT_SET_BOOL_MASKED,,,,,,,,%s,0x%X,%s,%d,%s", SCRIPT::GET_THIS_SCRIPT_NAME(), _statName, _value == 0 ? "FALSE" : "TRUE", _mask, _save == 0 ? "FALSE" : "TRUE");
 			misc::log_green(LOG_NATIVE, __b, false);
 			src->set_return_value<BOOL>(STATS::STAT_SET_BOOL_MASKED(_statName, _value, _mask, _save));
 		}

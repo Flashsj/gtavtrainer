@@ -343,6 +343,26 @@ namespace big
 	{
 		sync_flag = _sync_flag;
 
+		if (big::features::protection && big::features::injected)
+		{
+			/*bool null = (netSyncTree == nullptr);
+
+			bool blocked = null;
+
+			char status[256] = "BLOCKED";
+
+			if (blocked)
+			{
+				if (null) strcat(status, "_NULLPTR");
+
+				misc::log_generic(LOG_INTERNAL && LOG_FAIL, "READ", blocked, status);
+
+				return false;
+			}
+
+			return true;*/
+		}
+
 		__try { return g_hooking->m_sync_read_hook.get_original<functions::sync_read_t>()(netSyncTree, sync_type, sync_flag, buffer, netLogStub); }
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
@@ -396,21 +416,28 @@ namespace big
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
 		uint8_t* data = buffer->m_data;
-
+		bool kick = false;
+		bool event = false;
 		bool type = FIND(event_type, misc::blocked_network) || event_type > NETWORK_CHECK_CATALOG_CRC;
+		if (big::features::features_kickprotection)
+			kick = FIND(event_id, misc::blocked_kick);
+		if (big::features::features_eventprotection)
+			event = FIND(event_id, misc::blocked_malev);;
 		bool crash = misc::block_crash(n, data);
 		bool proto = misc::block_proto(src, event_type);
 		bool flood = !type && misc::flood_event(src, event_type, bitset);
 		bool clock = event_type == GAME_CLOCK_EVENT && !src->is_host();
 		//bool respawn = misc::flood_respawn(src, event_type); || respawn
 
-		bool blocked = misc::block_user(src, crash) || type || flood || clock || proto;
+		bool blocked = misc::block_user(src, crash) || type || flood || clock || proto || kick || event;
 
 		char status[265] = "BLOCKED";
 
 		if (blocked)
 		{
 			if (type) strcat(status, "_TYPE");
+			if (kick) strcat(status, "_KICK"); //added by me
+			if (event) strcat(status, "_MALICIOUS_EVENT"); //added by me
 			if (crash) strcat(status, "_CRASH");
 			if (flood) strcat(status, "_FLOOD");
 			if (proto) strcat(status, "_PROTO");
@@ -424,6 +451,8 @@ namespace big
 		return blocked;
 	}
 
+	//i am working on rewiriting most of this. its garbage right now but it will be fixed in the near future. i need to do something about the manual passing of the event types because it looks so bad rn.
+
 	static bool network_event(void* event_manager, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer* buffer)
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
@@ -435,36 +464,13 @@ namespace big
 		sync_type = rage::NETWORK;
 		sync_object_type = -1;
 
-		switch (event_type)
+		switch (_event_type) //retarded but fuck you
 		{
-
-		case GIVE_CONTROL_EVENT:
-		case REQUEST_CONTROL_EVENT:
-		case VEHICLE_COMPONENT_CONTROL_EVENT:
-			sync_src = src;
-			sync_type = rage::TAKEOVER;
-			break;
-
 		case NETWORK_TRAIN_REPORT_EVENT:
-		case OBJECT_ID_FREED_EVENT:
-		case BREAK_PROJECTILE_TARGET_LOCK_EVENT:
-		case VOICE_DRIVEN_MOUTH_MOVEMENT_FINISHED_EVENT:
-		case NETWORK_ENTITY_AREA_STATUS_EVENT:
-		case ALTER_WANTED_LEVEL_EVENT:
-
-			//case NETWORK_START_SYNCED_SCENE_EVENT:
-			//case NETWORK_STOP_SYNCED_SCENE_EVENT:
-			//case NETWORK_UPDATE_SYNCED_SCENE_EVENT:
-			//case NETWORK_REQUEST_SYNCED_SCENE_EVENT:
-			//case REMOTE_SCRIPT_INFO_EVENT;
-			//case REMOTE_SCRIPT_LEAVE_EVENT:
-			//case SCRIPTED_GAME_EVENT:
-			//case CLEAR_AREA_EVENT:
-
-			return true;
+			return false;
 		}
 
-		if (big::features::protection && big::features::injected)
+		if ((big::features::features_kickprotection || big::features::features_eventprotection) && big::features::injected && src != features::local)
 		{
 			if (event_blocked(src, dst, buffer, event_type, event_id, bitset))
 			{
@@ -472,10 +478,7 @@ namespace big
 				buffer->m_data[0] = 0;
 			}
 			if (event_type == GIVE_CONTROL_EVENT)
-			{
-				sync_src = src;
 				sync_type = rage::TAKEOVER;
-			}
 		}
 
 		__try

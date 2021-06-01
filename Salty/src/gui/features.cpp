@@ -18,7 +18,7 @@ using namespace rage;
 namespace big::features
 {
 	bool injected = false;
-	bool protection = true;
+	bool protection = true; //crash protection
 	bool god_mode = true;
 
 	volatile Player player = 0;
@@ -38,8 +38,8 @@ namespace big::features
 
 	///////////////////////////// below vars added by me
 
-	bool features_crashprotection = protection;
-	bool features_eventprotection = true;
+	bool features_kickprotection = true;
+	bool features_eventprotection = false;
 
 	bool Lfeatures_godmode = true;
 	bool Lfeatures_noragdoll = true;
@@ -89,7 +89,7 @@ namespace big::features
 		switch (type)
 		{
 		case logtype::LOG_NONE:
-			a = "";
+			a = "~g~";
 			break;
 		case logtype::LOG_INFO:
 			a = "~m~[~f~INFO~m~]~w~";
@@ -183,9 +183,7 @@ namespace big::features
 
 	Vector3 transformRotToDir(Vector3 nig)
 	{
-		double	a = deg_to_rad(nig.x),
-			b = deg_to_rad(nig.z),
-			c = cos(a);
+		double	a = deg_to_rad(nig.x), b = deg_to_rad(nig.z), c = cos(a);
 		nig.x = (float)-(c * sin(b));
 		nig.y = (float)(c * cos(b));
 		nig.z = (float)sin(a);
@@ -298,7 +296,7 @@ namespace big::features
 
 	bool isPlayerFriend(int player)
 	{
-		int handle[76]; //var num3 = sub_34009(A_0, (A_1) + 264, (A_1) + 272);
+		int handle[76];
 		NETWORK::NETWORK_HANDLE_FROM_PLAYER(player, &handle[0], 13);
 
 		if (NETWORK::NETWORK_IS_HANDLE_VALID(&handle[0], 13))

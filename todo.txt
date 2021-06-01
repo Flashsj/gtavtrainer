@@ -1,0 +1,12 @@
+TODO SHORT TERM:
+
+separate protex options
+add kick event protection
+add default config option
+account for instakill in autoshoot
+fix control events
+fix vehicle entity request events on session change
+
+TODO LONG TERM:
+
+learn more about proto events

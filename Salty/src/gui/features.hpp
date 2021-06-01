@@ -31,7 +31,7 @@ namespace big::features
 	
 	void kickFunc();
 
-	extern bool features_crashprotection;
+	extern bool features_kickprotection;
 	extern bool features_eventprotection;
 
 	extern bool Lfeatures_godmode;
