@@ -13,6 +13,7 @@
 using namespace rage;
 
 //The messiest file on the planet. it's complete garbage. don't say I didnt warn you! (:
+//One day this will be organized
 
 namespace big::features
 {
@@ -79,13 +80,7 @@ namespace big::features
 	bool Vfeatures_hornboost = false;
 	bool Vfeatures_godmode = false;
 
-	enum class logtype
-	{
-		LOG_NONE,
-		LOG_INFO,
-		LOG_WARN,
-		LOG_ERROR,
-	};
+	enum class logtype { LOG_NONE, LOG_INFO, LOG_WARN, LOG_ERROR, };
 
 	void log_map(std::string str, logtype type)
 	{
@@ -125,7 +120,7 @@ namespace big::features
 	{
 		if (first) 
 		{
-			log_map("~b~Trainer installation successful. Have fun!", logtype::LOG_NONE);
+			log_map("Trainer installation successful. Have fun!", logtype::LOG_NONE);
 			first = false;
 		}
 		else
@@ -151,6 +146,7 @@ namespace big::features
 	}
 
 #pragma region TO BE RELOCATED
+
 	rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
 
 	double wDegreeToRadian(double n) { return n * 0.017453292519943295; }
@@ -319,82 +315,58 @@ namespace big::features
 			return;
 		}
 
-		std::int64_t args1[3] = { -435067392, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
-
-		std::int64_t args2[24] = { 1070934291, player, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
-
-		std::int64_t args3[4] = { -1729804184, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647), player };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 4, 1 << player);
-
-		std::int64_t args4[3] = { 1428412924, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647) };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
-
-		std::int64_t args5[6] = { 823645419, player, -1, -1, -1, -1 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
-
-		std::int64_t args6[4] = { -442306200, player, -1, 0 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 4, 1 << player);
-
-		std::int64_t args7[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 3, 1 << player);
-
-		std::int64_t args8[17] = { -922075519, player, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 17, 1 << player);
-
-		std::int64_t args9[11] = { -1975590661, 84857178, 61749268, -80053711, -78045655, 56341553, -78686524, -46044922, -22412109, 29388428, -56335450 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 11, 1 << player);
-
 		auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 0);
+		static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
+
+		std::int64_t args1[3] = { -435067392, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args2[24] = { 1070934291, player, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10 };
+		std::int64_t args3[4] = { -1729804184, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647), player };
+		std::int64_t args4[3] = { 1428412924, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647) };
+		std::int64_t args5[6] = { 823645419, player, -1, -1, -1, -1 };
+		std::int64_t args6[4] = { -442306200, player, -1, 0 };
+		std::int64_t args7[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args8[17] = { -922075519, player, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1 };
+		std::int64_t args9[11] = { -1975590661, 84857178, 61749268, -80053711, -78045655, 56341553, -78686524, -46044922, -22412109, 29388428, -56335450 };
 		std::int64_t args10[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 2147483647, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 11, 1 << player);
-
 		std::int64_t args11[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 1000, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args11, 11, 1 << player);
-
 		std::int64_t args12[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args12, 7, 1 << player);
-
 		std::int64_t args13[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args13, 3, 1 << player);
-
 		std::int64_t args14[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args14, 7, 1 << player);
-
 		std::int64_t args15[3] = { 0xE6116600, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args15, 3, 1 << player);
-
 		std::int64_t args16[6] = { 0xF5CB92DB, 0, 0, 46190868, 0, 2 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args16, 6, 1 << player);
-
 		std::int64_t args17[6] = { 0xF5CB92DB,  46190868, 0, 46190868, 46190868, 2 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args17, 6, 1 << player);
-
 		std::int64_t args18[8] = { 0xF5CB92DB, 1337, -1, 1, 1, 0, 0, 0 };
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args18, 8, 1 << player);
-
 		std::int64_t args19[9] = { 0xF5CB92DB, player, 1337, -1, 1, 1, 0, 0, 0 };
+	
+
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 4, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 4, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 17, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args11, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args12, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args13, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args14, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args15, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args16, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args17, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args18, 8, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args19, 9, 1 << player);
 
-		static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
 		for (int i = 1; i < rotor.size(); i++)
 		{
 			std::int64_t args7[14] = { -1949011582, player, rotor.at(i), i, 1, -10, -10, -10, -10, -10, player, -10, -10, -10 };
 			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 4, 1 << player);
 		}
 
-		static std::vector<std::int64_t> kicks =
-		{
-			-1559754940, // disturbed func_16657
-			2017765964, // disturbed
-			324865135,  // disturbed func_16648
-			-1212832151,  // disturbed func_16919
-			-1890951223, // disturbed func_16659
-			1302185744,  // disturbed
-			639032041,  // disturbed
-			665709549 // func_16655
-		};
+		//disturbed / requiem events
+		static std::vector<std::int64_t> kicks = { -1559754940, 2017765964, 324865135, -1212832151, -1890951223, 1302185744, 639032041, 665709549 };
 
 		for (int i = 0; i < kicks.size(); i++)
 		{
@@ -405,36 +377,39 @@ namespace big::features
 
 	void scriptCrash(int player) // ive noticed that the events with the // ? next to them arent in freemode.c, and if i comment them out and script crash someone they still crash
 	{
-		std::int64_t args[7] = { 3317451851, -72614, 63007, 59027, -12012, -26996, 33399 }; // ?
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 7, 1 << player);
-
-		std::int64_t args2[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this event does nothing
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 7, 1 << player);
-
+		std::int64_t args[7] = { 3317451851, -72614, 63007, 59027, -12012, -26996, 33399 };
+		std::int64_t args2[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
 		std::int64_t args3[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 3, 1 << player);
-
 		std::int64_t args4[3] = { 3859899904, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
-
-		std::int64_t args5[6] = { -977515445, -1, 500000, 849451549, -1, -1 }; // only sending this event freezes your game for a few seconds and then closes it
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
-
-		std::int64_t args6[6] = { 767605081, -1, 500000, 849451549, -1, -1 }; // only sending this event freezes your game for a few seconds and then closes it
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 6, 1 << player);
-
-		std::int64_t args7[5] = { -1949011582, -1139568479, -1, 1, 100099 }; // only sending this event does nothing
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 5, 1 << player);
-
+		std::int64_t args5[6] = { -977515445, -1, 500000, 849451549, -1, -1 };
+		std::int64_t args6[6] = { 767605081, -1, 500000, 849451549, -1, -1 };
+		std::int64_t args7[5] = { -1949011582, -1139568479, -1, 1, 100099 };
 		std::int64_t args8[16] = { -2122716210, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this instantly closes your game
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 16, 1 << player);
-
 		std::int64_t args9[20] = { -922075519, -1, -1, -1, -1, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this event does nothing
-		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 20, 1 << player);
-
 		std::int64_t args10[16] = { -1975590661, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 };  // only sending this event does nothing
+
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 5, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 16, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 20, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 16, 1 << player);
 	}
+
+	void storeSkeleton(Ped ped, int s, ImVec2* out)
+	{
+		float x, y;
+		Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
+		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
+		out->x = features::screenSize.x * x;
+		out->y = features::screenSize.y * y;
+	}
+
+#pragma endregion
 
 	void features::kickFunc()
 	{
@@ -517,50 +492,9 @@ namespace big::features
 				features::Pfeatures_crashall = false;
 			}
 
-			//bounty
-			/*int amt = 10000;
-			for (int i = 0; i < 32; i++)
-			{
-				for (size_t d = 0; d < 32; d++)
-				{
-					DECORATOR::DECOR_SET_INT(PLAYER::GET_PLAYER_PED(d), "MPBitset", 3);
-					int64_t args[22] = { -116602735, i, d, 3, amt, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, *script_global(1652336).at(9).as<int32_t*>(), *script_global(1652336).at(10).as<int32_t*>() };
-					SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 22, 1 << i);
-
-				}
-				script::get_current()->yield();
-			}*/
-
-			//teleport to apartment
-			/*int location = 1;
-			for (int i = 0; i < 32; i++)
-			{
-				if (i == player)
-					continue;
-
-				if (features::players[i].isfriend)
-					continue;
-
-				int64_t args[9] = { -171207973, i, 1, -1, 1, location, 0, 0, 0 };
-				SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 9, 1 << i);
-			}*/
-
-			//kick from vehicle
-
 			script::get_current()->yield();
 		}
 	}
-
-	void storeSkeleton(Ped ped, int s, ImVec2* out)
-	{
-		float x, y;
-		Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
-		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
-		out->x = features::screenSize.x * x;
-		out->y = features::screenSize.y * y;
-	}
-
-#pragma endregion
 
 	void features::spawnvehicle(const char* name)
 	{
@@ -579,7 +513,7 @@ namespace big::features
 
 			MISC::GET_GROUND_Z_FOR_3D_COORD(pos.x, pos.y, pos.z, &pos.z, FALSE, FALSE);
 
-			int arrSize = sizeof(features::vehicleModels) / sizeof(features::vehicleModels[0]); //fix, spawns the same random vehicle
+			int arrSize = sizeof(features::vehicleModels) / sizeof(features::vehicleModels[0]); //TODO: fix, spawns the same random vehicle
 			int RandIndex = rand() % arrSize;
 			static const char* randomModel = features::vehicleModels[RandIndex];
 
@@ -1195,7 +1129,6 @@ namespace big::features
 
 			features::Ofeatures_skipcutscene = false;
 		}
-
 	}
 
 	void features_player()
@@ -1246,6 +1179,17 @@ namespace big::features
 		}
 	}
 
+	bool features::owns_veh(Ped _ped) //move somewhere else
+	{
+		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(_ped, player);
+		if (ENTITY::DOES_ENTITY_EXIST(vehicle) || ENTITY::IS_ENTITY_A_VEHICLE(vehicle))
+		{
+			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1) == _ped)
+				return true;
+		}
+		return false;
+	}
+
 	void dec_var()
 	{
 		player = PLAYER::PLAYER_ID();
@@ -1261,17 +1205,6 @@ namespace big::features
 			numberOfPlayers = PLAYER::GET_NUMBER_OF_PLAYERS();
 			scriptHost = NETWORK::NETWORK_GET_HOST_OF_SCRIPT("freemode", -1, 0);
 		}
-	}
-
-	bool features::owns_veh(Ped _ped) //move somewhere else
-	{
-		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(_ped, player);
-		if (ENTITY::DOES_ENTITY_EXIST(vehicle) || ENTITY::IS_ENTITY_A_VEHICLE(vehicle))
-		{
-			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1) == _ped)
-				return true;
-		}
-		return false;
 	}
 
 	void run_tick()
@@ -1291,21 +1224,22 @@ namespace big::features
 				tick_60 = now;
 			}
 
-			if (now - tick_1 > 1000) //prevents vehicle seizures & allows you to flip your vehicle
+			//prevents vehicle seizures & allows you to flip your vehicle
+			if (now - tick_1 > 1000) 
 			{
 				features_vehicle_delay();
 				tick_1 = now;
 			}
-
-			features_vehicle();
-			features_local();
-			features_weapon();
 
 			if (inSession)
 			{
 				features_online();
 				features_player();
 			}
+
+			features_vehicle();
+			features_local();
+			features_weapon();
 
 		} QUEUE_JOB_END_CLAUSE
 	}
@@ -1314,9 +1248,8 @@ namespace big::features
 	{
 		while (true)
 		{
-			TRY_CLAUSE{ run_tick(); }
-				EXCEPT_CLAUSE
-				script::get_current()->yield();
+			TRY_CLAUSE{ run_tick(); }EXCEPT_CLAUSE
+			script::get_current()->yield();
 		}
 	}
 }

@@ -4,6 +4,12 @@
 #include "gta/enums.hpp"
 #include "gta/replay.hpp"
 #include "gta/player.hpp"
+#define FIND(value, list) misc::find(value, sizeof(list) / sizeof(list[0]), list)
+#define IS(value, list) FIND(value, list)
+#define LEN(list) (sizeof(list) / sizeof(list[0]))
+
+using namespace std;
+using namespace fmt;
 
 namespace big::misc
 {
@@ -44,17 +50,17 @@ namespace big::misc
 	extern uint32_t read32(uint8_t* data, int pos, int len);
 	extern void* vtable(void* object, int function);
 	extern void vtable(void* object, int function, void* detour);
-	extern std::string pointer(void* function);
-	extern std::string get_address(uint32_t ip, uint16_t port);
+	extern string pointer(void* function);
+	extern string get_address(uint32_t ip, uint16_t port);
 
-	extern std::string CSV(int8_t i);
-	extern std::string CSV(uint8_t i);
-	extern std::string CSV(int32_t i);
-	extern std::string CSV(uint32_t i);
-	extern std::string CSV(int64_t i);
-	extern std::string CSV(uint64_t i);
-	extern std::string CSV(float i);
-	extern std::string CSV(std::string s);
+	extern string CSV(int8_t i);
+	extern string CSV(uint8_t i);
+	extern string CSV(int32_t i);
+	extern string CSV(uint32_t i);
+	extern string CSV(int64_t i);
+	extern string CSV(uint64_t i);
+	extern string CSV(float i);
+	extern string CSV(string s);
 
 	extern void log_green(bool __log, const char* _log, bool warn);
 	extern void log_blue(bool __log, const char* _log, bool warn);
@@ -65,13 +71,53 @@ namespace big::misc
 	extern void STAT_SET_BOOL_MASKED(rage::scrNativeCallContext* src);
 	extern void STAT_SET_INT(rage::scrNativeCallContext* src);
 
-#define FIND(value, list) misc::find(value, sizeof(list) / sizeof(list[0]), list)
-#define IS(value, list) FIND(value, list)
-#define LEN(list) (sizeof(list) / sizeof(list[0]))
+	const int64_t blocked_user[] = { -2, -1, 0, 1, 2 };
 
-	const int64_t blocked_user[] =
+	const int64_t blocked_script_0[] = { -1 };
+
+	const int64_t blocked_script_2[] = { 7 };
+
+	const string blocked_script[] = { "DISABLED-MainTransition", "DISABLED-cellphone_controller" };
+
+	template<typename T>
+	bool zero(int32_t n, const T* data)
 	{
-		-2, -1, 0, 1, 2
+		for (int32_t i = 0; i < n; i++)
+		{
+			if (data[i] != 0)
+				return false;
+		}
+		return true;
+	}
+
+	template<typename T>
+	bool find(T item, int n, const T* data)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			if (data[i] == item)
+				return true;
+		}
+		return false;
+	}
+	template<typename T>
+	int index(T item, int n, const T* data)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			if (data[i] == item)
+				return i;
+		}
+		return -1;
+	}
+
+	static unordered_map<rage::scrNativeHash, rage::scrNativeHandler> natives_replace =
+	{
+		{ 0x580CE4438479CC61, &NETWORK_CAN_BAIL},
+		{ 0x6EB5F71AA68F2E8E, &REQUEST_SCRIPT},
+		{ 0xD6D09A6F32F49EF1, &NETWORK_SESSION_GET_KICK_VOTE},
+		{ 0x5BC62EC1937B9E5B, &STAT_SET_BOOL_MASKED},
+		{ 0xB3271D7AB655B441, &STAT_SET_INT},
 	};
 
 	const uint32_t blocked_stat[] =
@@ -87,48 +133,65 @@ namespace big::misc
 		RAGE_JOAAT("MPPLY_PARA_CHEAT_END"),RAGE_JOAAT("MPPLY_PARA_CHEAT_QUIT"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_START"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_END"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_QUIT"),
 	};
 
-	const std::string blocked_script[] =
-	{
-		"DISABLED-MainTransition", "DISABLED-cellphone_controller"
-	};
-
 	const int16_t blocked_network[] =
 	{
-		//REMOTE_SCRIPT_LEAVE_EVENT,			//super common
+		//super common
+		// 
+		//REMOTE_SCRIPT_LEAVE_EVENT,		
 		//REMOTE_SCRIPT_INFO_EVENT,
 		//SCRIPTED_GAME_EVENT,
 		//NETWORK_TRAIN_REPORT_EVENT,
 		//NETWORK_ENTITY_AREA_STATUS_EVENT,
 
-		//PLAYER_CARD_STAT_EVENT,				//lobby organiseation + clear areas
+		//lobby organization + clear areas
+		// 
+		//PLAYER_CARD_STAT_EVENT,				
 		//SCRIPT_WORLD_STATE_EVENT,
 		//CLEAR_AREA_EVENT
 		//CLEAR_RECTANGLE_AREA_EVENT
 
-		//NETWORK_CHECK_EXE_SIZE_EVENT,			//join/system
+		//join / system
+		//
+		//NETWORK_CHECK_EXE_SIZE_EVENT,			
 		//NETWORK_CHECK_CATALOG_CRC,
 		//NETWORK_CRC_HASH_CHECK_EVENT,
-		//SCRIPT_ARRAY_DATA_VERIFY_EVENT,
-
-		//CACHE_PLAYER_HEAD_BLEND_DATA_EVENT,	//sent before they have a player
-		//OBJECT_ID_FREED_EVENT,
-		GAME_WEATHER_EVENT,
 		//NETWORK_TRAIN_REPORT_EVENT,
-
 		//NETWORK_REQUEST_SYNCED_SCENE_EVENT,
 		//NETWORK_START_SYNCED_SCENE_EVENT,
 		//NETWORK_STOP_SYNCED_SCENE_EVENT,
 		//NETWORK_UPDATE_SYNCED_SCENE_EVENT,
+		//SCRIPT_ARRAY_DATA_VERIFY_EVENT,
 
-		NETWORK_SHOUT_TARGET_POSITION,
-		BREAK_PROJECTILE_TARGET_LOCK_EVENT,		//general weird messages
+		//sent before they have a player
+		// 
+		//CACHE_PLAYER_HEAD_BLEND_DATA_EVENT,	
+		//OBJECT_ID_FREED_EVENT,
+
+		//could be causing create resends
+		// 
 		//MARK_AS_NO_LONGER_NEEDED_EVENT,
-		//OBJECT_ID_REQUEST_EVENT,				//could be causing create resends
+		//OBJECT_ID_REQUEST_EVENT,		
+		
+		//car trolling
+		// 
+		//GIVE_CONTROL_EVENT,
+		//REQUEST_CONTROL_EVENT,					
+		//REQUEST_DETACHMENT_EVENT,
+		//VEHICLE_COMPONENT_CONTROL_EVENT,
 
-		//FIRE_EVENT,								//person trolling
+		//person trolling
+		// 
+		//FIRE_EVENT,								
 		//EXPLOSION_EVENT,
 		//WEAPON_DAMAGE_EVENT,
 		//UPDATE_PLAYER_SCARS_EVENT,
+		//START_PROJECTILE_EVENT,
+		//INFORM_SILENCED_GUNSHOT_EVENT,
+		//BLOW_UP_VEHICLE_EVENT,
+		//ACTIVATE_VEHICLE_SPECIAL_ABILITY_EVENT,
+		GAME_WEATHER_EVENT,
+		NETWORK_SHOUT_TARGET_POSITION,
+		BREAK_PROJECTILE_TARGET_LOCK_EVENT,
 		GIVE_PED_SCRIPTED_TASK_EVENT,
 		GIVE_PED_SEQUENCE_TASK_EVENT,
 		NETWORK_CLEAR_PED_TASKS_EVENT,
@@ -137,75 +200,22 @@ namespace big::misc
 		REMOVE_WEAPON_EVENT,
 		REMOVE_ALL_WEAPONS_EVENT,
 		GIVE_WEAPON_EVENT,
-		RAGDOLL_REQUEST_EVENT,					//freese
+
+		//freese
+		//
 		INCIDENT_ENTITY_EVENT,
-		//START_PROJECTILE_EVENT,
-		//INFORM_SILENCED_GUNSHOT_EVENT,
 		ALTER_WANTED_LEVEL_EVENT,
 		VOICE_DRIVEN_MOUTH_MOVEMENT_FINISHED_EVENT,
-
-		//GIVE_CONTROL_EVENT,
-		//REQUEST_CONTROL_EVENT,					//car trolling
-		//REQUEST_DETACHMENT_EVENT,
-		//VEHICLE_COMPONENT_CONTROL_EVENT,
 		MODIFY_VEHICLE_LOCK_WORD_STATE_DATA,
-		//BLOW_UP_VEHICLE_EVENT,
-		//ACTIVATE_VEHICLE_SPECIAL_ABILITY_EVENT,
 
-		KICK_VOTES_EVENT,						//kick
+		//modding and crashes
+		//
+		KICK_VOTES_EVENT, //kick
 		//REPORT_MYSELF_EVENT,
-		//REPORT_CASH_SPAWN_EVENT,
+		RAGDOLL_REQUEST_EVENT, //freeze
 		NETWORK_INCREMENT_STAT_EVENT,
-
-		NETWORK_PTFX_EVENT,						//modding and crashes
+		NETWORK_PTFX_EVENT,						
 		GIVE_PICKUP_REWARDS_EVENT,
-	};
-
-	const int64_t blocked_script_0[] =
-	{
-		-1
-	};
-
-	const int64_t blocked_script_2[] =
-	{
-		7
-	};
-
-	template<typename T>
-	bool zero(int32_t n, const T* data)
-	{
-		for (int32_t i = 0; i < n; i++)
-		{
-			if (data[i] != 0) return false;
-		}
-		return true;
-	}
-
-	template<typename T>
-	bool find(T item, int n, const T* data)
-	{
-		for (int i = 0; i < n; i++)
-		{
-			if (data[i] == item) return true;
-		}
-		return false;
-	}
-	template<typename T>
-	int index(T item, int n, const T* data)
-	{
-		for (int i = 0; i < n; i++)
-		{
-			if (data[i] == item) return i;
-		}
-		return -1;
-	}
-
-	static std::unordered_map<rage::scrNativeHash, rage::scrNativeHandler> natives_replace =
-	{
-		{ 0x580CE4438479CC61, &NETWORK_CAN_BAIL},
-		{ 0x6EB5F71AA68F2E8E, &REQUEST_SCRIPT},
-		{ 0xD6D09A6F32F49EF1, &NETWORK_SESSION_GET_KICK_VOTE},
-		{ 0x5BC62EC1937B9E5B, &STAT_SET_BOOL_MASKED},
-		{ 0xB3271D7AB655B441, &STAT_SET_INT},
+		//REPORT_CASH_SPAWN_EVENT,
 	};
 }

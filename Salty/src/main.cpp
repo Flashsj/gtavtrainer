@@ -22,10 +22,7 @@ send_t send_old;
 recv_t recv_old;
 int  send_ordinal = 19, recv_ordinal = 16, sendto_ordinal = 20, recvfrom_ordinal = 17;
 
-std::string get_address(sockaddr_in* address)
-{
-	return big::misc::get_address(ntohl(address->sin_addr.S_un.S_addr), ntohs(address->sin_port));
-}
+std::string get_address(sockaddr_in* address) { return big::misc::get_address(ntohl(address->sin_addr.S_un.S_addr), ntohs(address->sin_port)); }
 
 std::string get_address(SOCKET s)
 {
@@ -120,10 +117,10 @@ void HookDLL(const char* dll, const char* name, DWORD ordinal, PVOID hook, PVOID
 				{
 					PIMAGE_IMPORT_BY_NAME nameData = (PIMAGE_IMPORT_BY_NAME)(baseAddress + thunkILT->u1.AddressOfData);
 
-					if (!_stricmp(name, nameData->Name))
-					{
+					//if (!_stricmp(name, nameData->Name))
+					//{
 
-					}
+					//}
 				}
 				thunkILT++;
 				thunkIAT++;
@@ -136,17 +133,15 @@ void HookDLL(const char* dll, const char* name, DWORD ordinal, PVOID hook, PVOID
 BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 {
 	using namespace big;
-	if (reason == DLL_PROCESS_DETACH)
+	//if (reason == DLL_PROCESS_DETACH)
+	//{
+	//	//HookDLL("WS2_32.dll", "N/A", send_ordinal, send_old, 0);
+	//	//HookDLL("WS2_32.dll", "N/A", recv_ordinal, recv_old, 0);
+	//	//HookDLL("WS2_32.dll", "N/A", sendto_ordinal, sendto_old, 0);
+	//	//HookDLL("WS2_32.dll", "N/A", recvfrom_ordinal, recvfrom_old, 0);
+	//}
+	if (reason == DLL_PROCESS_ATTACH)
 	{
-		//HookDLL("WS2_32.dll", "N/A", send_ordinal, send_old, 0);
-		//HookDLL("WS2_32.dll", "N/A", recv_ordinal, recv_old, 0);
-		//HookDLL("WS2_32.dll", "N/A", sendto_ordinal, sendto_old, 0);
-		//HookDLL("WS2_32.dll", "N/A", recvfrom_ordinal, recvfrom_old, 0);
-	}
-	else if (reason == DLL_PROCESS_ATTACH)
-	{
-		
-
 		DisableThreadLibraryCalls(hmod);
 
 		g_hmodule = hmod;
@@ -161,11 +156,6 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] INITIALIZING MINHOOK";
 				MH_Initialize();
-
-				//HookDLL("WS2_32.dll", "N/A", send_ordinal, send_new, (PVOID*)&send_old);
-				//HookDLL("WS2_32.dll", "N/A", recv_ordinal, recv_new, (PVOID*)&recv_old);
-				//HookDLL("WS2_32.dll", "N/A", sendto_ordinal, sendto_new, (PVOID*)&sendto_old);
-				//HookDLL("WS2_32.dll", "N/A", recvfrom_ordinal, recvfrom_new, (PVOID*)&recvfrom_old);
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] FIRST POINTER INITIALIZATION";
 
@@ -185,15 +175,13 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATING SCRIPTS";
 
-				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATING SCRIPTS";
-
 				g_script_mgr.add_script(std::make_unique<script>(&features::script_func));
 
 				g_script_mgr.add_script(std::make_unique<script>(&gui::script_func));
 
 				g_script_mgr.add_script(std::make_unique<script>(&features::kickFunc));
 
-				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATED THREE (3) SCRIPTS";
+				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATED TRAINER SCRIPTS";
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] HOOK ATTEMPT TWO (2)";
 

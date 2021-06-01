@@ -10,15 +10,11 @@ namespace rage
 	union netAddress
 	{
 		uint32_t m_raw;
-		struct
-		{
-			uint8_t m_field4;
-			uint8_t m_field3;
-			uint8_t m_field2;
-			uint8_t m_field1;
-		};
+		struct { uint8_t m_field4;	uint8_t m_field3;	uint8_t m_field2;	uint8_t m_field1; };
 	};
 #	pragma warning(pop)
+
+	//Size: 0x0098
 
 	class netPlayerData
 	{
@@ -38,8 +34,8 @@ namespace rage
 		int64_t m_rockstar_id; //0x0070
 		char pad_0078[12]; //0x0078
 		char m_name[20]; //0x0084
-	}; //Size: 0x0098
-
+	}; 
+	
 	class netPlayer
 	{
 	public:
@@ -63,26 +59,7 @@ namespace rage
 		virtual void log(netLoggingInterface* logger) = 0; // 4 (0x20)
 	};
 
-	class CNonPhysicalPlayerData : public nonPhysicalPlayerDataBase
-	{
-	};
-
-	//class CNetGamePlayer : public rage::netPlayer
-	//{
-	//public:
-	//	char pad_0000[16 - 8]; //0x0000
-	//	CNonPhysicalPlayerData* non_physical_player_data; //0x0010
-	//	char pad_0018[9]; //0x0018
-	//	int8_t player_id; //0x0021
-	//	char pad_0022[15]; //0x0022
-	//	uint32_t packet_receiver_id; //0x0031
-	//	char pad_0035[84]; //0x0035
-	//	uint32_t bubble_id; //0x0089
-	//	char pad_008D[20]; //0x008D
-	//	CPlayerInfo* player_info; //0x00A1
-	//	char pad_00A9[24]; //0x00A9
-	//	int32_t m_player; //0x00C1
-	//};
+	class CNonPhysicalPlayerData : public nonPhysicalPlayerDataBase {};
 
 	class CNetGamePlayer : public rage::netPlayer
 	{
@@ -97,10 +74,7 @@ namespace rage
 		char pad_0x00A1[0xF]; //0x0091
 		CPlayerInfo* m_PlayerInfo; //0x00A0 
 
-		inline bool is_local_player()
-		{
-			return local_player_check & 1;
-		}
+		inline bool is_local_player() { return local_player_check & 1; }
 	};
 
 	class netPlayerMgrBase
@@ -109,9 +83,7 @@ namespace rage
 		virtual ~netPlayerMgrBase() = default; // 0 (0x00)
 	};
 
-	class CNetworkPlayerMgr : netPlayerMgrBase
-	{
-	};
+	class CNetworkPlayerMgr : netPlayerMgrBase {};
 
 	class CPlayerInfo : public rage::fwExtensibleBase
 	{

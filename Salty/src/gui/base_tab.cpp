@@ -20,6 +20,7 @@
 // https://www.reddit.com/r/Gta5Modding/comments/h17xia/list_of_gta_v_paid_mod_menus_for_pc/
 
 using namespace std;
+using namespace fmt;
 using namespace rage;
 
 namespace big::base_tab
@@ -33,7 +34,7 @@ namespace big::base_tab
 	{
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 		{
-			std::string* str = (std::string*)data->UserData;
+			string* str = (string*)data->UserData;
 			IM_ASSERT(data->Buf == str->c_str());
 			str->resize(data->BufTextLen);
 			data->Buf = (char*)str->c_str();
@@ -41,7 +42,7 @@ namespace big::base_tab
 		return 0;
 	}
 
-	bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
+	bool InputText(const char* label, string* str, ImGuiInputTextFlags flags)
 	{
 		flags |= ImGuiInputTextFlags_CallbackResize;
 		return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, (void*)str);
@@ -94,7 +95,7 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Spawner"))
 			{
-				static std::string currentModelSearch = "";
+				static string currentModelSearch = "";
 				static const char* currentModel = NULL;
 				if (ImGui::BeginCombo("Vehicles", currentModel))
 				{
@@ -102,10 +103,10 @@ namespace big::base_tab
 
 					for (int n = 0; n < IM_ARRAYSIZE(features::vehicleModels); n++)
 					{
-						std::string str = features::vehicleModels[n], search = currentModelSearch;
+						string str = features::vehicleModels[n], search = currentModelSearch;
 						transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
 						transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
-						bool searchFound = str.find(search) != std::string::npos;
+						bool searchFound = str.find(search) != string::npos;
 
 						if (currentModelSearch.size() > 0 && !searchFound)
 							continue;
@@ -145,8 +146,6 @@ namespace big::base_tab
 				if (ImGui::Button("Upgrade current vehicle"))
 					features::Vfeatures_autoupgrade = true;
 
-	/*			if (ImGui::Button("Control nearest vehicle"))
-					features::Vfeatures_controlnearest = true;*/
 				ImGui::EndTabItem();
 			}
 
@@ -191,7 +190,7 @@ namespace big::base_tab
 			{
 				static string currentPlayerSearch = "";
 
-				ImGui::Text(fmt::format("[Players in lobby]: {}", features::numberOfPlayers).c_str());
+				ImGui::Text(format("[Players in lobby]: {}", features::numberOfPlayers).c_str());
 
 				ImGui::Separator();
 				InputText("Search##players", &currentPlayerSearch, 0);
@@ -199,7 +198,7 @@ namespace big::base_tab
 
 				for (int i = 0; i < 32; i++)
 				{
-					std::string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
+					string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
 					string str = features::players[i].name, search = currentPlayerSearch;
 					transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
 					transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
@@ -207,9 +206,6 @@ namespace big::base_tab
 
 					if (!features::players[i].ped)
 						continue;
-
-					//if (features::players[i].index != features::localIndex)
-					//	continue;
 
 					if (!features::players[features::selectedPlayer].name)
 					{
@@ -223,6 +219,11 @@ namespace big::base_tab
 					if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
 						features::selectedPlayer = i;
 
+					if (features::players[i].index == features::localIndex)
+					{
+						ImGui::SameLine();
+						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "LOCAL");
+					}
 					if (features::players[i].isfriend)
 					{
 						ImGui::SameLine();
@@ -241,7 +242,7 @@ namespace big::base_tab
 					if (features::players[i].interior)
 					{
 						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(interior)"); //todo: patch flickering
+						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(interior)"); //todo: patch flickering caused by casino interior
 					}
 					if (features::players[i].invehicle)
 					{
@@ -266,25 +267,15 @@ namespace big::base_tab
 					if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
-					ImGui::Text(fmt::format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
+					ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
 					ImGui::PopStyleColor();
 
-					/*Vector3 theircoords = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED(features::players[features::selectedPlayer].index), TRUE);
-					Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
-					float distance = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(theircoords.x, theircoords.y, theircoords.z, mycoords.x, mycoords.y, mycoords.z, true);*/
+					ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
 
-					ImGui::Text(fmt::format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
+					ImGui::Text(format("Index: {}", features::players[features::selectedPlayer].index).c_str());
+					ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
 
-					ImGui::Text(fmt::format("Index: {}", features::players[features::selectedPlayer].index).c_str());
-					ImGui::Text(fmt::format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
-
-					//if ((theircoords.x != NULL && theircoords.y != NULL && theircoords.z != NULL) && (mycoords.x != NULL && mycoords.y != NULL && mycoords.z != NULL) && distance != NULL)
-					//{
-					//	ImGui::Text((fmt::format("Coords: x{} y{} z{}", (int)theircoords.x, (int)theircoords.y, (int)theircoords.z)).c_str());
-					//	ImGui::Text((fmt::format("Distance: {}", distance)).c_str());
-					//}
-
-					std::string rockstarId = features::players[features::selectedPlayer].rockstarId;
+					string rockstarId = features::players[features::selectedPlayer].rockstarId;
 
 					ImGui::Separator();
 					InputText("RSID", &rockstarId, 0);
@@ -313,18 +304,18 @@ namespace big::base_tab
 
 					//if (features::players[features::selectedPlayer].player)
 					//{
-					//	string debug = fmt::format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
+					//	string debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
 					//	InputText("CNetGamePlayer", &debug, 0);
 
-					//	debug = fmt::format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
+					//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
 					//	InputText("CPlayerInfo", &debug, 0);
 
-					//	debug = fmt::format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
+					//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
 					//	InputText("netData", &debug, 0);,0xb131133a
 
 					//	if (features::players[features::selectedPlayer].info) //broken, need to fix
 					//	{
-					//		debug = fmt::format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
+					//		debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
 					//		InputText("CPed", &debug, 0);
 					//	}
 					//}
@@ -360,16 +351,28 @@ namespace big::base_tab
 
 	void render_settings_tab()
 	{
-		if (*g_pointers->m_is_session_started)
+		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
-			InputText("##localIndex", &fmt::format("localIndex: {}", reinterpret_cast<void*>(features::localIndex)), 0);
-			InputText("##localPed", &fmt::format("localPed: {}", reinterpret_cast<void*>(features::localPed)), 0);
-			InputText("##local", &fmt::format("local: {}", reinterpret_cast<void*>(features::local)), 0);
-			InputText("##localInfo", &fmt::format("localInfo: {}", reinterpret_cast<void*>(features::localInfo)), 0);
-			InputText("##localCPed", &fmt::format("localCPed: {}", reinterpret_cast<void*>(features::localCPed)), 0); //bugged, will return nullptr
-		}
+			if (ImGui::BeginTabItem("Config"))
+			{
+				if (ImGui::Button("Unload"))
+					g_running = false;
+				ImGui::EndTabItem();
+			}
 
-		if (ImGui::Button("Unload"))
-			g_running = false;
+			if (ImGui::BeginTabItem("Debug"))
+			{
+				if (*g_pointers->m_is_session_started)
+				{
+					InputText("##localIndex", &format("localIndex: {}", reinterpret_cast<void*>(features::localIndex)), 0);
+					InputText("##localPed", &format("localPed: {}", reinterpret_cast<void*>(features::localPed)), 0);
+					InputText("##local", &format("local: {}", reinterpret_cast<void*>(features::local)), 0);
+					InputText("##localInfo", &format("localInfo: {}", reinterpret_cast<void*>(features::localInfo)), 0);
+					InputText("##localCPed", &format("localCPed: {}", reinterpret_cast<void*>(features::localCPed)), 0); //bugged, will return nullptr
+				}
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
 	}
 }

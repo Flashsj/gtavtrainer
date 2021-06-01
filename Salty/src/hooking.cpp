@@ -18,6 +18,9 @@
 #include "gui/features.hpp"
 #include "gui/natives_logging.hpp"
 
+using namespace std;
+using namespace fmt;
+
 namespace big
 {
 	int32_t sync_timestamp = 0;
@@ -421,12 +424,16 @@ namespace big
 		return blocked;
 	}
 
-	static bool network_event(void* event_manager, rage::CNetGamePlayer *src, rage::CNetGamePlayer *dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer *buffer)
+	static bool network_event(void* event_manager, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer* buffer)
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
 		uint8_t* data = buffer->m_data;
-		
+
 		int16_t event_type = _event_type;
+
+		sync_src = src;
+		sync_type = rage::NETWORK;
+		sync_object_type = -1;
 
 		switch (event_type)
 		{
@@ -444,7 +451,7 @@ namespace big
 		case VOICE_DRIVEN_MOUTH_MOVEMENT_FINISHED_EVENT:
 		case NETWORK_ENTITY_AREA_STATUS_EVENT:
 		case ALTER_WANTED_LEVEL_EVENT:
-	
+
 			//case NETWORK_START_SYNCED_SCENE_EVENT:
 			//case NETWORK_STOP_SYNCED_SCENE_EVENT:
 			//case NETWORK_UPDATE_SYNCED_SCENE_EVENT:
@@ -453,7 +460,7 @@ namespace big
 			//case REMOTE_SCRIPT_LEAVE_EVENT:
 			//case SCRIPTED_GAME_EVENT:
 			//case CLEAR_AREA_EVENT:
-		
+
 			return true;
 		}
 
@@ -463,18 +470,13 @@ namespace big
 			{
 				_event_type = NETWORK_TRAIN_REPORT_EVENT;
 				buffer->m_data[0] = 0;
-				//return false;
 			}
-			else
+			if (event_type == GIVE_CONTROL_EVENT)
 			{
 				sync_src = src;
 				sync_type = rage::TAKEOVER;
 			}
 		}
-
-		//sync_type = rage::NETWORK;
-		sync_object_type = -1;
-		sync_src = src;
 
 		__try
 		{
@@ -720,7 +722,7 @@ namespace big
 		{
 			if (auto main_persistent = find_script_thread(RAGE_JOAAT("main_persistent")))
 			{
-				m_main_persistent_hook = std::make_unique<vmt_hook>(main_persistent->m_handler, hooks::main_persistent_num_funcs);
+				m_main_persistent_hook = make_unique<vmt_hook>(main_persistent->m_handler, hooks::main_persistent_num_funcs);
 				m_main_persistent_hook->hook(hooks::main_persistent_dtor_index, &hooks::main_persistent_dtor);
 				m_main_persistent_hook->hook(hooks::main_persistent_is_networked_index, &hooks::main_persistent_is_networked);
 				m_main_persistent_hook->enable();

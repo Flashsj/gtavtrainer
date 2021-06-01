@@ -8,7 +8,8 @@
 #include "gta/net_object_mgr.hpp"
 #include "gta/structs.hpp"
 
-//#include "script.hpp"
+using namespace std;
+using namespace fmt;
 
 namespace big::misc
 {
@@ -58,8 +59,8 @@ namespace big::misc
 		}
 	};
 
-	std::unordered_map <int64_t, user*> users;
-	std::unordered_map <uint32_t, bool> _log;
+	unordered_map <int64_t, user*> users;
+	unordered_map <uint32_t, bool> _log;
 
 	bool block_proto(rage::CNetGamePlayer* src, int32_t sync_type, int16_t object_type, int16_t object_id)
 	{
@@ -162,13 +163,6 @@ namespace big::misc
 					break;
 				}
 			}
-
-			//if (users[user_id]->is_joining && event_type == NETWORK_ENTITY_AREA_STATUS_EVENT) blocked = true;
-			////if (users[user_id]->is_joining && event_type == CACHE_PLAYER_HEAD_BLEND_DATA_EVENT) blocked = true;
-			//if (users[user_id]->is_joining && event_type == GAME_WEATHER_EVENT) blocked = true;
-			//if (users[user_id]->is_joining && event_type == UPDATE_PLAYER_SCARS_EVENT) blocked = true;
-			//if (users[user_id]->is_joining && event_type == OBJECT_ID_FREED_EVENT) blocked = true;
-			//if (users[user_id]->is_joining && event_type == NETWORK_TRAIN_REPORT_EVENT) blocked = true;
 
 			return blocked;
 		}
@@ -274,19 +268,19 @@ namespace big::misc
 		return true;
 	}
 
-	std::string get_address(uint32_t ip, uint16_t port)
+	string get_address(uint32_t ip, uint16_t port)
 	{
-		return fmt::format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port);
+		return format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port);
 	}
 
 	void log_buff(bool __log, int32_t sync_type, int16_t object_type, int index, int length, uint32_t value, bool blocked, const char* status)
 	{
 		if (__log)
 		{
-			std::string log = CSV(blocked ? (std::string("BUFF,") + status).c_str() : "BUFF,OK");
-			std::string hash;
+			string log = CSV(blocked ? (string("BUFF,") + status).c_str() : "BUFF,OK");
+			string hash;
 
-			std::string _sync_type = sync_type >= rage::PACK && sync_type < rage::END ? rage::name_sync_type[sync_type] : CSV("INVALID");
+			string _sync_type = sync_type >= rage::PACK && sync_type < rage::END ? rage::name_sync_type[sync_type] : CSV("INVALID");
 
 			log += CSV(_sync_type);
 
@@ -330,13 +324,13 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			std::string log = CSV(std::string("SYNC") + (blocked ? (std::string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
 			log += CSV(type);
 
 			if (src != nullptr)
 			{
 				log += CSV(src->player_id);
-				log += CSV(std::string("\"") + src->get_net_data()->m_name + std::string("\""));
+				log += CSV(string("\"") + src->get_net_data()->m_name + string("\""));
 				log += CSV(src->get_net_data()->m_rockstar_id);
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
@@ -359,7 +353,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			std::string log = CSV(std::string("SYNC") + (blocked ? (std::string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
 			log += CSV(type);
 
 			log_blue(true, log.c_str(), blocked);
@@ -370,7 +364,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			std::string log = CSV(std::string("SYNC") + (blocked ? (std::string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
 			log += CSV(type);
 
 			log += CSV(",,,,");
@@ -386,12 +380,12 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			std::string log = CSV(blocked ? (std::string("NETWORK,") + status + ",").c_str() : "NETWORK,OK,") + rage::name_network_event[event_type];
+			string log = CSV(blocked ? (string("NETWORK,") + status + ",").c_str() : "NETWORK,OK,") + rage::name_network_event[event_type];
 
 			if (src != nullptr)
 			{
 				log += CSV(src->player_id);
-				log += CSV(std::string("\"") + src->get_net_data()->m_name + std::string("\""));
+				log += CSV(string("\"") + src->get_net_data()->m_name + string("\""));
 				log += CSV(src->get_net_data()->m_rockstar_id);
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
@@ -412,7 +406,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			std::string log = CSV(blocked ? "SCRIPT,BLOCKED,SCRIPT" : "SCRIPT,OK,SCRIPT");
+			string log = CSV(blocked ? "SCRIPT,BLOCKED,SCRIPT" : "SCRIPT,OK,SCRIPT");
 
 			log += CSV(",,,,,,,,DATA");
 
@@ -466,10 +460,10 @@ namespace big::misc
 	{
 		if (sync_type == rage::CREATE && sync_flag == 1)
 		{
-			static std::unordered_map <std::string, ULONGLONG> spawn;
+			static unordered_map <string, ULONGLONG> spawn;
 			float* a = netSyncTree->m_sync_tree_node->pos(object_type);
 			bool has_location = a[0] != 0 || a[1] != 0 || a[2] != 0;
-			std::string key = fmt::format("{}-{}-{}", (int)a[0], (int)a[1], (int)a[2]);
+			string key = format("{}-{}-{}", (int)a[0], (int)a[1], (int)a[2]);
 			ULONGLONG now = GetTickCount64();
 
 			bool blocked = has_location && spawn.find(key) != spawn.end() && spawn[key] > now - PERIOD_LOCATION;
@@ -578,84 +572,50 @@ namespace big::misc
 
 	bool block_crash(int32_t n, const uint8_t* data)
 	{
-		#define SIG(index, a) {index, LEN(a), a}
+#define SIG(index, a) {index, LEN(a), a}
 
-		struct signature
-		{
-			int32_t index;
-			int32_t n;
-			uint8_t* data;
-		};
+		struct signature { int32_t index; int32_t n; uint8_t* data; };
 
-		static uint8_t luna_0_0[] = {0x03,0xe8,0x40,0x00,0x00,0x00,0x03};	//long standing crash
-		static uint8_t luna_0_1[] = {0x00,0x8a,0xe0,0x00,0x00,0x00,0x01};	//long standing crash
-		static uint8_t luna_0_2[] = {0x03,0xe8,0x00,0x00,0x00,0x00,0x03};	//long standing crash
+		static uint8_t luna_0_0[] = { 0x03,0xe8,0x40,0x00,0x00,0x00,0x03 };	//long standing crash
+		static uint8_t luna_0_1[] = { 0x00,0x8a,0xe0,0x00,0x00,0x00,0x01 };	//long standing crash
+		static uint8_t luna_0_2[] = { 0x03,0xe8,0x00,0x00,0x00,0x00,0x03 };	//long standing crash
 
-		static uint8_t luna_7_0[] = {0x03,0xe8,0x00,0x7c};
-		static uint8_t luna_7_1[] = {0x07,0xd0,0x40,0xf8};
-		static uint8_t luna_7_2[] = {0x07,0xd0,0x61,0xa2};
-		static uint8_t luna_7_3[] = {0x03,0xe8,0x41,0x10};
-		static uint8_t luna_7_4[] = {0x03,0xe8,0x40,0x00};
+		static uint8_t luna_7_0[] = { 0x03,0xe8,0x00,0x7c };
+		static uint8_t luna_7_1[] = { 0x07,0xd0,0x40,0xf8 };
+		static uint8_t luna_7_2[] = { 0x07,0xd0,0x61,0xa2 };
+		static uint8_t luna_7_3[] = { 0x03,0xe8,0x41,0x10 };
+		static uint8_t luna_7_4[] = { 0x03,0xe8,0x40,0x00 };
 
-		static uint8_t luna_13_0[] = {0x43,0xc1,0x3f,0x75};
-		static uint8_t luna_13_1[] = {0xc7,0xe0,0x3f,0x4c};
+		static uint8_t luna_13_0[] = { 0x43,0xc1,0x3f,0x75 };
+		static uint8_t luna_13_1[] = { 0xc7,0xe0,0x3f,0x4c };
 
-		static uint8_t luna_14_0[] = {0xc1,0x3f,0x51,0x7f};
+		static uint8_t luna_14_0[] = { 0xc1,0x3f,0x51,0x7f };
 
-		static uint8_t luna_17_0[] = {0x3f,0xcd,0x2e,0xaf};
-		static uint8_t luna_17_1[] = {0xbf,0xcd,0x2e,0xaf};
+		static uint8_t luna_17_0[] = { 0x3f,0xcd,0x2e,0xaf };
+		static uint8_t luna_17_1[] = { 0xbf,0xcd,0x2e,0xaf };
 
-		static signature crashes[] =
-		{
-			SIG(7, luna_0_0),
-			SIG(7, luna_0_1),
-			SIG(7, luna_0_2),
-
-			SIG(7, luna_7_0),
-			SIG(7, luna_7_1),
-			SIG(7, luna_7_2),
-			SIG(7, luna_7_3),
-			SIG(7, luna_7_4),
-
-			SIG(13, luna_13_0),
-			SIG(13, luna_13_1),
-
-			SIG(14, luna_14_0),
-
-			SIG(17, luna_17_0),
-			SIG(17, luna_17_1),
-		};
+		static signature crashes[] = { SIG(7, luna_0_0),SIG(7, luna_0_1),SIG(7, luna_0_2),SIG(7, luna_7_0),SIG(7, luna_7_1),SIG(7, luna_7_2),SIG(7, luna_7_3),SIG(7, luna_7_4),SIG(13, luna_13_0),SIG(13, luna_13_1),SIG(14, luna_14_0),SIG(17, luna_17_0),SIG(17, luna_17_1), };
 
 		for (int i = 0; i < LEN(crashes); i++)
 		{
 			if (n >= crashes[i].index + crashes[i].n && 0 == memcmp(data + crashes[i].index, crashes[i].data, crashes[i].n))
-			{
 				return true;
-			}
 		}
 		return false;
 	}
 
-	void set_global(uint32_t address, int64_t value)
-	{
-		g_pointers->m_script_globals[(address >> 0x12) & 0x3F][address & 0x3FFFF] = value;
-	}
+	void set_global(uint32_t address, int64_t value) { g_pointers->m_script_globals[(address >> 0x12) & 0x3F][address & 0x3FFFF] = value; }
 
-	bool value(int32_t event_id)
-	{
-		return event_id > 5;
-	}
+	bool value(int32_t event_id) { return event_id > 5; }
 
-	bool range(int64_t item)
-	{
-		return item < std::numeric_limits<int32_t>::min() || item > std::numeric_limits<int32_t>::max();
-	}
+	bool range(int64_t item) { return item < numeric_limits<int32_t>::min() || item > numeric_limits<int32_t>::max(); }
 
 	bool range(int32_t n, const int64_t* data)
 	{
 		for (int32_t i = 0; i < n; i++)
 		{
-			if (range(data[i])) return true;
+			if (range(data[i]))
+				return true;
 		}
 		return false;
 	}
@@ -665,9 +625,7 @@ namespace big::misc
 		uint32_t result = 0;
 
 		for (int i = pos, bit = 0; i < pos + len; i++)
-		{
 			result |= (((uint32_t)data[i >> 3] << (i & 7)) & 0x80) << 24 >> bit++;
-		}
 		return result >> (32 - len);
 	}
 
@@ -675,23 +633,23 @@ namespace big::misc
 
 	void vtable(void* object, int function, void* detour) { ((void***)object)[0][function] = detour; }
 
-	std::string pointer(void* function) { return fmt::format("GTA5.exe+0x{:x}", (PBYTE)function - (PBYTE)GetModuleHandle(NULL)); }
+	string pointer(void* function) { return format("GTA5.exe+0x{:x}", (PBYTE)function - (PBYTE)GetModuleHandle(NULL)); }
 
-	std::string CSV(int8_t i) { return fmt::format(",{}", i); }
+	string CSV(int8_t i) { return format(",{}", i); }
 
-	std::string CSV(uint8_t i) { return fmt::format(",{:#04x}", i); }
+	string CSV(uint8_t i) { return format(",{:#04x}", i); }
 
-	std::string CSV(int32_t i) { return fmt::format(",{}", i); }
+	string CSV(int32_t i) { return format(",{}", i); }
 
-	std::string CSV(uint32_t i) { return fmt::format(",{:#x}", i); }
+	string CSV(uint32_t i) { return format(",{:#x}", i); }
 
-	std::string CSV(int64_t i) { return fmt::format(",{}", i); }
+	string CSV(int64_t i) { return format(",{}", i); }
 
-	std::string CSV(uint64_t i) { return fmt::format(",{:#x}", i); }
+	string CSV(uint64_t i) { return format(",{:#x}", i); }
 
-	std::string CSV(float i) { return fmt::format(",{:.2f}", i); }
+	string CSV(float i) { return format(",{:.2f}", i); }
 
-	std::string CSV(std::string s) { return std::string(",") + s; }
+	string CSV(string s) { return string(",") + s; }
 
 	void log_green(bool __log, const char* log, bool warn)
 	{
@@ -732,7 +690,7 @@ namespace big::misc
 	{
 		const char* _scriptName = src->get_arg<const char*>(0);
 
-		bool blocked = FIND(std::string(_scriptName), misc::blocked_script);
+		bool blocked = FIND(string(_scriptName), misc::blocked_script);
 
 		if (blocked)
 		{

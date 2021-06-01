@@ -6,6 +6,12 @@ namespace rage
 {
 #pragma pack(push, 1)
 
+    const uint32_t train[] = { 0x3D6AAA9B,0x0AFD22A6,0x36DCFF98,0x0E512E79,0x264D9262,0x33C9E158,0x22EDDC30 };
+
+    const uint32_t submarine[] = { 0x2DFF622F,0xC07107EE, 0x9a474b5e, 0x4faf0d70 };
+
+    const uint32_t player[] = { RAGE_JOAAT("mp_f_freemode_01"), RAGE_JOAAT("mp_m_freemode_01") };
+
     const uint32_t object[] =
     {
         0x1c8b91d9,0xadd86d53,0xb7458049,0x92d9b756,0x9b9fc8e2,0x011193e0,0x51d9c9c0,0xa879bc02,0xd5c0bc07,0xf8bd70b3,0xa0768594,0x15adf001,0x0bfbdc9d,0x453dcf20,0x371f753d,
@@ -182,14 +188,14 @@ namespace rage
         0x115d9ea5,0x3fe27bae,0xbde777b6,0xaf23cb13,0xdc6b5d07,0x69ef0318,0xc114a65a,0xe8e8aada,0x15b9011a,0xe1497820,0xb01315b4,0x92db8389,0xc4a5671c,0x5fb619d7,0x17236aa7,
         0x0999cf94,0x954c0ee1,0x28885c83,0xfd21dcef,0xb10be2e6,
 
-        0x73268708,//parachute override
+        0x73268708, //parachute override
 
         //After Hours/1.44 Hashes
         0xD7613AB4,0x39D105E5,0x549FC139,0x67B66766,0xF85988B2,0xDE4B50DE,0xEBCF6F88,0x7C37905E,0xB510D283,0xC0E44A3D,0x8C842A43,0xCACEE7C6,0x89601990,0x97FD512A,
         0x5CC3CE68,0x4F8DE627,0xAF7E2606,0xA2490B9C,0x14006F09,0xF6B83479,0xB1A94B5,0xDC1C36B9,0xE9CED21E,0x31F86270,0x442206C3,0xA5C65352,0xB791F6E9,0x495B1A7D,
         0x5189C7BA,0xFF4BA33F,0x5C045CAB,0xCBB6C75A,0xB9F623D9,0xEF128E15,0x32C96A52,0x62F370D4,
 
-        0x5293CC8D,//ifruit laptop
+        0x5293CC8D, //ifruit laptop
 
         //Arena War/1.46 Hashes
         0x4BBB36A1,0x226748CE,0x23A8A0E0,0x153F040D,0xBF77D87C,0x2D0FF87C,0x381A560,0xAF1F7C9D,0x9722F5D5,0xF3D9EE66,0x548BDBEB,0x2E0C541E,0x5DEA9F07,0x310A5999,
@@ -205,7 +211,6 @@ namespace rage
         //Los Santos Summer Special/1.51 Hashes
         0x58AD9638,0x6E279E9B,0xF1DA8F99,0x6FDFDC07,0xA219453C,0xEBFF92B1,0x6FDD64E6,0x99FDF9BC,0x57F4187A,0x56B05034,
 
-        //After Hours/1.44 Hashes
         0xABE35664,0xA00918E1,0xE85D0D8E,0xB34533C,0x6383D9D4,0x85DCF9A0,0x94B84254,0xE846D990,0xCFD218B9,0x42A931EA,0x91173138,0xA4D24EA,0xDCC44B3D,0xA53DD465,
         0x32F36CCF,0xE3C2C257,0x9C0DBF62,0x2B3FF42A,0x197D50A5,0x4FABBD01,0x61CE6146,0xBF057B36,0x815175C0,0x2026EDEC,0x5901FD1C,0xCC60A44E,0xCA7BAB71,0x980D5A05,
         0x5869EB4E,0x565C12C8,0xAD0C92E1,0x3F6A90F,0x9C506B3,0xC650B12B,0x7F70A9C,0x27C3A23A,0x6AF6741A,0x851A0C6B,0x4097E9B0,0x214F7D27,0xB42AE395,0xBDA3605C,
@@ -213,7 +218,8 @@ namespace rage
 
         //ADDED BY ME
 
-        0xb614b4ef, 0x4faa899a, 0x35b539e7, 0xd1096715, 0xa8831aef, 0x52ba104c, 0xf140d36c, 0x997fced3, 0xf668491c, 0xa5a49677, 0xe3aa94b2, 0x2cc1641d, 0xb131133a, 0x11e9fd7b, 0xb131133a, 0xcc8478d8, 0xc7116d1e
+        0xb614b4ef, 0x4faa899a, 0x35b539e7, 0xd1096715, 0xa8831aef, 0x52ba104c, 0xf140d36c, 0x997fced3, 0xf668491c, 0xa5a49677, 0xe3aa94b2, 0x2cc1641d, 0xb131133a, 0x11e9fd7b, 0xb131133a, 0xcc8478d8, 0xc7116d1e,
+        0xc2d7f2c7, 0x6201b3b1, 0x70679f34, 0x438b4a83
     };
 
     const uint32_t pickup[] =
@@ -393,10 +399,10 @@ namespace rage
 
     const uint32_t plane[] =
     {
-        0xA52F6866,0x81BD2ED0,0x18606535,0x6CBD1D6D,           0xFE0A508C,0x15F27762,0xD9927FE3,0xCA495705,0x39D6779E,0xC3F25753,0x39D6E83F,0x3F119114,0xB39B0AE6,
+        0xA52F6866,0x81BD2ED0,0x18606535,0x6CBD1D6D,0xFE0A508C,0x15F27762,0xD9927FE3,0xCA495705,0x39D6779E,0xC3F25753,0x39D6E83F,0x3F119114,0xB39B0AE6,
         0x250B0C5E,0xB79F589E,0x97E55D11,0x96E24857,0x09D80F93,0xD35698EF,0x5D56F01B,0xB2CF7250,0x3DC92356,0xAD6065C0,0xC5DD6967,0xE8983F9F,0xB79C1BF5,0x9A9EB7DE,
         0x64DE07A1,0x81794C70,0x761E2AD3,0x3E2E4F8A,0x9C429B6A,0x403820E8,0x4FF77E37,0x1AAD0DED,
-        
+
         //cayo
         0xEA313705
     };
@@ -408,11 +414,6 @@ namespace rage
 
         0x5993f939,  //testing
         0xBE66F5AA,
-    };
-
-    const uint32_t train[] =
-    {
-        0x3D6AAA9B,0x0AFD22A6,0x36DCFF98,0x0E512E79,0x264D9262,0x33C9E158,0x22EDDC30
     };
 
     const uint32_t bike[] =
@@ -430,20 +431,6 @@ namespace rage
 
         0x9ede356c,
 
-    };
-
-    const uint32_t submarine[] =
-    {
-        0x2DFF622F,0xC07107EE,
-
-        //added by me
-
-        0x9a474b5e, 0x4faf0d70
-    };
-
-    const uint32_t player[] =
-    {
-        RAGE_JOAAT("mp_f_freemode_01"), RAGE_JOAAT("mp_m_freemode_01")
     };
 
     const uint32_t ped[] =
@@ -644,14 +631,8 @@ namespace rage
         "ACTIVATE_VEHICLE_SPECIAL_ABILITY_EVENT","BLOCK_WEAPON_SELECTION","NETWORK_CHECK_CATALOG_CRC"
     };
 
-    const std::string name_object_type[] =
-    {
-        "CAR","BIKE","BOAT","DOOR","HELI","OBJECT","PED","PICKUP","PICKUP_PLACEMENT","PLANE","SUBMARINE","PLAYER","TRAILER","TRAIN",
-    };
+    const std::string name_object_type[] = { "CAR","BIKE","BOAT","DOOR","HELI","OBJECT","PED","PICKUP","PICKUP_PLACEMENT","PLANE","SUBMARINE","PLAYER","TRAILER","TRAIN", };
 
-    const std::string name_sync_type[] =
-    {
-        "PACK","CREATE","SYNC","REMOVE","TAKEOVER","TIMESTAMP","NETWORK","END",
-    };
+    const std::string name_sync_type[] = { "PACK","CREATE","SYNC","REMOVE","TAKEOVER","TIMESTAMP","NETWORK","END", };
 #pragma pack(pop)
 }

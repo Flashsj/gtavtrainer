@@ -14,9 +14,7 @@ FORCEINLINE Ret invoke(rage::scrNativeHash hash, Args &&...args)
 	g_native_invoker.end_call(hash);
 
 	if constexpr (!std::is_same_v<Ret, void>)
-	{
 		return g_native_invoker.get_return_value<Ret>();
-	}
 }
 
 // Generated 25 Feb 2019

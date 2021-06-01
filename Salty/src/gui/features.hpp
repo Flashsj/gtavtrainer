@@ -12,9 +12,7 @@
 namespace big::features
 {
 	extern bool injected;
-	extern bool log_events; //and this too
 	extern bool protection;
-	extern bool eventprotection;
 
 	extern volatile Player player;
 	extern volatile Ped ped;
@@ -76,7 +74,6 @@ namespace big::features
 	extern bool Vfeatures_godmode;
 
 	inline std::string carToSpawn = "";
-	//float Vfeatures_vcol[3] = { 0.f, 0.f, 0.f };
 
 	inline int inSession;
 	inline int sessionActive;
@@ -152,12 +149,10 @@ namespace big::features
 	inline Ped localPed;
 	inline int localIndex;
 
-
 	inline playerList players[32];
 
 	inline float Vfeatures_vcol[3] = { 255.f, 255.f, 255.f };
 	inline float ESPfeatures_col[3] = { 0.f, 0.f, 0.f };
-
 
 	Vector3 findBlip();
 	Vector3 FromHSB(float hue, float saturation, float brightness);

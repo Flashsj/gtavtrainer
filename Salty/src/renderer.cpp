@@ -14,27 +14,23 @@ namespace big
 	{
 		void *d3d_device{};
 		if (SUCCEEDED(m_dxgi_swapchain->GetDevice(__uuidof(ID3D11Device), &d3d_device)))
-		{
 			m_d3d_device.Attach(static_cast<ID3D11Device*>(d3d_device));
-		}
 		else
-		{
 			throw std::runtime_error("Failed to get D3D device.");
-		}
 
 		m_d3d_device->GetImmediateContext(m_d3d_device_context.GetAddressOf());
 
 		auto file_path = std::filesystem::path(std::getenv("appdata"));
 		file_path /= "GTAVTRAINER";
+
 		if (!std::filesystem::exists(file_path))
-		{
 			std::filesystem::create_directory(file_path);
-		}
 		else if (!std::filesystem::is_directory(file_path))
 		{
 			std::filesystem::remove(file_path);
 			std::filesystem::create_directory(file_path);
 		}
+
 		file_path /= "imgui.ini";
 		
 		ImGuiContext* ctx = ImGui::CreateContext();
@@ -49,6 +45,7 @@ namespace big
 		font_cfg.FontDataOwnedByAtlas = false;
 		std::strcpy(font_cfg.Name, "Rubik");
 
+		//obsolete see gui.cpp
 		m_font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(const_cast<uint8_t*>(font_rubik), sizeof(font_rubik), 20.f, &font_cfg);
 		m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
 
@@ -83,23 +80,15 @@ namespace big
 		ImGui::NewFrame();
 
 		if (g_gui.m_opened)
-		{
 			g_gui.dx_on_tick();
-		}
 
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void renderer::pre_reset()
-	{
-		ImGui_ImplDX11_InvalidateDeviceObjects();
-	}
+	void renderer::pre_reset() { ImGui_ImplDX11_InvalidateDeviceObjects(); }
 
-	void renderer::post_reset()
-	{
-		ImGui_ImplDX11_CreateDeviceObjects();
-	}
+	void renderer::post_reset() { ImGui_ImplDX11_CreateDeviceObjects(); }
 
 	void renderer::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
@@ -118,8 +107,6 @@ namespace big
 			g_running = false;
 
 		if (g_gui.m_opened)
-		{
 			ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam);
-		}
 	}
 }

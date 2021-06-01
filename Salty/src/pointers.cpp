@@ -119,6 +119,7 @@ namespace big
 		{
 			m_unregister_object = ptr.as<functions::unregister_object_t>();
 		});
+
 		main_batch.add("clone_create_ack", "48 8b c4 48 89 58 ? 48 89 68 ? 48 89 70 ? 48 89 78 ? 41 54 41 56 41 57 48 83 ec ? 4c 8b fa 49 8b d8", [this](memory::handle ptr)
 		{
 			m_clone_create_ack = ptr.as<functions::clone_create_ack_t>();
