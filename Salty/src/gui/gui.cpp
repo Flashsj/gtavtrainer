@@ -10,6 +10,10 @@
 #include "math.h"
 #include <time.h>
 #include <sstream>
+#include <../imgui/imgui.h>
+#include <../imgui/imgui_internal.h>
+#include <../imgui/examples/imgui_impl_dx9.h>
+#include <../imgui/examples/imgui_impl_win32.h>
 
 namespace big
 {
@@ -53,7 +57,7 @@ namespace big
 
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(1.00f, 0.90f, 0.19f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.989f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 1.f);
 		colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.989f);
 		colors[ImGuiCol_Border] = ImVec4(0.30f, 0.30f, 0.30f, 0.50f);
@@ -101,52 +105,180 @@ namespace big
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 	}
 
-	void gui::dx_on_tick()
+	static auto vector_getter = [](void* vec, int idx, const char** out_text)
 	{
-		TRY_CLAUSE
-		{
-			ImGui::SetNextWindowSize(ImVec2(485, 350), ImGuiCond_FirstUseEver);
+		auto& vector = *static_cast<std::vector<std::string>*>(vec);
+		if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+		*out_text = vector.at(idx).c_str();
+		return true;
+	};
 
-		if (ImGui::Begin("GTA V Online Trainer"))
-		{
-			ImGui::PushItemWidth(315);
+	IMGUI_API bool ComboBoxArray(const char* label, int* currIndex, std::vector<std::string>& values)
+	{
+		if (values.empty()) { return false; }
+		return ImGui::Combo(label, currIndex, vector_getter, static_cast<void*>(&values), values.size());
+	}
 
-			if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
+	IMGUI_API bool TabLabels(const char** tabLabels, int tabSize, int& tabIndex, int* tabOrder)
+	{
+		ImGuiStyle& style = ImGui::GetStyle();
+		const ImVec2 itemSpacing = style.ItemSpacing;
+		const ImVec4 color = style.Colors[ImGuiCol_Button];
+		const ImVec4 colorActive = style.Colors[ImGuiCol_ButtonActive];
+		const ImVec4 colorHover = style.Colors[ImGuiCol_ButtonHovered];
+		const ImVec4 colorText = style.Colors[ImGuiCol_Text];
+		style.ItemSpacing.x = 2.5;
+		style.ItemSpacing.y = 1;
+		const ImVec4 colorSelectedTab = ImVec4(color.x, color.y, color.z, color.w * 0.5f);
+		const ImVec4 colorSelectedTabHovered = ImVec4(colorHover.x, colorHover.y, colorHover.z, colorHover.w * 0.5f);
+		const ImVec4 colorSelectedTabText = ImVec4(colorText.x * 0.8f, colorText.y * 0.8f, colorText.z * 0.8f, colorText.w * 0.8f);
+
+		if (tabSize > 0 && (tabIndex < 0 || tabIndex >= tabSize))
+		{
+			if (!tabOrder)
 			{
-				if (ImGui::BeginTabItem("Local"))
-				{
-					base_tab::render_local_tab();
-					ImGui::EndTabItem();
-				}
+				tabIndex = 0;
+			}
+			else
+			{
+				tabIndex = -1;
+			}
+		}
 
-				if (ImGui::BeginTabItem("Vehicle"))
-				{
-					base_tab::render_vehicle_tab();
-					ImGui::EndTabItem();
-				}
+		float windowWidth = 0.f, sumX = 0.f;
+		windowWidth = ImGui::GetWindowWidth() - style.WindowPadding.x - (ImGui::GetScrollMaxY() > 0 ? style.ScrollbarSize : 0.f);
 
-				if (ImGui::BeginTabItem("Online"))
-				{
-					if (*g_pointers->m_is_session_started)
-						base_tab::render_online_tab();
-					else
-						ImGui::Text("You must be in a session in order to use online features");
-					ImGui::EndTabItem();
-				}
+		const bool isMMBreleased = ImGui::IsMouseReleased(2);
+		int justClosedTabIndex = -1, newtabIndex = tabIndex;
 
-				if (ImGui::BeginTabItem("Settings"))
+		bool selection_changed = false; bool noButtonDrawn = true;
+
+		for (int j = 0, i; j < tabSize; j++)
+		{
+			i = tabOrder ? tabOrder[j] : j;
+			if (i == -1) continue;
+
+			if (sumX > 0.f)
+			{
+				sumX += style.ItemSpacing.x;
+				sumX += ImGui::CalcTextSize(tabLabels[i]).x + 2.f * style.FramePadding.x;
+
+				if (sumX > windowWidth)
 				{
-					base_tab::render_settings_tab();
-					ImGui::EndTabItem();
+					sumX = 0.f;
+				}
+				else
+				{
+					//ImGui::SameLine();
 				}
 			}
 
-			ImGui::PopItemWidth();
+			if (i != tabIndex)
+			{
+				// Push the style
+				style.Colors[ImGuiCol_Button] = colorSelectedTab;
+				style.Colors[ImGuiCol_ButtonActive] = colorSelectedTab;
+				style.Colors[ImGuiCol_ButtonHovered] = colorSelectedTabHovered;
+				style.Colors[ImGuiCol_Text] = colorSelectedTabText;
+			}
+			// Draw the button
+			ImGui::PushID(i);   // otherwise two tabs with the same name would clash.
+			if (ImGui::Button(tabLabels[i], ImVec2(120, 30.f))) { selection_changed = (tabIndex != i); newtabIndex = i; }
+			ImGui::PopID();
+			if (i != tabIndex)
+			{
+				// Reset the style
+				style.Colors[ImGuiCol_Button] = color;
+				style.Colors[ImGuiCol_ButtonActive] = colorActive;
+				style.Colors[ImGuiCol_ButtonHovered] = colorHover;
+				style.Colors[ImGuiCol_Text] = colorText;
+			}
+			noButtonDrawn = false;
+
+			if (sumX == 0.f) sumX = style.WindowPadding.x + ImGui::GetItemRectSize().x; // First element of a line
+
 		}
 
+		tabIndex = newtabIndex;
+
+		// Change selected tab when user closes the selected tab
+		if (tabIndex == justClosedTabIndex && tabIndex >= 0)
+		{
+			tabIndex = -1;
+			for (int j = 0, i; j < tabSize; j++)
+			{
+				i = tabOrder ? tabOrder[j] : j;
+				if (i == -1)
+				{
+					continue;
+				}
+				tabIndex = i;
+				break;
+			}
+		}
+
+		// Restore the style
+		style.Colors[ImGuiCol_Button] = color;
+		style.Colors[ImGuiCol_ButtonActive] = colorActive;
+		style.Colors[ImGuiCol_ButtonHovered] = colorHover;
+		style.Colors[ImGuiCol_Text] = colorText;
+		style.ItemSpacing = itemSpacing;
+
+		return selection_changed;
+	}
+
+	void gui::dx_on_tick()
+	{
+		auto& style = ImGui::GetStyle();
+
+		static int tabSelected = 0;
+		ImVec2 mainWindowPos;
+
+		static float widthY;
+		static float widthX;
+
+		if (widthY <= 277)
+			widthY += 1.8;
+
+		ImGui::SetNextWindowSize(ImVec2(140, widthY));
+		if (ImGui::Begin("##one"), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar)
+		{
+			mainWindowPos = ImGui::GetWindowPos();
+			const char* tabNames[] = { "Local" , "Vehicle ", "Online", "Settings" };
+
+			static int tabOrder[] = { 0 , 1 , 2 , 3 , 4 , 5 , 6 };
+			const bool tabChanged = TabLabels(tabNames, sizeof(tabNames) / sizeof(tabNames[0]), tabSelected, tabOrder);
+		}
 		ImGui::End();
 
-		} EXCEPT_CLAUSE
+		//if (!(tabSelected >= 0))
+		//	return;
+
+		widthX = 780;
+
+		ImGui::SetNextWindowPos(ImVec2(mainWindowPos.x - -141, mainWindowPos.y));
+		ImGui::SetNextWindowSize(ImVec2(widthX, 420));
+		if (ImGui::Begin("GTA V ONLINE TRAINER"), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar)
+		{
+			switch (tabSelected)
+			{
+			case 0:
+				base_tab::render_local_tab();
+				break;
+			case 1:
+				base_tab::render_vehicle_tab();
+				break;
+			case 2:
+				(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+				break;
+			case 3:
+				base_tab::render_settings_tab();
+				break;
+			default:
+				break;
+			}
+		}
+		ImGui::End();
 	}
 
 	void gui::script_init() {}
@@ -156,9 +288,9 @@ namespace big
 		TRY_CLAUSE
 		{
 			if (g_gui.m_opened)
-			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
+				PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 		}
-			EXCEPT_CLAUSE
+		EXCEPT_CLAUSE
 	}
 
 	void gui::script_func()

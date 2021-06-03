@@ -59,6 +59,7 @@ namespace big::base_tab
 				ImGui::Checkbox("Ragdoll prevention", &big::features::Lfeatures_noragdoll);
 				ImGui::Checkbox("No wanted level", &big::features::Lfeatures_neverwanted);
 				ImGui::Checkbox("Ghost organization", &big::features::Lfeatures_offradar);
+				ImGui::Checkbox("Fast run", &big::features::Lfeatures_fastrun);
 				ImGui::Checkbox("No mental state", &big::features::Lfeatures_nomental);
 				ImGui::Checkbox("No phone", &big::features::Lfeatures_nophone);
 				ImGui::Checkbox("Invisibility", &big::features::Lfeatures_invisible);

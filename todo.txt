@@ -1,10 +1,7 @@
 TODO SHORT TERM:
 
-separate protex options
-add kick event protection
+add recovery options for online (unlock all, upgrade all stats)
 add default config option
-account for instakill in autoshoot
-fix control events
 fix vehicle entity request events on session change
 
 TODO LONG TERM:

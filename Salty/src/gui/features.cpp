@@ -50,6 +50,7 @@ namespace big::features
 	bool Lfeatures_noclip = false;
 	bool Lfeatures_nophone = false;
 	bool Lfeatures_nomental = false;
+	bool Lfeatures_fastrun = false;
 
 	bool Wfeatures_infammo = true;
 	bool Wfeatures_autoshoot = false;
@@ -607,6 +608,7 @@ namespace big::features
 		//block afk
 		misc::set_global(2550148 + 296, -1000000);
 		misc::set_global(1377236 + 1149, -1000000);
+
 		//block vote
 		misc::set_global(1388057, 0);
 		misc::set_global(1388059, 0);
@@ -662,6 +664,12 @@ namespace big::features
 			PLAYER::SET_DISPATCH_COPS_FOR_PLAYER(player, FALSE);
 			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, FALSE);
 		}
+		else
+		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, FALSE);
+			PLAYER::SET_DISPATCH_COPS_FOR_PLAYER(player, TRUE);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, TRUE);
+		}
 
 		if (features::Lfeatures_offradar)
 		{
@@ -669,6 +677,11 @@ namespace big::features
 			*script_global(2440277).at(70).as<int32_t*>() = NETWORK::GET_NETWORK_TIME();
 			*script_global(2540612).at(4625).as<int32_t*>() = 4;
 		}
+
+		if (features::Lfeatures_fastrun)
+			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.45f);
+		else
+			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.f);
 
 		Ped _ped = ped; //to prevent declaration confusion in the follow statements
 		if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && owns_veh(_ped)) // kinda a ghetto fix but it works for now 
@@ -694,7 +707,7 @@ namespace big::features
 
 				Vector3 coords = find_blip();
 
-				//if you really care then add a ground check so you can teleport to chilliad
+				//if you really care then add a ground check so you can teleport to chilliad because i dont
 				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
 					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
 
@@ -703,6 +716,8 @@ namespace big::features
 
 				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
 			}
+			else
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
 
 			features::Lfeatures_teleportwp = false;
 		}
@@ -787,7 +802,7 @@ namespace big::features
 			}
 		}
 
-		if (features::Wfeatures_instakill)
+		if (features::Wfeatures_instakill) //might wanna pack this into a function because it gets called here and in autoshoot, just a thought
 		{
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
@@ -801,16 +816,26 @@ namespace big::features
 			}
 		}
 
-		//TODO: update to account for instakill being enabled
-		if (features::Wfeatures_autoshoot) //need to fix inaccuracy when firing at ped in vehicle
+		//TODO: fix inaccuracy when firing at ped in vehicle
+		if (features::Wfeatures_autoshoot)
 		{
 			Entity AimedAtEntity;
+			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
+			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
+			Vector3 CamDirection = wRotationToDirection(CamRotation);
+			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
 				if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
 				{
 					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
-					PED::SET_PED_SHOOTS_AT_COORD(ped, Mouth.x, Mouth.y, Mouth.z, true);
+					if (features::Wfeatures_instakill) //updated to account for instakill
+					{
+						for (int i = 0; i < 6; i++)
+							GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, Mouth.x, Mouth.y, Mouth.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+					}
+					else
+						PED::SET_PED_SHOOTS_AT_COORD(ped, Mouth.x, Mouth.y, Mouth.z, true);
 				}
 			}
 		}
@@ -845,6 +870,7 @@ namespace big::features
 				ENTITY::SET_ENTITY_MAX_SPEED(v, 1000000000);
 				VEHICLE::SET_VEHICLE_EXPLODES_ON_HIGH_EXPLOSION_DAMAGE(v, FALSE);
 				VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(v, FALSE);
+				PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(ped, FALSE);
 
 				VEHICLE::SET_VEHICLE_ENGINE_HEALTH(v, 1000.0f);
 				VEHICLE::SET_VEHICLE_UNDRIVEABLE(v, FALSE);
@@ -934,7 +960,7 @@ namespace big::features
 			{
 				if (features::owns_veh(ped) && PLAYER::IS_PLAYER_PRESSING_HORN(player))
 				{
-					RequestControlOfEnt(vehicle);
+					//RequestControlOfEnt(vehicle);
 					if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle))
 						VEHICLE::SET_VEHICLE_FORWARD_SPEED(vehicle, 79);
 				}
