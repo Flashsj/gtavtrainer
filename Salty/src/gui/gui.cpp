@@ -136,13 +136,9 @@ namespace big
 		if (tabSize > 0 && (tabIndex < 0 || tabIndex >= tabSize))
 		{
 			if (!tabOrder)
-			{
 				tabIndex = 0;
-			}
 			else
-			{
 				tabIndex = -1;
-			}
 		}
 
 		float windowWidth = 0.f, sumX = 0.f;
@@ -151,12 +147,14 @@ namespace big
 		const bool isMMBreleased = ImGui::IsMouseReleased(2);
 		int justClosedTabIndex = -1, newtabIndex = tabIndex;
 
-		bool selection_changed = false; bool noButtonDrawn = true;
+		bool selection_changed = false; 
+		bool noButtonDrawn = true;
 
 		for (int j = 0, i; j < tabSize; j++)
 		{
 			i = tabOrder ? tabOrder[j] : j;
-			if (i == -1) continue;
+			if (i == -1) 
+				continue;
 
 			if (sumX > 0.f)
 			{
@@ -164,13 +162,7 @@ namespace big
 				sumX += ImGui::CalcTextSize(tabLabels[i]).x + 2.f * style.FramePadding.x;
 
 				if (sumX > windowWidth)
-				{
 					sumX = 0.f;
-				}
-				else
-				{
-					//ImGui::SameLine();
-				}
 			}
 
 			if (i != tabIndex)
@@ -179,23 +171,29 @@ namespace big
 				style.Colors[ImGuiCol_Button] = colorSelectedTab;
 				style.Colors[ImGuiCol_ButtonActive] = colorSelectedTab;
 				style.Colors[ImGuiCol_ButtonHovered] = colorSelectedTabHovered;
-				style.Colors[ImGuiCol_Text] = colorSelectedTabText;
+				style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 			}
-			// Draw the button
-			ImGui::PushID(i);   // otherwise two tabs with the same name would clash.
-			if (ImGui::Button(tabLabels[i], ImVec2(120, 30.f))) { selection_changed = (tabIndex != i); newtabIndex = i; }
+
+			ImGui::PushID(i); 
+
+			if (ImGui::Button(tabLabels[i], ImVec2(120, 30.f))) 
+			{ 
+				selection_changed = (tabIndex != i); 
+				newtabIndex = i;
+			}
+
 			ImGui::PopID();
 			if (i != tabIndex)
 			{
-				// Reset the style
 				style.Colors[ImGuiCol_Button] = color;
 				style.Colors[ImGuiCol_ButtonActive] = colorActive;
 				style.Colors[ImGuiCol_ButtonHovered] = colorHover;
-				style.Colors[ImGuiCol_Text] = colorText;
+				style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 			}
 			noButtonDrawn = false;
 
-			if (sumX == 0.f) sumX = style.WindowPadding.x + ImGui::GetItemRectSize().x; // First element of a line
+			if (sumX == 0.f) 
+				sumX = style.WindowPadding.x + ImGui::GetItemRectSize().x; // First element of a line
 
 		}
 
@@ -209,21 +207,13 @@ namespace big
 			{
 				i = tabOrder ? tabOrder[j] : j;
 				if (i == -1)
-				{
 					continue;
-				}
 				tabIndex = i;
 				break;
 			}
 		}
 
-		// Restore the style
-		style.Colors[ImGuiCol_Button] = color;
-		style.Colors[ImGuiCol_ButtonActive] = colorActive;
-		style.Colors[ImGuiCol_ButtonHovered] = colorHover;
-		style.Colors[ImGuiCol_Text] = colorText;
 		style.ItemSpacing = itemSpacing;
-
 		return selection_changed;
 	}
 
@@ -237,11 +227,10 @@ namespace big
 		static float widthY;
 		static float widthX;
 
-		if (widthY <= 277)
-			widthY += 1.8;
+		widthY = 277;
 
 		ImGui::SetNextWindowSize(ImVec2(140, widthY));
-		if (ImGui::Begin("##one"), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar)
+		if (ImGui::Begin("##"), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar)
 		{
 			mainWindowPos = ImGui::GetWindowPos();
 			const char* tabNames[] = { "Local" , "Vehicle ", "Online", "Settings" };
@@ -250,9 +239,6 @@ namespace big
 			const bool tabChanged = TabLabels(tabNames, sizeof(tabNames) / sizeof(tabNames[0]), tabSelected, tabOrder);
 		}
 		ImGui::End();
-
-		//if (!(tabSelected >= 0))
-		//	return;
 
 		widthX = 780;
 
