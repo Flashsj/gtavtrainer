@@ -102,9 +102,11 @@ namespace big
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
 
+		ImGui::SetNextWindowSize(ImVec2(600, 375), ImGuiCond_FirstUseEver);
+
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
-		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
+		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			{
