@@ -142,9 +142,6 @@ namespace big
 
 			ImGui::EndGroupBox();
 
-			//clear existing fonts
-			io.Fonts->Clear();
-
 			ImGui::End();
 		}
 	}
