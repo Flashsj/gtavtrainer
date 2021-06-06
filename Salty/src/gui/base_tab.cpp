@@ -186,7 +186,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Players"))
+			if (ImGui::Begin("##selected_player", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 			{
 				static string currentPlayerSearch = "";
 

@@ -33,10 +33,11 @@ namespace big
 
 		ImGui::StyleColorsDark();
 		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
-		ImGui::GetStyle().FrameRounding = 1.5f;
-		//ImGui::GetStyle().FramePadding = ImVec2(5, 5);
-		//ImGui::GetStyle().GrabRounding = 4.0f;
-		//ImGui::GetStyle().ChildRounding = 4.0f;
+
+		style.WindowRounding = 0.1f;
+		style.FrameRounding = 1.5f;
+		style.TabRounding = 0.f;
+		style.ChildRounding = 0.0f;
 
 		colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
 		colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
@@ -58,6 +59,10 @@ namespace big
 		colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
 		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_CheckMark] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+
 		ImGui::GetStyle() = style;
 	}
 
@@ -95,11 +100,11 @@ namespace big
 		auto& style = ImGui::GetStyle();
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
-		ImGui::SetNextWindowSize(ImVec2(485, 350), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(485, 320), ImGuiCond_FirstUseEver);
 
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
-		if (ImGui::Begin("##main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse))
+		if (ImGui::Begin("##main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar))
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			{
