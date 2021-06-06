@@ -119,10 +119,6 @@ namespace big
 
 			ImGui::BeginGroupBox("##body", size);
 
-			//clear existing fonts
-			ImGuiIO& io = ImGui::GetIO();
-			io.Fonts->Clear();
-
 			switch (active_sidebar_tab)
 			{
 
