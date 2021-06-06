@@ -28,12 +28,12 @@ namespace big::base_tab
 	static const int DISTANCE_SPAWN = 10;
 
 	const bool LOG_LOG = false;
-
-#pragma region move to imgui
+	
 	static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	{
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 		{
+			// Resize string callback
 			string* str = (string*)data->UserData;
 			IM_ASSERT(data->Buf == str->c_str());
 			str->resize(data->BufTextLen);
@@ -47,7 +47,6 @@ namespace big::base_tab
 		flags |= ImGuiInputTextFlags_CallbackResize;
 		return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, (void*)str);
 	}
-#pragma endregion
 
 	void render_local_tab()
 	{

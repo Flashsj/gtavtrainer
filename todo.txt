@@ -2,7 +2,12 @@ TODO SHORT TERM:
 
 add recovery options for online (unlock all, upgrade all stats)
 add default config option
-fix vehicle entity request events on session change
+add rig casino
+render in d3d instead of in game
+fix vehicle entity request bug
+work on kick protection
+cache multiplayer speed matrix for individual players
+
 
 TODO LONG TERM:
 

@@ -6683,7 +6683,6 @@ bool ImGui::IsRectVisible(const ImVec2& rect_min, const ImVec2& rect_max)
     return window->ClipRect.Overlaps(ImRect(rect_min, rect_max));
 }
 
-
 //-----------------------------------------------------------------------------
 // [SECTION] ERROR CHECKING
 //-----------------------------------------------------------------------------
@@ -10377,3 +10376,98 @@ void ImGui::ShowMetricsWindow(bool*) { }
 //-----------------------------------------------------------------------------
 
 #endif // #ifndef IMGUI_DISABLE
+
+
+//FUNCTIONS ADDED BY ME
+
+bool ImGui::ToggleButton(const char* label, bool* v, const ImVec2& size_arg)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    int flags = 0;
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id = window->GetID(label);
+    const ImVec2 label_size = ImGui::CalcTextSize(label, NULL, true);
+
+    ImVec2 pos = window->DC.CursorPos;
+    ImVec2 size = ImGui::CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+    const ImRect bb(pos, pos + size);
+    ImGui::ItemSize(bb, style.FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
+        return false;
+
+    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat) flags |= ImGuiButtonFlags_Repeat;
+    bool hovered, held;
+    bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+    // Render
+    const ImU32 col = ImGui::GetColorU32((hovered && held || *v) ? ImGuiCol_ButtonActive : (hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button));
+    ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    ImGui::RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+    if (pressed)
+        *v = !*v;
+
+    return pressed;
+}
+
+static int ImGui::InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+    {
+        std::string* str = (std::string*)data->UserData;
+        IM_ASSERT(data->Buf == str->c_str());
+        str->resize(data->BufTextLen);
+        data->Buf = (char*)str->c_str();
+    }
+    return 0;
+}
+
+bool ImGui::BeginGroupBox(const char* name, const ImVec2& size_arg)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
+
+    window->DC.CursorPos.y += GImGui->FontSize / 2;
+    const ImVec2 content_avail = ImGui::GetContentRegionAvail();
+    ImVec2 size = ImFloor(size_arg);
+    if (size.x <= 0.0f) {
+        size.x = ImMax(content_avail.x, 4.0f) - fabsf(size.x); // Arbitrary minimum zero-ish child size of 4.0f (0.0f causing too much issues)
+    }
+    if (size.y <= 0.0f) {
+        size.y = ImMax(content_avail.y, 4.0f) - fabsf(size.y);
+    }
+
+    ImGui::SetNextWindowSize(size);
+    bool ret;
+    ImGui::Begin(name, &ret, flags);
+    //bool ret = ImGui::Begin(name, NULL, size, -1.0f, flags);
+
+    window = ImGui::GetCurrentWindow();
+
+    auto padding = ImGui::GetStyle().WindowPadding;
+
+    auto text_size = ImGui::CalcTextSize(name, NULL, true);
+
+    if (text_size.x > 1.0f) {
+        window->DrawList->PushClipRectFullScreen();
+        //window->DrawList->AddRectFilled(window->DC.CursorPos - ImVec2{ 4, 0 }, window->DC.CursorPos + (text_size + ImVec2{ 4, 0 }), GetColorU32(ImGuiCol_ChildWindowBg));
+        //RenderTextClipped(pos, pos + text_size, name, NULL, NULL, GetColorU32(ImGuiCol_Text));
+        window->DrawList->PopClipRect();
+    }
+    //if (!(window->Flags & ImGuiWindowFlags_ShowBorders))
+    //	ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
+
+    return ret;
+}
+
+void ImGui::EndGroupBox()
+{
+    ImGui::EndChild();
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    window->DC.CursorPosPrevLine.y -= GImGui->FontSize / 2;
+}
+

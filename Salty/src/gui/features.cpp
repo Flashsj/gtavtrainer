@@ -1027,8 +1027,8 @@ namespace big::features
 		players[i].distanceToLocal = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(pos.x, pos.y, pos.z, mycoords.x, mycoords.y, mycoords.z, true);
 		players[i].rockstarId = NETWORK::NETWORK_MEMBER_ID_FROM_GAMER_HANDLE(&netHandle[0]);
 
-		//store bone maxtrix for each player
-		storeSkeleton(ped, SKEL_Head, &players[i].skeleton.head);
+		//store bone maxtrix for each player //im lazy and skeleton esp looks so bad so im not gonna add it yet
+		/*storeSkeleton(ped, SKEL_Head, &players[i].skeleton.head);
 		storeSkeleton(ped, SKEL_Neck_1, &players[i].skeleton.neck1);
 		storeSkeleton(ped, SKEL_Spine0, &players[i].skeleton.spine0);
 		storeSkeleton(ped, SKEL_Spine1, &players[i].skeleton.spine1);
@@ -1050,7 +1050,7 @@ namespace big::features
 		storeSkeleton(ped, SKEL_R_Clavicle, &players[i].skeleton.SKEL_R_Clavicle);
 		storeSkeleton(ped, SKEL_R_UpperArm, &players[i].skeleton.SKEL_R_UpperArm);
 		storeSkeleton(ped, SKEL_R_Forearm, &players[i].skeleton.SKEL_R_Forearm);
-		storeSkeleton(ped, SKEL_R_Hand, &players[i].skeleton.SKEL_R_Hand);
+		storeSkeleton(ped, SKEL_R_Hand, &players[i].skeleton.SKEL_R_Hand);*/
 	}
 
 	void features_esp(int p)
@@ -1106,7 +1106,6 @@ namespace big::features
 			GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, ColR, ColG, ColB, 255); //snapline
 			GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, ColR, ColG, ColB, 100, true, false, 2, true, false, false, false); //marker
 
-			//box
 			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
 			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
 			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);

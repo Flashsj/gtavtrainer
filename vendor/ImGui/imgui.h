@@ -35,6 +35,8 @@ Index of this file:
 
 */
 
+#include <sstream>
+
 #pragma once
 
 // Configuration file with compile-time options (edit imconfig.h or #define IMGUI_USER_CONFIG to your own filename)
@@ -755,6 +757,13 @@ namespace ImGui
     IMGUI_API void          SetAllocatorFunctions(void* (*alloc_func)(size_t sz, void* user_data), void (*free_func)(void* ptr, void* user_data), void* user_data = NULL);
     IMGUI_API void*         MemAlloc(size_t size);
     IMGUI_API void          MemFree(void* ptr);
+
+    // Added by me (:
+    IMGUI_API bool          BeginGroupBox(const char* name, const ImVec2& size_arg);
+    IMGUI_API void          EndGroupBox();
+    IMGUI_API bool          ToggleButton(const char* label, bool* v, const ImVec2& size_arg);
+    IMGUI_API static int    InputTextCallback(ImGuiInputTextCallbackData* data);
+    //IMGUI_API bool          InputText(const char* label, string* str, ImGuiInputTextFlags flags);
 
 } // namespace ImGui
 
