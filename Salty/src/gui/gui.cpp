@@ -62,6 +62,7 @@ namespace big
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
 
 		ImGui::GetStyle() = style;
 	}
@@ -69,7 +70,7 @@ namespace big
 	static char* sidebar_tabs[] = { "LOCAL", "VEHICLE", "ONLINE", "SETTINGS" };
 	enum { TAB_LOCAL, TAB_VEHICLE , TAB_ONLINE, TAB_SETTINGS };
 	constexpr static float get_sidebar_item_width() { return 150.0f; }
-	constexpr static float get_sidebar_item_height() { return  50.0f; }
+	constexpr static float get_sidebar_item_height() { return  80.0f; }
 
 	template<size_t N>
 	void render_tabs(char* (&names)[N], int& activetab, float w, float h, bool sameline)
@@ -100,11 +101,10 @@ namespace big
 		auto& style = ImGui::GetStyle();
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
-		ImGui::SetNextWindowSize(ImVec2(485, 320), ImGuiCond_FirstUseEver);
 
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
-		if (ImGui::Begin("##main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar))
+		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 			{
@@ -118,6 +118,10 @@ namespace big
 			ImGui::SameLine();
 
 			ImGui::BeginGroupBox("##body", size);
+
+			//clear existing fonts
+			ImGuiIO& io = ImGui::GetIO();
+			io.Fonts->Clear();
 
 			switch (active_sidebar_tab)
 			{
@@ -137,6 +141,9 @@ namespace big
 			}
 
 			ImGui::EndGroupBox();
+
+			//clear existing fonts
+			io.Fonts->Clear();
 
 			ImGui::End();
 		}

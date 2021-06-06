@@ -186,7 +186,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::Begin("##selected_player", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
+			if (ImGui::BeginTabItem("Players"))
 			{
 				static string currentPlayerSearch = "";
 
@@ -251,7 +251,7 @@ namespace big::base_tab
 					}
 				}
 
-				if (ImGui::Begin("###SELECTED PLAYER"))
+				if (ImGui::Begin("##selected_player", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 				{
 					ImGui::Text("Name:");
 					ImGui::SameLine();
@@ -272,8 +272,8 @@ namespace big::base_tab
 
 					ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
 
-					ImGui::Text(format("Index: {}", features::players[features::selectedPlayer].index).c_str());
-					ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
+					ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
+					//ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
 
 					string rockstarId = features::players[features::selectedPlayer].rockstarId;
 

@@ -59,7 +59,7 @@ namespace big::features
 
 	bool ESPfeatures_health = true;
 	bool ESPfeatures_visible = false;
-	bool ESPfeatures = false;
+	bool ESPfeatures = true;
 
 	bool Pfeatures_teleport = false;
 	bool Pfeatures_kickfromveh = false;
@@ -1124,10 +1124,13 @@ namespace big::features
 
 	void features_online()
 	{
-		for (std::uint32_t i = 0; i < 32; ++i) //initialize functions for each player in the lobby
+		if (*g_pointers->m_is_session_started)
 		{
-			cache_player(i);
-			features_esp(i);
+			for (std::uint32_t i = 0; i < 32; ++i) //initialize functions for each player in the lobby
+			{
+				cache_player(i);
+				features_esp(i);
+			}
 		}
 
 		if (features::Lfeatures_nophone)
