@@ -200,10 +200,10 @@ namespace big
 			bool type = object_type == rage::SUBMARINE || object_type == rage::PICKUP_PLACEMENT || object_type < rage::CAR || object_type > rage::TRAIN;
 			bool crash = misc::block_crash(n, data);
 			bool limit = misc::object_limit(object_type);
-			//bool time = misc::event_time(src, timestamp);
-			//bool proto = misc::block_proto(src, rage::CREATE, object_type, object_id);
 			bool owner = netObject != nullptr;
-			bool flood = misc::flood_create(sync_src, rage::CREATE);
+			//bool time = misc::event_time(src, timestamp);
+			//bool flood = misc::flood_create(sync_src, rage::CREATE);
+			//bool proto = misc::block_proto(src, rage::CREATE, object_type, object_id);
 
 			bool blocked = misc::block_user(src, type || crash || limit /*|| time*/) || owner; //|| flood; //|| proto;
 
@@ -211,13 +211,13 @@ namespace big
 
 			if (blocked)
 			{
+				if (owner) strcat(status, "_OWNER");
 				if (type) strcat(status, "_TYPE");
 				if (crash) strcat(status, "_CRASH");
 				if (limit) strcat(status, "_LIMIT");
 				//if (time) strcat(status, "_TIME");
-				//if (proto) strcat(status, "_PROTO");
-				if (owner) strcat(status, "_OWNER");
 				//if (flood) strcat(status, "_FLOOD");
+				//if (proto) strcat(status, "_PROTO");
 
 				features::sync++;
 				buffer->m_unkBit = buffer->m_maxBit;
@@ -260,12 +260,13 @@ namespace big
 			rage::netObject* netObject = g_pointers->m_get_network_object(mgr, object_id, true);
 			bool type = object_type == rage::SUBMARINE || object_type == rage::PICKUP_PLACEMENT || object_type < rage::CAR || object_type > rage::TRAIN;
 			bool crash = misc::block_crash(n, data);
-			//bool time = misc::event_time(src, timestamp);
-			//bool proto = misc::block_proto(src, rage::SYNC, object_type, object_id);
-			bool owner = false;// !is_owner(src, netObject);
+			bool time = misc::event_time(src, timestamp);
+			//bool owner = is_owner(src, netObject);
+			bool owner = false;// !is_owner(src, netObject); //test this more
 			bool change = netObject != nullptr && netObject->object_type != object_type;
+			//bool proto = misc::block_proto(src, rage::SYNC, object_type, object_id);
 
-			bool blocked = misc::block_user(src, type || crash || /*time ||*/ change) || owner; //|| proto;
+			bool blocked = misc::block_user(src, type || crash || time || change) || owner; //|| proto;
 
 			char status[256] = "BLOCKED";
 
@@ -273,10 +274,10 @@ namespace big
 			{
 				if (type) strcat(status, "_TYPE");
 				if (crash) strcat(status, "_CRASH");
-				//if (time) strcat(status, "_TIME");
-				//if (proto) strcat(status, "_PROTO");
+				if (time) strcat(status, "_TIME");
 				if (owner) strcat(status, "_OWNER");
 				if (change) strcat(status, "_CHANGE");
+				//if (proto) strcat(status, "_PROTO");
 
 				features::sync++;
 				buffer->m_unkBit = buffer->m_maxBit;
@@ -313,6 +314,7 @@ namespace big
 		if (big::features::protection && big::features::injected)
 		{
 			rage::netObject *netObject = g_pointers->m_get_network_object(mgr, object_id, true);
+
 			bool owner = !is_owner(src, netObject);
 			//bool proto = misc::block_proto(src, rage::REMOVE, 0, object_id);
 
@@ -380,7 +382,7 @@ namespace big
 			bool model = !misc::model_valid(netSyncTree, netObject->object_type);
 			//bool close = misc::object_close(netSyncTree, sync_type, sync_flag, netObject->object_type);
 			//bool location = misc::object_location(netSyncTree, sync_type, sync_flag, netObject->object_type);
-			bool flood = misc::flood_script(sync_src, sync_type, sync_flag);
+			//bool flood = misc::flood_script(sync_src, sync_type, sync_flag);
 
 			bool blocked = model; //|| close || location || flood;
 	
@@ -394,9 +396,10 @@ namespace big
 				//if (flood) strcat(status, "_FLOOD");
 
 				if (model)
-					misc::log_model(LOG_INTERNAL && LOG_FAIL, "MODEL", netObject->object_type, hash, blocked, status);
-				else
-					misc::log_generic(LOG_INTERNAL && LOG_FAIL, "APPLY", blocked, status);
+					misc::log_model(LOG_INTERNAL && LOG_FAIL, "MODEL_APPLY", netObject->object_type, hash, blocked, status);
+
+				//else
+				//	misc::log_generic(LOG_INTERNAL && LOG_FAIL, "APPLY", blocked, status);
 
 				return false;
 			}
@@ -415,33 +418,33 @@ namespace big
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
 		uint8_t* data = buffer->m_data;
-		bool kick = false;
-		bool event = false;
-		bool type = FIND(event_type, misc::blocked_network) || event_type > NETWORK_CHECK_CATALOG_CRC;
-		if (big::features::features_kickprotection)
-			kick = FIND(event_id, misc::blocked_kick);
-		if (big::features::features_eventprotection)
-			event = FIND(event_id, misc::blocked_malev);;
+		bool kick = false, g_event = false, m_event = false;
+
+		big::features::features_kickprotection ? kick = FIND(event_id, misc::blocked_kick) : false;
+		big::features::features_maleventprotection ? m_event = FIND(event_id, misc::blocked_malev) : false;
+		big::features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
 		bool crash = misc::block_crash(n, data);
-		bool proto = misc::block_proto(src, event_type);
-		bool flood = !type && misc::flood_event(src, event_type, bitset);
+		bool catalog = event_type > NETWORK_CHECK_CATALOG_CRC;
+		bool flood = (!kick && !g_event && !m_event) && misc::flood_event(src, event_type, bitset);
 		bool clock = event_type == GAME_CLOCK_EVENT && !src->is_host();
 		//bool respawn = misc::flood_respawn(src, event_type); || respawn
+		//bool proto = misc::block_proto(src, event_type);
 
-		bool blocked = misc::block_user(src, crash) || type || flood || clock || proto || kick || event;
+		bool blocked = misc::block_user(src, crash) || flood || clock || catalog || kick || g_event || m_event; // || respawn || proto;
 
 		char status[265] = "BLOCKED";
 
 		if (blocked)
 		{
-			if (type) strcat(status, "_TYPE");
-			if (kick) strcat(status, "_KICK"); //added by me
-			if (event) strcat(status, "_MALICIOUS_EVENT"); //added by me
+			if (kick) strcat(status, "_KICK");
 			if (crash) strcat(status, "_CRASH");
+			if (m_event) strcat(status, "_EVENT");
+			if (m_event) strcat(status, "_MALEVENT");
+			if (catalog) strcat(status, "_CATALOG");
 			if (flood) strcat(status, "_FLOOD");
-			if (proto) strcat(status, "_PROTO");
 			if (clock) strcat(status, "_CLOCK");
 			//if (respawn) strcat(status, "_RESPAWN");
+			//if (proto) strcat(status, "_PROTO");
 
 			features::network++;
 			misc::log_network_event(LOG_NETWORK && LOG_FAIL, src, event_type, event_id, bitset, n, data, blocked, status);
@@ -463,13 +466,7 @@ namespace big
 		sync_type = rage::NETWORK;
 		sync_object_type = -1;
 
-		switch (_event_type) //retarded but fuck you
-		{
-		case NETWORK_TRAIN_REPORT_EVENT:
-			return false;
-		}
-
-		if ((big::features::features_kickprotection || big::features::features_eventprotection) && big::features::injected && src != features::local)
+		if ((big::features::features_kickprotection || big::features::features_maleventprotection) && big::features::injected && src != features::local)
 		{
 			if (event_blocked(src, dst, buffer, event_type, event_id, bitset))
 			{

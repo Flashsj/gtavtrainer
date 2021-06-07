@@ -96,6 +96,12 @@ namespace big
 		return ImVec2{ size_w, ImMax(325.0f, size_h) };
 	}
 
+	float clip(float n, float lower, float upper)
+	{
+		n = (n > lower) * n + !(n > lower) * lower;
+		return (n < upper) * n + !(n < upper) * upper;
+	}
+
 	void gui::dx_on_tick()
 	{
 		auto& style = ImGui::GetStyle();

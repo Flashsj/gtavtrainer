@@ -39,7 +39,8 @@ namespace big::features
 	///////////////////////////// below vars added by me
 
 	bool features_kickprotection = true;
-	bool features_eventprotection = false;
+	bool features_gameeventprotection = true;
+	bool features_maleventprotection = false;
 
 	bool Lfeatures_godmode = true;
 	bool Lfeatures_noragdoll = true;
@@ -121,7 +122,7 @@ namespace big::features
 	{
 		if (first) 
 		{
-			log_map("Trainer installation successful. Have fun!", logtype::LOG_NONE);
+			//log_map("Trainer installation successful. Have fun!", logtype::LOG_NONE);
 			first = false;
 		}
 		else
@@ -399,14 +400,14 @@ namespace big::features
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 16, 1 << player);
 	}
 
-	void storeSkeleton(Ped ped, int s, ImVec2* out)
+	/*void storeSkeleton(Ped ped, int s, ImVec2* out)
 	{
 		float x, y;
 		Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
 		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
 		out->x = features::screenSize.x * x;
 		out->y = features::screenSize.y * y;
-	}
+	}*/
 
 #pragma endregion
 
@@ -537,7 +538,6 @@ namespace big::features
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				//VEHICLE::_SET_HEADLIGHT_COLOR(vehicle, cfg.headlightColor);
 			}
 			else
 			{
@@ -711,7 +711,6 @@ namespace big::features
 				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
 					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
 
-				//if (GetAsyncKeyState(VK_F5) || CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN))
 				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
 
 				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
@@ -724,7 +723,7 @@ namespace big::features
 
 		if (features::Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
 		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped)) //fix for being in others vehicles
+			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped))
 			{
 				log_map("Noclip is unavailable as a passenger", logtype::LOG_ERROR);
 				features::Lfeatures_noclip = false;

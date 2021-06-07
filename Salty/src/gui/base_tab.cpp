@@ -336,15 +336,17 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Protex"))
 			{
+				ImGui::Checkbox("Game event protection", &big::features::features_gameeventprotection);
 				ImGui::Checkbox("Crash protection", &big::features::protection);
 				ImGui::Checkbox("Kick protection", &big::features::features_kickprotection);
-				if (ImGui::IsItemHovered())
-					ImGui::SetTooltip("Experimental. Will trigger false positives.");
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
-				ImGui::Checkbox("Event protection", &big::features::features_eventprotection);
-				if (ImGui::IsItemHovered())
-					ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (phone, LSC, purchases).");
+				{
+					ImGui::Checkbox("Event protection", &big::features::features_maleventprotection);
+					if (ImGui::IsItemHovered())
+						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (phone, LSC, purchases).");
+				}
 				ImGui::PopStyleColor();
+
 				ImGui::EndTabItem();
 			}
 

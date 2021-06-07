@@ -423,7 +423,7 @@ namespace big::misc
 		0x1908dec0,
 		0x3087de54,
 		0x3450a499,
-		0x8179ebce, // 2172251086 
+		0x8179ebce,
 		0x9747ac94,
 		0x9752e4db,
 		0x9851ac5a,
@@ -563,7 +563,6 @@ namespace big::misc
 		2099578296,
 		1922258436,
 		699592812,
-
 		2444332215896,
 		1973954729119,
 		7304678485445861715,
@@ -639,29 +638,29 @@ namespace big::misc
 		7218762434461302784,
 		140694538682381,
 		871878361088,
-		1317868303, // https,//www.unknowncheats.me/forum/3008244-post2672.html
+		1317868303, //https://www.unknowncheats.me/forum/3008244-post2672.html
 		-1243454584,
-		-1252906024, // func_16658
+		-1252906024,
 		-442306200,
 		-966559987,
 		1977655521,
 		1998625272,
 		1070934291,
-		-1559754940, // disturbed func_16657
+		-1559754940, // disturbed
 		2017765964, // disturbed
-		324865135,  // disturbed func_16648
-		-1212832151,  // disturbed func_16919
-		-1890951223, // disturbed func_16659
+		324865135,  // disturbed
+		-1212832151,  // disturbed
+		-1890951223, // disturbed
 		1302185744,  // disturbed
 		639032041,  // disturbed
-		665709549, // func_16655
+		665709549,
 		-2066829834,
 		5136154500792667972,
 		2653002072128,
 		1347850743,
 		1428412924,
 		-348418057,
-		-435067392, // func_16649
+		-435067392,
 		4539628424389459975,
 		1300962917,
 		764638896,
@@ -740,10 +739,10 @@ namespace big::misc
 		-1169499038,
 		2102749046,
 		285955867,
-		339302416384, // these were causing me to crash wtf
+		339302416384,
 		1022202216448,
 		618475290624,
-		3852661096, // search for kirakii10101 in logs
+		3852661096,
 		3328407309,
 		2735212356,
 		3042061272,
@@ -752,7 +751,7 @@ namespace big::misc
 		1352706024,
 		1881968783,
 		7308324500346660212,
-		392501634, // search for chowyoungfatqc in logs
+		392501634,
 		-2042143896,
 		-2135614041,
 		1723477505,
@@ -853,6 +852,8 @@ namespace big::misc
 		//NETWORK_STOP_SYNCED_SCENE_EVENT,
 		//NETWORK_UPDATE_SYNCED_SCENE_EVENT,
 		//SCRIPT_ARRAY_DATA_VERIFY_EVENT,
+		//VOICE_DRIVEN_MOUTH_MOVEMENT_FINISHED_EVENT,
+		//REPORT_MYSELF_EVENT,
 
 		//sent before they have a player
 		// 
@@ -871,7 +872,7 @@ namespace big::misc
 		//REQUEST_DETACHMENT_EVENT,
 		//VEHICLE_COMPONENT_CONTROL_EVENT,
 
-		//person trolling
+		//explosion protection
 		// 
 		//FIRE_EVENT,								
 		//EXPLOSION_EVENT,
@@ -880,7 +881,9 @@ namespace big::misc
 		//START_PROJECTILE_EVENT,
 		//INFORM_SILENCED_GUNSHOT_EVENT,
 		//BLOW_UP_VEHICLE_EVENT,
-		//ACTIVATE_VEHICLE_SPECIAL_ABILITY_EVENT,
+	
+		//kicks and common troll events
+		//
 		GAME_WEATHER_EVENT,
 		NETWORK_SHOUT_TARGET_POSITION,
 		BREAK_PROJECTILE_TARGET_LOCK_EVENT,
@@ -892,22 +895,19 @@ namespace big::misc
 		REMOVE_WEAPON_EVENT,
 		REMOVE_ALL_WEAPONS_EVENT,
 		GIVE_WEAPON_EVENT,
-
-		//freese
-		//
 		INCIDENT_ENTITY_EVENT,
 		ALTER_WANTED_LEVEL_EVENT,
-		VOICE_DRIVEN_MOUTH_MOVEMENT_FINISHED_EVENT,
 		MODIFY_VEHICLE_LOCK_WORD_STATE_DATA,
-
-		//modding and crashes
-		//
-		KICK_VOTES_EVENT, //kick
-		//REPORT_MYSELF_EVENT,
-		RAGDOLL_REQUEST_EVENT, //freeze
+		KICK_VOTES_EVENT,
+		RAGDOLL_REQUEST_EVENT,
 		NETWORK_INCREMENT_STAT_EVENT,
 		NETWORK_PTFX_EVENT,						
+		ACTIVATE_VEHICLE_SPECIAL_ABILITY_EVENT,
+		BREAK_PROJECTILE_TARGET_LOCK_EVENT,
+
+		//modders giving you shit
+		//
 		GIVE_PICKUP_REWARDS_EVENT,
-		//REPORT_CASH_SPAWN_EVENT,
+		REPORT_CASH_SPAWN_EVENT,
 	};
 }
