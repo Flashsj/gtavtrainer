@@ -114,30 +114,32 @@ namespace big
 				render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
 				ImGui::EndGroupBox();
 			}
-
 			ImGui::PopStyleVar();
 
 			ImGui::SameLine();
 
 			ImGui::BeginGroupBox("##body", size);
-
-			switch (active_sidebar_tab)
 			{
-
-			case TAB_LOCAL:
-				base_tab::render_local_tab();
-				break;
-			case TAB_VEHICLE:
-				base_tab::render_vehicle_tab();
-				break;
-			case TAB_ONLINE:
-				(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
-				break;
-			case TAB_SETTINGS:
-				base_tab::render_settings_tab();
-				break;
+				ImGui::PushItemWidth(185.f);
+				{
+					switch (active_sidebar_tab)
+					{
+					case TAB_LOCAL:
+						base_tab::render_local_tab();
+						break;
+					case TAB_VEHICLE:
+						base_tab::render_vehicle_tab();
+						break;
+					case TAB_ONLINE:
+						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+						break;
+					case TAB_SETTINGS:
+						base_tab::render_settings_tab();
+						break;
+					}
+				}
+				ImGui::PopItemWidth();
 			}
-
 			ImGui::EndGroupBox();
 
 			ImGui::End();

@@ -339,6 +339,7 @@ namespace big
 		}
 	}
 
+	//look more into this, a lot of the crashes result in this being called
 	static bool sync_read(rage::netSyncTree* netSyncTree, int32_t sync_type, int32_t _sync_flag, rage::datBitBuffer* buffer, void* netLogStub)
 	{
 		sync_flag = _sync_flag;
@@ -358,9 +359,7 @@ namespace big
 				misc::log_generic(LOG_INTERNAL && LOG_FAIL, "READ", blocked, status);
 
 				return false;
-			}
-
-			return true;*/
+			}*/
 		}
 
 		__try { return g_hooking->m_sync_read_hook.get_original<functions::sync_read_t>()(netSyncTree, sync_type, sync_flag, buffer, netLogStub); }

@@ -164,7 +164,7 @@ namespace big::base_tab
 		
 				if (big::features::ESPfeatures)
 				{
-					ImGui::ColorEdit3("ESP Color", features::ESPfeatures_col);
+					ImGui::ColorEdit3("##ESP Color", features::ESPfeatures_col);
 					ImGui::Checkbox("Health based colors", &big::features::ESPfeatures_health);
 					ImGui::Checkbox("Visible only", &big::features::ESPfeatures_visible);
 				}
@@ -190,7 +190,7 @@ namespace big::base_tab
 			{
 				static string currentPlayerSearch = "";
 
-				ImGui::Text(format("[Players in lobby]: {}", features::numberOfPlayers).c_str());
+				ImGui::Text(format("There are currently {} player(s) in your lobby", features::numberOfPlayers).c_str());
 
 				ImGui::Separator();
 				InputText("Search##players", &currentPlayerSearch, 0);
@@ -253,21 +253,25 @@ namespace big::base_tab
 
 				if (ImGui::Begin("##selected_player", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 				{
-					ImGui::Text("Name:");
-					ImGui::SameLine();
 					if (features::players[features::selectedPlayer].name)
 						ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
 					else
 						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
 
-					ImGui::Text("Health: ");
+					ImGui::BeginGroupBox("##body_plist", ImVec2{ 0.0f, 274.f });
+
+					ImGui::Text("Health:");
+
 					int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
 					int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
 					Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
+
 					if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+
 					ImGui::SameLine();
+
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
-					ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
+						ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
 					ImGui::PopStyleColor();
 
 					ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
@@ -287,6 +291,8 @@ namespace big::base_tab
 
 					if (ImGui::Button("Kick from vehicle"))
 						features::Pfeatures_kickfromveh = true;
+
+					ImGui::Separator();
 
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
 
@@ -311,7 +317,7 @@ namespace big::base_tab
 					//	InputText("CPlayerInfo", &debug, 0);
 
 					//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
-					//	InputText("netData", &debug, 0);,0xb131133a
+					//	InputText("netData", &debug, 0);
 
 					//	if (features::players[features::selectedPlayer].info) //broken, need to fix
 					//	{
@@ -319,6 +325,8 @@ namespace big::base_tab
 					//		InputText("CPed", &debug, 0);
 					//	}
 					//}
+
+					ImGui::EndGroupBox();
 				}
 
 				ImGui::End();
