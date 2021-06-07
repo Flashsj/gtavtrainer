@@ -35,13 +35,11 @@ namespace big
 		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
 
 		style.WindowRounding = 0.1f;
-		style.FrameRounding = 1.5f;
 		style.TabRounding = 0.f;
 		style.ChildRounding = 0.0f;
 
 		colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
 		colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
-		colors[ImGuiCol_ButtonActive] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
 		colors[ImGuiCol_Header] = ImVec4(0.1f, 0.1f, 0.1f, 0.670f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.2f, 0.2f, 0.2f, 0.670f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
@@ -58,7 +56,6 @@ namespace big
 		colors[ImGuiCol_TabActive] = ImVec4(0.34f, 0.34f, 0.34f, 0.86f);
 		colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
 		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-		colors[ImGuiCol_CheckMark] = ImVec4(0.28f, 0.56f, 1.00f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
@@ -105,8 +102,12 @@ namespace big
 	void gui::dx_on_tick()
 	{
 		auto& style = ImGui::GetStyle();
+		auto& colors = style.Colors;
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
+
+		colors[ImGuiCol_ButtonActive] = ImVec4(features::menucolor[0], features::menucolor[1], features::menucolor[2], 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(features::menucolor[0], features::menucolor[1], features::menucolor[2], 1.00f);
 
 		ImGui::SetNextWindowSize(ImVec2(600, 375), ImGuiCond_FirstUseEver);
 
@@ -114,18 +115,20 @@ namespace big
 
 		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+			ImGui::BeginGroupBox("##sidebar", sidebar_size);
 			{
-				ImGui::BeginGroupBox("##sidebar", sidebar_size);
-				render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
-				ImGui::EndGroupBox();
+				style.FrameRounding = 0.f;
+				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+					render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
+				ImGui::PopStyleVar();
 			}
-			ImGui::PopStyleVar();
+			ImGui::EndGroupBox();
 
 			ImGui::SameLine();
 
 			ImGui::BeginGroupBox("##body", size);
 			{
+				style.FrameRounding = 1.5f;
 				ImGui::PushItemWidth(185.f);
 				{
 					switch (active_sidebar_tab)

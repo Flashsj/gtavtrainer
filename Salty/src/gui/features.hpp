@@ -155,6 +155,7 @@ namespace big::features
 
 	inline float Vfeatures_vcol[3] = { 255.f, 255.f, 255.f };
 	inline float ESPfeatures_col[3] = { 0.f, 0.f, 0.f };
+	inline float menucolor[3] = { 0.28f, 0.56f, 1.00f };
 
 	Vector3 findBlip();
 	Vector3 FromHSB(float hue, float saturation, float brightness);

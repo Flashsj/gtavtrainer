@@ -57,9 +57,14 @@ namespace big::base_tab
 				ImGui::Checkbox("Godmode", &big::features::Lfeatures_godmode);
 				ImGui::Checkbox("Ragdoll prevention", &big::features::Lfeatures_noragdoll);
 				ImGui::Checkbox("No wanted level", &big::features::Lfeatures_neverwanted);
-				ImGui::Checkbox("Ghost organization", &big::features::Lfeatures_offradar);
 				ImGui::Checkbox("Fast run", &big::features::Lfeatures_fastrun);
+				ImGui::Checkbox("Ghost organization", &big::features::Lfeatures_offradar);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Only available in GTA Online");
 				ImGui::Checkbox("No mental state", &big::features::Lfeatures_nomental);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Only available in GTA Online");
+
 				ImGui::Checkbox("No phone", &big::features::Lfeatures_nophone);
 				ImGui::Checkbox("Invisibility", &big::features::Lfeatures_invisible);
 				ImGui::Checkbox("Noclip", &big::features::Lfeatures_noclip);
@@ -71,6 +76,7 @@ namespace big::base_tab
 
 				ImGui::EndTabItem();
 			}
+
 			if (ImGui::BeginTabItem("Weapons"))
 			{
 				ImGui::Checkbox("Infinite ammo", &big::features::Wfeatures_infammo);
@@ -131,8 +137,6 @@ namespace big::base_tab
 				if (ImGui::Button("Import vehicle"))
 					features::Vfeatures_requestentity = true;
 
-				//ImGui::SameLine();
-				//ImGui::Checkbox("Randomize?", &features::Vfeatures_spawnrvehicle); //note: fix this, it spawns the same random vehicle
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Options"))
@@ -174,13 +178,13 @@ namespace big::base_tab
 			if (ImGui::BeginTabItem("Lobby")) 
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+				{
+					if (ImGui::Button("Kick all players"))
+						features::Pfeatures_kickall = true;
 
-				if (ImGui::Button("Kick all players"))
-					features::Pfeatures_kickall = true;
-
-				if (ImGui::Button("Crash all players"))
-					features::Pfeatures_crashall = true;
-
+					if (ImGui::Button("Crash all players"))
+						features::Pfeatures_crashall = true;
+				}
 				ImGui::PopStyleColor();
 
 				ImGui::EndTabItem();
@@ -193,7 +197,9 @@ namespace big::base_tab
 				ImGui::Text(format("There are currently {} player(s) in your lobby", features::numberOfPlayers).c_str());
 
 				ImGui::Separator();
+
 				InputText("Search##players", &currentPlayerSearch, 0);
+
 				ImGui::Separator();
 
 				for (int i = 0; i < 32; i++)
@@ -259,73 +265,74 @@ namespace big::base_tab
 						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
 
 					ImGui::BeginGroupBox("##body_plist", ImVec2{ 0.0f, 274.f });
+					{
+						ImGui::Text("Health:");
 
-					ImGui::Text("Health:");
+						int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
+						int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
+						Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-					int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
-					int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
-					Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
+						if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
 
-					if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+						ImGui::SameLine();
 
-					ImGui::SameLine();
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
+							ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
+						ImGui::PopStyleColor();
 
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
-						ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
-					ImGui::PopStyleColor();
+						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
 
-					ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
+						ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
+						//ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
 
-					ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
-					//ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
+						string rockstarId = features::players[features::selectedPlayer].rockstarId;
 
-					string rockstarId = features::players[features::selectedPlayer].rockstarId;
+						ImGui::Separator();
 
-					ImGui::Separator();
-					InputText("RSID", &rockstarId, 0);
+						InputText("RSID", &rockstarId, 0);
 
-					ImGui::Separator();
+						ImGui::Separator();
 
-					if (ImGui::Button("Teleport to player"))
-						features::Pfeatures_teleport = true;
+						if (ImGui::Button("Teleport to player"))
+							features::Pfeatures_teleport = true;
 
-					if (ImGui::Button("Kick from vehicle"))
-						features::Pfeatures_kickfromveh = true;
+						if (ImGui::Button("Kick from vehicle"))
+							features::Pfeatures_kickfromveh = true;
 
-					ImGui::Separator();
+						ImGui::Separator();
 
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
+						{
+							if (ImGui::Button("Kick from lobby"))
+								features::Pfeatures_kick = true;
+						}
+						ImGui::PopStyleColor();
 
-					if (ImGui::Button("Kick from lobby"))
-						features::Pfeatures_kick = true;
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+						{
+							if (ImGui::Button("Crash player"))
+								features::Pfeatures_crash = true;
+						}
+						ImGui::PopStyleColor();
 
-					ImGui::PopStyleColor();
+						//if (features::players[features::selectedPlayer].player)
+						//{
+						//	string debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
+						//	InputText("CNetGamePlayer", &debug, 0);
 
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+						//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
+						//	InputText("CPlayerInfo", &debug, 0);
 
-					if (ImGui::Button("Crash player"))
-						features::Pfeatures_crash = true;
+						//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
+						//	InputText("netData", &debug, 0);
 
-					ImGui::PopStyleColor();
-
-					//if (features::players[features::selectedPlayer].player)
-					//{
-					//	string debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
-					//	InputText("CNetGamePlayer", &debug, 0);
-
-					//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
-					//	InputText("CPlayerInfo", &debug, 0);
-
-					//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
-					//	InputText("netData", &debug, 0);
-
-					//	if (features::players[features::selectedPlayer].info) //broken, need to fix
-					//	{
-					//		debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
-					//		InputText("CPed", &debug, 0);
-					//	}
-					//}
-
+						//	if (features::players[features::selectedPlayer].info) //broken, need to fix
+						//	{
+						//		debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
+						//		InputText("CPed", &debug, 0);
+						//	}
+						//}
+					}
 					ImGui::EndGroupBox();
 				}
 
@@ -352,7 +359,8 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Recovery"))
 			{
-		
+				ImGui::Text("Will be implemented eventually!");
+
 				ImGui::EndTabItem();
 			}
 
@@ -373,6 +381,7 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Config"))
 			{
+				ImGui::ColorEdit3("Menu color", features::menucolor);
 				if (ImGui::Button("Unload"))
 					g_running = false;
 				ImGui::EndTabItem();
