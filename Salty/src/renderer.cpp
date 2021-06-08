@@ -49,10 +49,9 @@ namespace big
 
 		ImFontConfig font_cfg{};
 		font_cfg.FontDataOwnedByAtlas = false;
-		//std::strcpy(font_cfg.Name, "Rubik");
 
 		ImGui::GetIO().Fonts->Clear();
-		//m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
+		//m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg); //obsolete
 
 		mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
 		(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();

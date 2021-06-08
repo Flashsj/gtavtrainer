@@ -20,6 +20,11 @@
 
 namespace big
 {
+	static char* sidebar_tabs[] = { "C", "E", "H", "F" };
+	enum { TAB_LOCAL, TAB_VEHICLE, TAB_ONLINE, TAB_SETTINGS };
+	constexpr static float get_sidebar_item_width() { return 150.0f; }
+	constexpr static float get_sidebar_item_height() { return  79.5f; }
+
 	bool config::save(const string file_name)
 	{
 		const size_t class_size = sizeof(config);
@@ -50,12 +55,36 @@ namespace big
 		void* buffer = malloc(class_size);
 		input.read(static_cast<char*>(buffer), class_size);
 		input.close();
-		
+
 		memcpy(&g_config, buffer, class_size);
 		free(buffer);
 		buffer = NULL;
 
 		return true;
+	}
+
+	template<size_t N>
+	void render_tabs(char* (&names)[N], int& activetab, float w, float h, bool sameline)
+	{
+		bool values[N] = { false };
+		values[activetab] = true;
+
+		for (auto i = 0; i < N; ++i)
+		{
+			if (ImGui::ToggleButton(names[i], &values[i], ImVec2{ w, h }))
+				activetab = i;
+			if (sameline && i < N - 1)
+				ImGui::SameLine();
+		}
+	}
+
+	ImVec2 get_sidebar_size()
+	{
+		constexpr float padding = 10.0f;
+		constexpr auto size_w = padding * 2.0f + get_sidebar_item_width();
+		constexpr auto size_h = padding * 2.0f + (sizeof(sidebar_tabs) / sizeof(char*)) * get_sidebar_item_height();
+
+		return ImVec2{ size_w, ImMax(325.0f, size_h) };
 	}
 
 	void gui::dx_init()
@@ -96,35 +125,6 @@ namespace big
 		ImGui::GetStyle() = style;
 	}
 
-	static char* sidebar_tabs[] = { "C", "E", "H", "F" };
-	enum { TAB_LOCAL, TAB_VEHICLE , TAB_ONLINE, TAB_SETTINGS };
-	constexpr static float get_sidebar_item_width() { return 150.0f; }
-	constexpr static float get_sidebar_item_height() { return  80.0f; }
-
-	template<size_t N>
-	void render_tabs(char* (&names)[N], int& activetab, float w, float h, bool sameline)
-	{
-		bool values[N] = { false };
-		values[activetab] = true;
-
-		for (auto i = 0; i < N; ++i)
-		{
-			if (ImGui::ToggleButton(names[i], &values[i], ImVec2{ w, h }))
-				activetab = i;
-			if (sameline && i < N - 1)
-				ImGui::SameLine();
-		}
-	}
-
-	ImVec2 get_sidebar_size()
-	{
-		constexpr float padding = 10.0f;
-		constexpr auto size_w = padding * 2.0f + get_sidebar_item_width();
-		constexpr auto size_h = padding * 2.0f + (sizeof(sidebar_tabs) / sizeof(char*)) * get_sidebar_item_height();
-
-		return ImVec2{ size_w, ImMax(325.0f, size_h) };
-	}
-
 	void gui::dx_on_tick()
 	{
 		auto& style = ImGui::GetStyle();
@@ -135,55 +135,59 @@ namespace big
 		colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
 		colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
 
-		ImGui::SetNextWindowSize(ImVec2(600, 375), ImGuiCond_FirstUseEver);
+		//ImGui::SetNextWindowSize(ImVec2(700, 475), ImGuiCond_FirstUseEver);
 
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
 		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
+			//ImGui::PushFont(mainfont);
+			//	ImGui::Text("faliusyftgawkufyrkw8hf3cvkh67");
+			//ImGui::PopFont();
+
 			ImGui::PushFont(tabfont);
-
-			ImGui::BeginGroupBox("##sidebar", sidebar_size);
 			{
-				style.FrameRounding = 0.f;
-				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+				ImGui::BeginGroupBox("##sidebar", sidebar_size);
+				{
+					style.FrameRounding = 0.f;
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.5, 1.5));
 					render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
-				ImGui::PopStyleVar();
+					ImGui::PopStyleVar();
+				}
+				ImGui::EndGroupBox();
 			}
-			ImGui::EndGroupBox();
-
 			ImGui::PopFont();
 
 			ImGui::SameLine();
 
-			//ImGui::PushFont(renderer::m_font);
-
 			ImGui::PushFont(mainfont);
-
-			ImGui::BeginGroupBox("##body", size);
 			{
-				style.FrameRounding = 1.5f;
-				ImGui::PushItemWidth(185.f);
+				ImGui::BeginGroupBox("##body", size);
 				{
-					switch (active_sidebar_tab)
+					style.FrameRounding = 1.5f;
+					ImGui::PushItemWidth(185.f);
 					{
-					case TAB_LOCAL:
-						base_tab::render_local_tab();
-						break;
-					case TAB_VEHICLE:
-						base_tab::render_vehicle_tab();
-						break;
-					case TAB_ONLINE:
-						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
-						break;
-					case TAB_SETTINGS:
-						base_tab::render_settings_tab();
-						break;
+						switch (active_sidebar_tab)
+						{
+						case TAB_LOCAL:
+							base_tab::render_local_tab();
+							break;
+						case TAB_VEHICLE:
+							base_tab::render_vehicle_tab();
+							break;
+						case TAB_ONLINE:
+							(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+							break;
+						case TAB_SETTINGS:
+							base_tab::render_settings_tab();
+							break;
+						}
 					}
+					ImGui::PopItemWidth();
 				}
-				ImGui::PopItemWidth();
+				ImGui::EndGroupBox();
 			}
-			ImGui::EndGroupBox();
+			ImGui::PopFont();
 
 			ImGui::End();
 		}
