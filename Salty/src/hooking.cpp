@@ -12,6 +12,7 @@
 #include "renderer.hpp"
 #include "script_mgr.hpp"
 #include "vmt_hook.hpp"
+#include <gui.hpp>
 
 #include "gui/misc.h"
 #include "gui.hpp"
@@ -420,13 +421,13 @@ namespace big
 		uint8_t* data = buffer->m_data;
 		bool kick = false, g_event = false, m_event = false;
 
-		big::features::features_kickprotection ? kick = FIND(event_id, misc::blocked_kick) : false;
-		big::features::features_maleventprotection ? m_event = FIND(event_id, misc::blocked_malev) : false;
-		big::features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
+		features::features_kickprotection ? kick = FIND(event_id, misc::blocked_kick) : false;
+		features::features_maleventprotection ? m_event = FIND(event_id, misc::blocked_malev) : false;
+		features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
 		bool crash = misc::block_crash(n, data);
 		bool catalog = event_type > NETWORK_CHECK_CATALOG_CRC;
 		bool flood = (!kick && !g_event && !m_event) && misc::flood_event(src, event_type, bitset);
-		bool clock = event_type == GAME_CLOCK_EVENT && !src->is_host();
+		bool clock = (event_type == GAME_CLOCK_EVENT && !src->is_host());
 		//bool respawn = misc::flood_respawn(src, event_type); || respawn
 		//bool proto = misc::block_proto(src, event_type);
 
@@ -466,7 +467,7 @@ namespace big
 		sync_type = rage::NETWORK;
 		sync_object_type = -1;
 
-		if ((big::features::features_kickprotection || big::features::features_maleventprotection) && big::features::injected && src != features::local)
+		if ((features::features_kickprotection || features::features_maleventprotection) && big::features::injected && src != features::local)
 		{
 			if (event_blocked(src, dst, buffer, event_type, event_id, bitset))
 			{

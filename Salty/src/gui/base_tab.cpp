@@ -29,6 +29,7 @@ namespace big::base_tab
 
 	const bool LOG_LOG = false;
 	
+	//move to imgui
 	static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	{
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
@@ -48,45 +49,55 @@ namespace big::base_tab
 		return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, (void*)str);
 	}
 
+	bool VectorGetter(void* vec, int idx, const char** out_text)
+	{
+		auto& vector = *static_cast<std::vector<string>*>(vec);
+		if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+		*out_text = vector.at(idx).c_str();
+		return true;
+	};
+
+	bool Combo(const char* label, int* item, vector<string> strs)
+	{
+		ImGui::Combo(label, item, VectorGetter, static_cast<void*>(&strs), strs.size());
+		return false;
+	}
+	///
+
 	void render_local_tab()
 	{
 		if (ImGui::BeginTabBar("##tabs2", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("Player"))
 			{
-				ImGui::Checkbox("Godmode", &big::features::Lfeatures_godmode);
-				ImGui::Checkbox("Ragdoll prevention", &big::features::Lfeatures_noragdoll);
-				ImGui::Checkbox("No wanted level", &big::features::Lfeatures_neverwanted);
-				ImGui::Checkbox("Fast run", &big::features::Lfeatures_fastrun);
-				ImGui::Checkbox("Ghost organization", &big::features::Lfeatures_offradar);
-				if (ImGui::IsItemHovered())
-					ImGui::SetTooltip("Only available in GTA Online");
-				ImGui::Checkbox("No mental state", &big::features::Lfeatures_nomental);
-				if (ImGui::IsItemHovered())
-					ImGui::SetTooltip("Only available in GTA Online");
-
-				ImGui::Checkbox("No phone", &big::features::Lfeatures_nophone);
-				ImGui::Checkbox("Invisibility", &big::features::Lfeatures_invisible);
-				ImGui::Checkbox("Noclip", &big::features::Lfeatures_noclip);
+				ImGui::Checkbox("Godmode", &g_config.Lfeatures_godmode);
+				ImGui::Checkbox("Ragdoll prevention", &g_config.Lfeatures_noragdoll);
+				ImGui::Checkbox("No wanted level", &g_config.Lfeatures_neverwanted);
+				ImGui::Checkbox("Fast run", &g_config.Lfeatures_fastrun);
+				ImGui::Checkbox("Ghost organization", &g_config.Lfeatures_offradar);
+				ImGui::Checkbox("No mental state", &g_config.Lfeatures_nomental);
+				ImGui::Checkbox("No phone", &g_config.Lfeatures_nophone);
+				ImGui::Checkbox("Invisibility", &g_config.Lfeatures_invisible);
+				ImGui::Checkbox("Noclip", &g_config.Lfeatures_noclip);
 
 				ImGui::Separator();
 
 				if (ImGui::Button("Teleport to waypoint"))
-					features::Lfeatures_teleportwp = true;
+					g_config.Lfeatures_teleportwp = true;
 
 				ImGui::EndTabItem();
 			}
 
 			if (ImGui::BeginTabItem("Weapons"))
 			{
-				ImGui::Checkbox("Infinite ammo", &big::features::Wfeatures_infammo);
-				ImGui::Checkbox("Insta kill", &big::features::Wfeatures_instakill);
-				ImGui::Checkbox("Triggerbot", &big::features::Wfeatures_autoshoot);
+				ImGui::Checkbox("Infinite ammo", &g_config.Wfeatures_infammo);
+				ImGui::Checkbox("Insta kill", &g_config.Wfeatures_instakill);
+				ImGui::Checkbox("Triggerbot", &g_config.Wfeatures_autoshoot);
 
 				ImGui::Separator();
 
 				if (ImGui::Button("Give all weapons"))
-					features::Wfeatures_addweapons = true;
+					g_config.Wfeatures_addweapons = true;
 
 				ImGui::EndTabItem();
 			}
@@ -128,27 +139,27 @@ namespace big::base_tab
 
 				InputText("Custom vehicle", &features::carToSpawn, 0);
 
-				ImGui::ColorEdit3("Vehicle color", features::Vfeatures_vcol);
-				ImGui::Checkbox("Spawn with godmode", &big::features::Vfeatures_spawngodmode);
-				ImGui::Checkbox("Spawn fully upgraded", &big::features::Vfeatures_spawnupgraded);
-				ImGui::Checkbox("Spawn in vehicle", &big::features::Vfeatures_spawninveh);
-				ImGui::Checkbox("Spawn with random colors", &big::features::Vfeatures_randomizecol);
+				ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);
+				ImGui::Checkbox("Spawn with godmode", &g_config.Vfeatures_spawngodmode);
+				ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
+				ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
+				ImGui::Checkbox("Spawn with random colors", &g_config.Vfeatures_randomizecol);
 
 				if (ImGui::Button("Import vehicle"))
-					features::Vfeatures_requestentity = true;
+					g_config.Vfeatures_requestentity = true;
 
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Options"))
 			{
-				ImGui::Checkbox("Indestructable vehicle", &big::features::Vfeatures_godmode);
-				ImGui::Checkbox("Clean vehicle", &big::features::Vfeatures_autoclean);
-				ImGui::Checkbox("Horn boost", &big::features::Vfeatures_hornboost);
+				ImGui::Checkbox("Indestructable vehicle", &g_config.Vfeatures_godmode);
+				ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
+				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
 
 				ImGui::Separator();
 
 				if (ImGui::Button("Upgrade current vehicle"))
-					features::Vfeatures_autoupgrade = true;
+					g_config.Vfeatures_autoupgrade = true;
 
 				ImGui::EndTabItem();
 			}
@@ -163,14 +174,14 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("ESP"))
 			{
-				ImGui::Checkbox("Enable ESP", &big::features::ESPfeatures);
+				ImGui::Checkbox("Enable ESP", &g_config.ESPfeatures);
 				ImGui::SameLine();
 		
-				if (big::features::ESPfeatures)
+				if (g_config.ESPfeatures)
 				{
-					ImGui::ColorEdit3("##ESP Color", features::ESPfeatures_col);
-					ImGui::Checkbox("Health based colors", &big::features::ESPfeatures_health);
-					ImGui::Checkbox("Visible only", &big::features::ESPfeatures_visible);
+					ImGui::ColorEdit3("##ESP Color", g_config.ESPfeatures_col, ImGuiColorEditFlags_AlphaBar);
+					ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
+					ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
 				}
 				ImGui::EndTabItem();
 			}
@@ -180,10 +191,10 @@ namespace big::base_tab
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
 				{
 					if (ImGui::Button("Kick all players"))
-						features::Pfeatures_kickall = true;
+						g_config.Pfeatures_kickall = true;
 
 					if (ImGui::Button("Crash all players"))
-						features::Pfeatures_crashall = true;
+						g_config.Pfeatures_crashall = true;
 				}
 				ImGui::PopStyleColor();
 
@@ -294,44 +305,26 @@ namespace big::base_tab
 						ImGui::Separator();
 
 						if (ImGui::Button("Teleport to player"))
-							features::Pfeatures_teleport = true;
+							g_config.Pfeatures_teleport = true;
 
 						if (ImGui::Button("Kick from vehicle"))
-							features::Pfeatures_kickfromveh = true;
+							g_config.Pfeatures_kickfromveh = true;
 
 						ImGui::Separator();
 
 						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
 						{
 							if (ImGui::Button("Kick from lobby"))
-								features::Pfeatures_kick = true;
+								g_config.Pfeatures_kick = true;
 						}
 						ImGui::PopStyleColor();
 
 						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
 						{
 							if (ImGui::Button("Crash player"))
-								features::Pfeatures_crash = true;
+								g_config.Pfeatures_crash = true;
 						}
 						ImGui::PopStyleColor();
-
-						//if (features::players[features::selectedPlayer].player)
-						//{
-						//	string debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
-						//	InputText("CNetGamePlayer", &debug, 0);
-
-						//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
-						//	InputText("CPlayerInfo", &debug, 0);
-
-						//	debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
-						//	InputText("netData", &debug, 0);
-
-						//	if (features::players[features::selectedPlayer].info) //broken, need to fix
-						//	{
-						//		debug = format("{}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
-						//		InputText("CPed", &debug, 0);
-						//	}
-						//}
 					}
 					ImGui::EndGroupBox();
 				}
@@ -343,12 +336,12 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Protex"))
 			{
-				ImGui::Checkbox("Game event protection", &big::features::features_gameeventprotection);
-				ImGui::Checkbox("Crash protection", &big::features::protection);
-				ImGui::Checkbox("Kick protection", &big::features::features_kickprotection);
+				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
+				ImGui::Checkbox("Crash protection", &features::protection); //force enabled
+				ImGui::Checkbox("Kick protection", &features::features_kickprotection);
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
 				{
-					ImGui::Checkbox("Event protection", &big::features::features_maleventprotection);
+					ImGui::Checkbox("Event protection", &features::features_maleventprotection);
 					if (ImGui::IsItemHovered())
 						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (phone, LSC, purchases).");
 				}
@@ -367,7 +360,7 @@ namespace big::base_tab
 			if (ImGui::BeginTabItem("Misc"))
 			{
 				if (ImGui::Button("Skip current cutscene"))
-					features::Ofeatures_skipcutscene = true;
+					g_config.Ofeatures_skipcutscene = true;
 				ImGui::EndTabItem();
 			}
 
@@ -375,29 +368,47 @@ namespace big::base_tab
 		}
 	}
 
+	static int selectedConfig = 0;
+
 	void render_settings_tab()
 	{
 		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("Config"))
 			{
-				ImGui::ColorEdit3("Menu color", features::menucolor);
+				ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
+
+				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India" };
+				Combo("Configs", &selectedConfig, configs);
+
+				if (ImGui::Button("Save"))
+					g_config.save(configs.at(selectedConfig));
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Load"))
+					g_config.load(configs.at(selectedConfig));
+				
+				ImGui::Separator();
+
 				if (ImGui::Button("Unload"))
 					g_running = false;
+
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Debug"))
+			if (*g_pointers->m_is_session_started)
 			{
-				if (*g_pointers->m_is_session_started)
+				if (ImGui::BeginTabItem("Debug"))
 				{
 					InputText("##localIndex", &format("localIndex: {}", reinterpret_cast<void*>(features::localIndex)), 0);
 					InputText("##localPed", &format("localPed: {}", reinterpret_cast<void*>(features::localPed)), 0);
 					InputText("##local", &format("local: {}", reinterpret_cast<void*>(features::local)), 0);
 					InputText("##localInfo", &format("localInfo: {}", reinterpret_cast<void*>(features::localInfo)), 0);
 					InputText("##localCPed", &format("localCPed: {}", reinterpret_cast<void*>(features::localCPed)), 0); //bugged, will return nullptr
+
+					ImGui::EndTabItem();
 				}
-				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
 		}

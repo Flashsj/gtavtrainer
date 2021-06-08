@@ -4,6 +4,7 @@
 #include "natives.hpp"
 //#include "gui.hpp"
 #include "gui/misc.h"
+#include "gui.hpp"
 //#include "gui/base_tab.h"
 #include "pointers.hpp"
 #include <script_global.hpp>
@@ -19,6 +20,9 @@ namespace big::features
 {
 	bool injected = false;
 	bool protection = true; //crash protection
+	bool features_kickprotection = true; //kick protection
+	bool features_gameeventprotection = true; //game event protection
+	bool features_maleventprotection = false; //malicious event protection
 	bool god_mode = true;
 
 	volatile Player player = 0;
@@ -35,52 +39,6 @@ namespace big::features
 	bool first = true;
 
 	const bool LOG_LOG = false;
-
-	///////////////////////////// below vars added by me
-
-	bool features_kickprotection = true;
-	bool features_gameeventprotection = true;
-	bool features_maleventprotection = false;
-
-	bool Lfeatures_godmode = true;
-	bool Lfeatures_noragdoll = true;
-	bool Lfeatures_neverwanted = false;
-	bool Lfeatures_offradar = false;
-	bool Lfeatures_invisible = false;
-	bool Lfeatures_teleportwp = false;
-	bool Lfeatures_noclip = false;
-	bool Lfeatures_nophone = false;
-	bool Lfeatures_nomental = false;
-	bool Lfeatures_fastrun = false;
-
-	bool Wfeatures_infammo = true;
-	bool Wfeatures_autoshoot = false;
-	bool Wfeatures_instakill = false;
-	bool Wfeatures_addweapons = false;
-
-	bool ESPfeatures_health = true;
-	bool ESPfeatures_visible = false;
-	bool ESPfeatures = true;
-
-	bool Pfeatures_teleport = false;
-	bool Pfeatures_kickfromveh = false;
-	bool Pfeatures_kick = false;
-	bool Pfeatures_crash = false;
-	bool Pfeatures_crashall = false;
-	bool Pfeatures_kickall = false;
-
-	bool Ofeatures_skipcutscene = false;
-
-	bool Vfeatures_spawngodmode = false;
-	bool Vfeatures_requestentity = false;
-	bool Vfeatures_spawninveh = false;
-	bool Vfeatures_randomizeveh = false;
-	bool Vfeatures_randomizecol = false;
-	bool Vfeatures_spawnupgraded = false;
-	bool Vfeatures_autoupgrade = false;
-	bool Vfeatures_autoclean = false;
-	bool Vfeatures_hornboost = false;
-	bool Vfeatures_godmode = false;
 
 	enum class logtype { LOG_NONE, LOG_INFO, LOG_WARN, LOG_ERROR, };
 
@@ -415,21 +373,21 @@ namespace big::features
 	{
 		while (true)
 		{
-			if (features::Pfeatures_kick)
+			if (g_config.Pfeatures_kick)
 			{
 				kick(selectedPlayer);
 				log_map(fmt::format("Attempting to kick player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
-				features::Pfeatures_kick = false;
+				g_config.Pfeatures_kick = false;
 			}
 
-			if (features::Pfeatures_crash)
+			if (g_config.Pfeatures_crash)
 			{
 				log_map(fmt::format("Attempting to desktop player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
 				scriptCrash(selectedPlayer);
-				features::Pfeatures_crash = false;
+				g_config.Pfeatures_crash = false;
 			}
 
-			if (features::Pfeatures_kickfromveh)
+			if (g_config.Pfeatures_kickfromveh)
 			{
 				if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(features::selectedPlayer), FALSE))
 				{
@@ -445,10 +403,10 @@ namespace big::features
 				else
 					log_map(fmt::format("~g~{}~w~ is not operating a vehicle", features::players[features::selectedPlayer].name), logtype::LOG_ERROR);
 
-				features::Pfeatures_kickfromveh = false;
+				g_config.Pfeatures_kickfromveh = false;
 			}
 
-			if (features::Pfeatures_kickall)
+			if (g_config.Pfeatures_kickall)
 			{
 				log_map("Attempting to kick ~r~all players", logtype::LOG_WARN);
 
@@ -467,10 +425,10 @@ namespace big::features
 
 					script::get_current()->yield();
 				}
-				features::Pfeatures_kickall = false;
+				g_config.Pfeatures_kickall = false;
 			}
 
-			if (features::Pfeatures_crashall)
+			if (g_config.Pfeatures_crashall)
 			{
 				log_map("Attempting to desktop ~r~all players", logtype::LOG_WARN);
 
@@ -489,7 +447,7 @@ namespace big::features
 
 					script::get_current()->yield();
 				}
-				features::Pfeatures_crashall = false;
+				g_config.Pfeatures_crashall = false;
 			}
 
 			script::get_current()->yield();
@@ -517,7 +475,7 @@ namespace big::features
 			int RandIndex = rand() % arrSize;
 			static const char* randomModel = features::vehicleModels[RandIndex];
 
-			features::Vfeatures_randomizeveh ? hash_vehicle = load(randomModel) : hash_vehicle = load(name);
+			g_config.Vfeatures_randomizeveh ? hash_vehicle = load(randomModel) : hash_vehicle = load(name);
 
 			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090;
 			auto veh = VEHICLE::CREATE_VEHICLE(hash_vehicle, pos.x, pos.y, pos.z + 3, heading + 90.0f, TRUE, TRUE, FALSE);
@@ -526,7 +484,7 @@ namespace big::features
 
 			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
 
-			if (features::Vfeatures_randomizecol)
+			if (g_config.Vfeatures_randomizecol)
 			{
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
@@ -542,7 +500,7 @@ namespace big::features
 			else
 			{
 				float a, b, c;
-				a = features::Vfeatures_vcol[0] * 255, b = features::Vfeatures_vcol[1] * 255, c = features::Vfeatures_vcol[2] * 255;
+				a = g_config.Vfeatures_vcol[0] * 255, b = g_config.Vfeatures_vcol[1] * 255, c = g_config.Vfeatures_vcol[2] * 255;
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, a, b, c);
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, a, b, c);
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, a, b, c);
@@ -552,7 +510,7 @@ namespace big::features
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
 			}
 
-			if (features::Vfeatures_spawninveh)
+			if (g_config.Vfeatures_spawninveh)
 			{
 				for (int i = -1; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(veh); i++)
 				{
@@ -565,7 +523,7 @@ namespace big::features
 				}
 			}
 
-			if (features::Vfeatures_spawngodmode)
+			if (g_config.Vfeatures_spawngodmode)
 			{
 				ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
 				ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, FALSE);
@@ -582,7 +540,7 @@ namespace big::features
 					VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f);
 			}
 
-			if (features::Vfeatures_spawnupgraded)
+			if (g_config.Vfeatures_spawnupgraded)
 			{
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
@@ -619,7 +577,7 @@ namespace big::features
 
 	void features_local()
 	{
-		if (features::Lfeatures_godmode)
+		if (g_config.Lfeatures_godmode)
 		{
 			PED::CLEAR_PED_BLOOD_DAMAGE(ped);
 			PED::CLEAR_PED_DECORATIONS(ped);
@@ -642,7 +600,7 @@ namespace big::features
 			PLAYER::SET_PLAYER_HEALTH_RECHARGE_MULTIPLIER(player, 1);
 		}
 
-		if (features::Lfeatures_noragdoll)
+		if (g_config.Lfeatures_noragdoll)
 		{
 			PED::SET_PED_CAN_RAGDOLL(ped, FALSE);
 			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(ped, FALSE);
@@ -655,7 +613,7 @@ namespace big::features
 			PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(ped, TRUE);
 		}
 
-		if (features::Lfeatures_neverwanted)
+		if (g_config.Lfeatures_neverwanted)
 		{
 			PLAYER::SET_MAX_WANTED_LEVEL(0);
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
@@ -671,14 +629,14 @@ namespace big::features
 			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, TRUE);
 		}
 
-		if (features::Lfeatures_offradar)
+		if (g_config.Lfeatures_offradar)
 		{
 			*script_global(2426097).at(player, 443).at(204).as<bool*>() = true;
 			*script_global(2440277).at(70).as<int32_t*>() = NETWORK::GET_NETWORK_TIME();
 			*script_global(2540612).at(4625).as<int32_t*>() = 4;
 		}
 
-		if (features::Lfeatures_fastrun)
+		if (g_config.Lfeatures_fastrun)
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.45f);
 		else
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.f);
@@ -687,7 +645,7 @@ namespace big::features
 		if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && owns_veh(_ped)) // kinda a ghetto fix but it works for now 
 			_ped = PED::GET_VEHICLE_PED_IS_IN(_ped, FALSE);
 
-		if (features::Lfeatures_invisible) //better, but still kinda messy
+		if (g_config.Lfeatures_invisible) //better, but still kinda messy
 			ENTITY::SET_ENTITY_VISIBLE(_ped, FALSE, FALSE);
 		else
 			ENTITY::SET_ENTITY_VISIBLE(_ped, TRUE, TRUE);
@@ -695,7 +653,7 @@ namespace big::features
 		//if (GetAsyncKeyState(VK_F5) || CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN))
 			//features::Lfeatures_teleportwp = true;
 
-		if (features::Lfeatures_teleportwp)
+		if (g_config.Lfeatures_teleportwp)
 		{
 			if (UI::IS_WAYPOINT_ACTIVE()) // ?
 			{
@@ -718,15 +676,15 @@ namespace big::features
 			else
 				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
 
-			features::Lfeatures_teleportwp = false;
+			g_config.Lfeatures_teleportwp = false;
 		}
 
-		if (features::Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
+		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped))
 			{
 				log_map("Noclip is unavailable as a passenger", logtype::LOG_ERROR);
-				features::Lfeatures_noclip = false;
+				g_config.Lfeatures_noclip = false;
 				return;
 			}
 
@@ -781,7 +739,7 @@ namespace big::features
 
 	void features_weapon()
 	{
-		if (features::Wfeatures_infammo)
+		if (g_config.Wfeatures_infammo)
 		{
 			Hash cur;
 			if (WEAPON::GET_CURRENT_PED_WEAPON(ped, &cur, 1))
@@ -801,7 +759,7 @@ namespace big::features
 			}
 		}
 
-		if (features::Wfeatures_instakill) //might wanna pack this into a function because it gets called here and in autoshoot, just a thought
+		if (g_config.Wfeatures_instakill) //might wanna pack this into a function because it gets called here and in autoshoot, just a thought
 		{
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
@@ -816,7 +774,7 @@ namespace big::features
 		}
 
 		//TODO: fix inaccuracy when firing at ped in vehicle
-		if (features::Wfeatures_autoshoot)
+		if (g_config.Wfeatures_autoshoot)
 		{
 			Entity AimedAtEntity;
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
@@ -828,7 +786,7 @@ namespace big::features
 				if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
 				{
 					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
-					if (features::Wfeatures_instakill) //updated to account for instakill
+					if (g_config.Wfeatures_instakill) //updated to account for instakill
 					{
 						for (int i = 0; i < 6; i++)
 							GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, Mouth.x, Mouth.y, Mouth.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
@@ -839,14 +797,14 @@ namespace big::features
 			}
 		}
 
-		if (features::Wfeatures_addweapons)
+		if (g_config.Wfeatures_addweapons)
 		{
 			log_map("Adding all weapons to weapon wheel", logtype::LOG_INFO);
 
 			for (int i = 0; i < (sizeof(features::Weapons) / 4); i++)
 			{
 				WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, features::Weapons[i], 9999, 1);
-				features::Wfeatures_addweapons = false;
+				g_config.Wfeatures_addweapons = false;
 			}
 		}
 	}
@@ -859,7 +817,7 @@ namespace big::features
 
 		Vehicle v = PED::GET_VEHICLE_PED_IS_IN(ped, player);
 
-		if (features::Vfeatures_godmode) //a little cleaner but still messy
+		if (g_config.Vfeatures_godmode) //a little cleaner but still messy
 		{
 			if (features::owns_veh(ped)) //boss patch
 			{
@@ -894,7 +852,7 @@ namespace big::features
 			}
 		}
 
-		if (features::Vfeatures_autoclean)
+		if (g_config.Vfeatures_autoclean)
 		{
 			if (features::owns_veh(ped))
 			{
@@ -915,17 +873,17 @@ namespace big::features
 
 	void features_vehicle()
 	{
-		if (features::Vfeatures_requestentity)
+		if (g_config.Vfeatures_requestentity)
 		{
-			if (features::Vfeatures_randomizeveh)
+			if (g_config.Vfeatures_randomizeveh)
 				log_map("Importing random vehicle model", logtype::LOG_INFO);
 			else
 				log_map(fmt::format("Importing vehicle model ~g~{}", features::carToSpawn), logtype::LOG_INFO);
 			features::spawnvehicle(features::carToSpawn.c_str());
-			features::Vfeatures_requestentity = false;
+			g_config.Vfeatures_requestentity = false;
 		}
 
-		if (features::Vfeatures_autoupgrade)
+		if (g_config.Vfeatures_autoupgrade)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(ped, FALSE))
 			{
@@ -950,10 +908,10 @@ namespace big::features
 			else
 				log_map("You are not in a vehicle", logtype::LOG_ERROR);
 
-			features::Vfeatures_autoupgrade = false;
+			g_config.Vfeatures_autoupgrade = false;
 		}
 
-		if (features::Vfeatures_hornboost)
+		if (g_config.Vfeatures_hornboost)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0))
 			{
@@ -1070,7 +1028,7 @@ namespace big::features
 
 		Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-		features::ESPfeatures_health ? (ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z) : (ColR = features::ESPfeatures_col[0] * 255, ColG = features::ESPfeatures_col[1] * 255, ColB = features::ESPfeatures_col[2] * 255);
+		g_config.ESPfeatures_health ? (ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z) : (ColR = g_config.ESPfeatures_col[0] * 255, ColG = g_config.ESPfeatures_col[1] * 255, ColB = g_config.ESPfeatures_col[2] * 255);
 
 		if (!ENTITY::DOES_ENTITY_EXIST(handle))
 			return;
@@ -1081,12 +1039,12 @@ namespace big::features
 		if (distance > 10000)
 			return;
 
-		if (features::ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17))
+		if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17))
 			return;
 
 		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
 
-		if (big::features::ESPfeatures)
+		if (g_config.ESPfeatures)
 		{
 			if (PLAYER::GET_PLAYER_NAME(p))
 			{
@@ -1132,17 +1090,17 @@ namespace big::features
 			}
 		}
 
-		if (features::Lfeatures_nophone)
+		if (g_config.Lfeatures_nophone)
 		{
 			misc::set_global(19664, 1);
 			MOBILE::_CELL_CAM_DISABLE_THIS_FRAME(TRUE);
 			PAD::DISABLE_CONTROL_ACTION(2, INPUT_PHONE, TRUE);
 		}
 
-		if (features::Lfeatures_nomental)
+		if (g_config.Lfeatures_nomental)
 			STATS::STAT_SET_FLOAT(GAMEPLAY::GET_HASH_KEY("MP0_PLAYER_MENTAL_STATE"), 0.1, 1);
 
-		if (features::Ofeatures_skipcutscene)
+		if (g_config.Ofeatures_skipcutscene)
 		{
 			if (CUTSCENE::IS_CUTSCENE_ACTIVE() || CUTSCENE::IS_CUTSCENE_PLAYING())
 			{
@@ -1152,13 +1110,13 @@ namespace big::features
 			else
 				log_map("No cutscene is currently active", logtype::LOG_ERROR);
 
-			features::Ofeatures_skipcutscene = false;
+			g_config.Ofeatures_skipcutscene = false;
 		}
 	}
 
 	void features_player()
 	{
-		if (features::Pfeatures_teleport)
+		if (g_config.Pfeatures_teleport)
 		{
 			Ped handle = ped; //to prevent redeclaration confusion autism
 			Vector3 coords = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED(features::selectedPlayer), FALSE);
@@ -1200,7 +1158,7 @@ namespace big::features
 				ENTITY::SET_ENTITY_COORDS(handle, coords.x, coords.y, coords.z, 0, 0, 0, 1);
 
 			log_map(fmt::format("Teleporting to ~g~{}", features::players[features::selectedPlayer].name), logtype::LOG_INFO);
-			features::Pfeatures_teleport = false;
+			g_config.Pfeatures_teleport = false;
 		}
 	}
 

@@ -17,6 +17,45 @@
 
 namespace big
 {
+
+	bool config::save(const string file_name)
+	{
+		const size_t class_size = sizeof(config);
+		void* buffer = malloc(class_size);
+
+		memcpy(buffer, &g_config, class_size);
+
+		ofstream output(file_name, ios::binary);
+		if (!output.is_open())
+			return false;
+
+		output.write(static_cast<const char*>(buffer), class_size);
+		output.flush();
+		output.close();
+
+		free(buffer);
+		buffer = NULL;
+		return true;
+	}
+
+	bool config::load(const string file_name)
+	{
+		ifstream input(file_name, ios::binary);
+		if (!input.is_open())
+			return false;
+
+		const size_t class_size = sizeof(config);
+		void* buffer = malloc(class_size);
+		input.read(static_cast<char*>(buffer), class_size);
+		input.close();
+
+		memcpy(&g_config, buffer, class_size);
+		free(buffer);
+		buffer = NULL;
+
+		return true;
+	}
+
 	void gui::dx_init()
 	{
 		//clear existing fonts
@@ -93,12 +132,6 @@ namespace big
 		return ImVec2{ size_w, ImMax(325.0f, size_h) };
 	}
 
-	float clip(float n, float lower, float upper)
-	{
-		n = (n > lower) * n + !(n > lower) * lower;
-		return (n < upper) * n + !(n < upper) * upper;
-	}
-
 	void gui::dx_on_tick()
 	{
 		auto& style = ImGui::GetStyle();
@@ -106,8 +139,8 @@ namespace big
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
 
-		colors[ImGuiCol_ButtonActive] = ImVec4(features::menucolor[0], features::menucolor[1], features::menucolor[2], 1.00f);
-		colors[ImGuiCol_CheckMark] = ImVec4(features::menucolor[0], features::menucolor[1], features::menucolor[2], 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
 
 		ImGui::SetNextWindowSize(ImVec2(600, 375), ImGuiCond_FirstUseEver);
 
