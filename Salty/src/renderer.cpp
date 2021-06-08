@@ -7,12 +7,18 @@
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+extern ImFont* tabfont;
+extern ImFont* mainfont;
+
 namespace big
 {
-	renderer::renderer() :
+		renderer::renderer() :
+
 		m_dxgi_swapchain(*g_pointers->m_swapchain)
-	{
+		{
+
 		void *d3d_device{};
+
 		if (SUCCEEDED(m_dxgi_swapchain->GetDevice(__uuidof(ID3D11Device), &d3d_device)))
 			m_d3d_device.Attach(static_cast<ID3D11Device*>(d3d_device));
 		else
@@ -43,10 +49,15 @@ namespace big
 
 		ImFontConfig font_cfg{};
 		font_cfg.FontDataOwnedByAtlas = false;
-		std::strcpy(font_cfg.Name, "Rubik");
+		//std::strcpy(font_cfg.Name, "Rubik");
 
-		//obsolete, see gui.cpp
-		m_font = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(const_cast<uint8_t*>(font_rubik), sizeof(font_rubik), 20.f, &font_cfg);
+		ImGui::GetIO().Fonts->Clear();
+		//m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
+
+		mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
+		(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();
+		tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\GTAVTRAINER\\Astriumtabs2.ttf", 14.f);
+		(tabfont != NULL) ? ImGui::GetIO().FontDefault = tabfont : ImGui::GetIO().Fonts->AddFontDefault();
 		m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
 
 		g_gui.dx_init();

@@ -23,5 +23,7 @@ namespace big
 		comptr<ID3D11DeviceContext> m_d3d_device_context;
 	};
 
+	inline ImFont *tabfont;
+	inline ImFont* mainfont;
 	inline renderer *g_renderer{};
 }

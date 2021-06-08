@@ -14,10 +14,12 @@
 #include <../imgui/imgui_internal.h>
 #include <../imgui/examples/imgui_impl_dx9.h>
 #include <../imgui/examples/imgui_impl_win32.h>
+#include <renderer.hpp>
+
+//This class needs a little organization... I'll get to it eventually
 
 namespace big
 {
-
 	bool config::save(const string file_name)
 	{
 		const size_t class_size = sizeof(config);
@@ -48,7 +50,7 @@ namespace big
 		void* buffer = malloc(class_size);
 		input.read(static_cast<char*>(buffer), class_size);
 		input.close();
-
+		
 		memcpy(&g_config, buffer, class_size);
 		free(buffer);
 		buffer = NULL;
@@ -58,15 +60,6 @@ namespace big
 
 	void gui::dx_init()
 	{
-		//clear existing fonts
-		ImGuiIO& io = ImGui::GetIO();
-		io.Fonts->Clear();
-
-		//write new font
-		ImFont* font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Tahoma.ttf", 14.f);
-		(font != NULL) ? io.FontDefault = font : io.Fonts->AddFontDefault();
-		io.Fonts->Build();
-
 		auto& style = ImGui::GetStyle();
 		auto& colors = style.Colors;
 
@@ -103,7 +96,7 @@ namespace big
 		ImGui::GetStyle() = style;
 	}
 
-	static char* sidebar_tabs[] = { "LOCAL", "VEHICLE", "ONLINE", "SETTINGS" };
+	static char* sidebar_tabs[] = { "C", "E", "H", "F" };
 	enum { TAB_LOCAL, TAB_VEHICLE , TAB_ONLINE, TAB_SETTINGS };
 	constexpr static float get_sidebar_item_width() { return 150.0f; }
 	constexpr static float get_sidebar_item_height() { return  80.0f; }
@@ -148,6 +141,8 @@ namespace big
 
 		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
+			ImGui::PushFont(tabfont);
+
 			ImGui::BeginGroupBox("##sidebar", sidebar_size);
 			{
 				style.FrameRounding = 0.f;
@@ -157,7 +152,13 @@ namespace big
 			}
 			ImGui::EndGroupBox();
 
+			ImGui::PopFont();
+
 			ImGui::SameLine();
+
+			//ImGui::PushFont(renderer::m_font);
+
+			ImGui::PushFont(mainfont);
 
 			ImGui::BeginGroupBox("##body", size);
 			{
