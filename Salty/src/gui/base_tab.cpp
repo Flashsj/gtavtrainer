@@ -11,7 +11,6 @@
 #include <time.h>
 #include <sstream>
 
-
 // https://github.com/Sainan/GTA-V-Decompiled-Scripts
 // https://github.com/Pocakking/BigBaseV2
 // https://bitbucket.org/gir489/bigbasev2-fix/src/master/
@@ -66,15 +65,15 @@ namespace big::base_tab
 
 	void render_local_tab()
 	{
-		if (ImGui::BeginTabBar("##tabs2", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
+		ImGui::Columns(2);
 		{
-			if (ImGui::BeginTabItem("Player"))
+			ImGui::BeginChild("##col 1", ImVec2(0.0f, 0.0f), false, ImGuiWindowFlags_AlwaysAutoResize);
 			{
 				ImGui::Checkbox("Godmode", &g_config.Lfeatures_godmode);
 				ImGui::Checkbox("Ragdoll prevention", &g_config.Lfeatures_noragdoll);
-				ImGui::Checkbox("No wanted level", &g_config.Lfeatures_neverwanted);
 				ImGui::Checkbox("Fast run", &g_config.Lfeatures_fastrun);
-				ImGui::Checkbox("Ghost organization", &g_config.Lfeatures_offradar);
+				ImGui::Checkbox("No wanted level", &g_config.Lfeatures_neverwanted);
+				ImGui::Checkbox("Off radar", &g_config.Lfeatures_offradar);
 				ImGui::Checkbox("No mental state", &g_config.Lfeatures_nomental);
 				ImGui::Checkbox("No phone", &g_config.Lfeatures_nophone);
 				ImGui::Checkbox("Invisibility", &g_config.Lfeatures_invisible);
@@ -84,11 +83,12 @@ namespace big::base_tab
 
 				if (ImGui::Button("Teleport to waypoint"))
 					g_config.Lfeatures_teleportwp = true;
-
-				ImGui::EndTabItem();
 			}
+			ImGui::EndChild();
 
-			if (ImGui::BeginTabItem("Weapons"))
+			ImGui::NextColumn();
+
+			ImGui::BeginChild("##col 2", ImVec2(0.0f, 0.0f), false);
 			{
 				ImGui::Checkbox("Infinite ammo", &g_config.Wfeatures_infammo);
 				ImGui::Checkbox("Insta kill", &g_config.Wfeatures_instakill);
@@ -98,239 +98,79 @@ namespace big::base_tab
 
 				if (ImGui::Button("Give all weapons"))
 					g_config.Wfeatures_addweapons = true;
-
-				ImGui::EndTabItem();
 			}
-
-			ImGui::EndTabBar();
+			ImGui::EndChild();
 		}
 	}
 
 	void render_vehicle_tab()
 	{
-		if (ImGui::BeginTabBar("##tabs2", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
+		static string currentModelSearch = "";
+		static const char* currentModel = NULL;
+		if (ImGui::BeginCombo("Vehicles", currentModel))
 		{
-			if (ImGui::BeginTabItem("Spawner"))
+			InputText("Search", &currentModelSearch, 0);
+
+			for (int n = 0; n < IM_ARRAYSIZE(features::vehicleModels); n++)
 			{
-				static string currentModelSearch = "";
-				static const char* currentModel = NULL;
-				if (ImGui::BeginCombo("Vehicles", currentModel))
+				string str = features::vehicleModels[n], search = currentModelSearch;
+				transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
+				transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
+				bool searchFound = str.find(search) != string::npos;
+
+				if (currentModelSearch.size() > 0 && !searchFound)
+					continue;
+
+				if (ImGui::Selectable(features::vehicleModels[n]))
 				{
-					InputText("Search", &currentModelSearch, 0);
-
-					for (int n = 0; n < IM_ARRAYSIZE(features::vehicleModels); n++)
-					{
-						string str = features::vehicleModels[n], search = currentModelSearch;
-						transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
-						transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
-						bool searchFound = str.find(search) != string::npos;
-
-						if (currentModelSearch.size() > 0 && !searchFound)
-							continue;
-
-						if (ImGui::Selectable(features::vehicleModels[n]))
-						{
-							currentModel = features::vehicleModels[n];
-							features::carToSpawn = currentModel;
-						}
-					}
-					ImGui::EndCombo();
+					currentModel = features::vehicleModels[n];
+					features::carToSpawn = currentModel;
 				}
-
-				InputText("Custom vehicle", &features::carToSpawn, 0);
-
-				ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);
-				ImGui::Checkbox("Spawn with godmode", &g_config.Vfeatures_spawngodmode);
-				ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
-				ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
-				ImGui::Checkbox("Spawn with random colors", &g_config.Vfeatures_randomizecol);
-
-				if (ImGui::Button("Import vehicle"))
-					g_config.Vfeatures_requestentity = true;
-
-				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Options"))
-			{
-				ImGui::Checkbox("Indestructable vehicle", &g_config.Vfeatures_godmode);
-				ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
-				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
-
-				ImGui::Separator();
-
-				if (ImGui::Button("Upgrade current vehicle"))
-					g_config.Vfeatures_autoupgrade = true;
-
-				ImGui::EndTabItem();
-			}
-
-			ImGui::EndTabBar();
+			ImGui::EndCombo();
 		}
+
+		InputText("Custom vehicle", &features::carToSpawn, 0);
+
+		ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);
+		ImGui::Checkbox("Spawn indestructible", &g_config.Vfeatures_spawngodmode);
+		ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
+		ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
+		ImGui::Checkbox("Spawn with random colors", &g_config.Vfeatures_randomizecol);
+
+		if (ImGui::Button("Import vehicle"))
+			g_config.Vfeatures_requestentity = true;
+
+		ImGui::Separator();
+
+		ImGui::Text("");
+		ImGui::Checkbox("indestructible vehicle", &g_config.Vfeatures_godmode);
+		ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
+		ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
+
+		if (ImGui::Button("Upgrade current vehicle"))
+			g_config.Vfeatures_autoupgrade = true;
 	}
 
 	void render_online_tab()
 	{
 		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
-			if (ImGui::BeginTabItem("ESP"))
+			if (ImGui::BeginTabItem("World"))
 			{
-				ImGui::Checkbox("Enable ESP", &g_config.ESPfeatures);
-				ImGui::SameLine();
-		
-				if (g_config.ESPfeatures)
-				{
-					ImGui::ColorEdit3("##ESP Color", g_config.ESPfeatures_col, ImGuiColorEditFlags_AlphaBar);
-					ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
-					ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
-				}
+				ImGui::Text("todo");
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Lobby")) 
+			if (ImGui::BeginTabItem("Recovery"))
 			{
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-				{
-					if (ImGui::Button("Kick all players"))
-						g_config.Pfeatures_kickall = true;
-
-					if (ImGui::Button("Crash all players"))
-						g_config.Pfeatures_crashall = true;
-				}
-				ImGui::PopStyleColor();
-
+				ImGui::Text("todo");
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Players"))
+			if (ImGui::BeginTabItem("Misc"))
 			{
-				static string currentPlayerSearch = "";
-
-				ImGui::Text(format("There are currently {} player(s) in your lobby", features::numberOfPlayers).c_str());
-
-				ImGui::Separator();
-
-				InputText("Search##players", &currentPlayerSearch, 0);
-
-				ImGui::Separator();
-
-				for (int i = 0; i < 32; i++)
-				{
-					string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
-					string str = features::players[i].name, search = currentPlayerSearch;
-					transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
-					transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
-					bool searchFound = str.find(search) != string::npos;
-
-					if (!features::players[i].ped)
-						continue;
-
-					if (!features::players[features::selectedPlayer].name)
-					{
-						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
-						continue;
-					}
-
-					if (currentPlayerSearch.size() > 0 && !searchFound)
-						continue;
-
-					if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
-						features::selectedPlayer = i;
-
-					if (features::players[i].index == features::localIndex)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "LOCAL");
-					}
-					if (features::players[i].isfriend)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(0.1f, 1.f, 0.1f, 1.f), "FRIEND");
-					}
-					if (features::players[i].index == features::scriptHost)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(0.1f, 0.85f, 1.1f, 1.f), "SCRIPT HOST");
-					}
-					if (features::players[i].isSessionHost)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "SESSION HOST");
-					}
-					if (features::players[i].interior)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(interior)"); //todo: patch flickering caused by casino interior
-					}
-					if (features::players[i].invehicle)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(vehicle)");
-					}
-				}
-
-				if (ImGui::Begin("##selected_player", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
-				{
-					if (features::players[features::selectedPlayer].name)
-						ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
-					else
-						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
-
-					ImGui::BeginGroupBox("##body_plist", ImVec2{ 0.0f, 274.f });
-					{
-						ImGui::Text("Health:");
-
-						int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
-						int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
-						Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
-
-						if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
-
-						ImGui::SameLine();
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
-							ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
-						ImGui::PopStyleColor();
-
-						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
-
-						ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
-						//ImGui::Text(format("Ped: {}", features::players[features::selectedPlayer].ped).c_str());
-
-						string rockstarId = features::players[features::selectedPlayer].rockstarId;
-
-						ImGui::Separator();
-
-						InputText("RSID", &rockstarId, 0);
-
-						ImGui::Separator();
-
-						if (ImGui::Button("Teleport to player"))
-							g_config.Pfeatures_teleport = true;
-
-						if (ImGui::Button("Kick from vehicle"))
-							g_config.Pfeatures_kickfromveh = true;
-
-						ImGui::Separator();
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
-						{
-							if (ImGui::Button("Kick from lobby"))
-								g_config.Pfeatures_kick = true;
-						}
-						ImGui::PopStyleColor();
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-						{
-							if (ImGui::Button("Crash player"))
-								g_config.Pfeatures_crash = true;
-						}
-						ImGui::PopStyleColor();
-					}
-					ImGui::EndGroupBox();
-				}
-
-				ImGui::End();
-
+				ImGui::Text("if needed. might remove");
 				ImGui::EndTabItem();
 			}
 
@@ -343,24 +183,184 @@ namespace big::base_tab
 				{
 					ImGui::Checkbox("Event protection", &features::features_maleventprotection);
 					if (ImGui::IsItemHovered())
-						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (phone, LSC, purchases).");
+						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (purchases).");
 				}
 				ImGui::PopStyleColor();
 
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Recovery"))
+			if (ImGui::BeginTabItem("ESP"))
 			{
-				ImGui::Text("Will be implemented eventually!");
-
+				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
+				ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
+				ImGui::Checkbox("Box ESP", &g_config.ESPfeatures_box); ImGui::SameLine(); ImGui::ColorEdit3("##boxcol", g_config.ESPfeatures_boxcol, ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Name ESP", &g_config.ESPfeatures_name); ImGui::SameLine(); ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Snapline", &g_config.ESPfeatures_snapline); ImGui::SameLine(); ImGui::ColorEdit3("##snapcol", g_config.ESPfeatures_snapcol, ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Marker", &g_config.ESPfeatures_marker); ImGui::SameLine(); ImGui::ColorEdit3("##mcol", g_config.ESPfeatures_markercol, ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Display distance", &g_config.ESPfeatures_distance);
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Misc"))
+			if (ImGui::BeginTabItem("Players"))
 			{
-				if (ImGui::Button("Skip current cutscene"))
-					g_config.Ofeatures_skipcutscene = true;
+				ImGui::Columns(2);
+				{
+					/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+					{
+						if (ImGui::Button("KICK ALL"));
+						g_config.Pfeatures_kickall = true;
+
+						ImGui::SameLine();
+
+						if (ImGui::Button("CRASH ALL"))
+							g_config.Pfeatures_crashall = true;
+					}
+					ImGui::PopStyleColor();*/
+
+					static string currentPlayerSearch = "";
+					ImGui::PushItemWidth(215);
+						InputText("##Search##players", &currentPlayerSearch, 0);
+					ImGui::PopItemWidth();
+					ImGui::BeginChild("##col 1", ImVec2(0.0f, 0.0f), false, ImGuiWindowFlags_AlwaysAutoResize);
+					{
+						for (int i = 0; i < 32; i++)
+						{
+							string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
+							string str = features::players[i].name, search = currentPlayerSearch;
+							transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
+							transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
+							bool searchFound = str.find(search) != string::npos;
+
+							if (!features::players[i].ped)
+								continue;
+
+							if (!features::players[features::selectedPlayer].name)
+							{
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
+								continue;
+							}
+
+							if (currentPlayerSearch.size() > 0 && !searchFound)
+								continue;
+
+							if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
+								features::selectedPlayer = i;
+
+							if (features::players[i].index == features::localIndex)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "LOCAL");
+							}
+							if (features::players[i].isfriend)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(0.1f, 1.f, 0.1f, 1.f), "FRIEND");
+							}
+							if (features::players[i].isSessionHost)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
+							}
+							if (features::players[i].interior)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(i)"); //todo: patch flickering caused by casino interior
+							}
+							if (features::players[i].invehicle)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(v)");
+							}
+						}
+					}
+					ImGui::EndChild();
+
+					ImGui::NextColumn();
+
+					if (features::selectedPlayer > -1)
+					{
+						ImGui::BeginChild("##col 2", ImVec2(0.0f, 0.0f), false, ImGuiWindowFlags_AlwaysAutoResize);
+						{
+							if (features::players[features::selectedPlayer].name)
+								ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
+							else
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
+
+							ImGui::Text("Health:");
+
+							int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
+							int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
+							Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
+
+							if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+
+							ImGui::SameLine();
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
+							ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
+							ImGui::PopStyleColor();
+
+							ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
+
+							ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
+
+							string rockstarId = features::players[features::selectedPlayer].rockstarId;
+
+							ImGui::PushItemWidth(130);
+
+							if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
+							{
+								auto player = features::players[features::selectedPlayer].player;
+								auto info = features::players[features::selectedPlayer].info;
+								auto netData = features::players[features::selectedPlayer].netData;
+								BYTE* IP = reinterpret_cast<BYTE*>(&info->externalIP);
+
+								//if (netData) {}
+									//ImGui::Text(fmt::format("Host token: {}", netData->m_host_token).c_str());
+
+								/*if (IP)
+								{
+									string IPString = fmt::format("{}.{}.{}.{}:{} ext:{}", *(IP + 3), *(IP + 2), *(IP + 1), *IP, info->externalPort, info->externalIP);
+									InputText("IP", &IPString, 0);
+								}
+								else
+									ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "IP is nullptr");*/
+							}
+
+							InputText("RSID", &rockstarId, 0);
+
+							ImGui::PopItemWidth();
+
+							ImGui::Separator();
+
+							ImGui::Separator();
+
+							if (ImGui::Button("Teleport to player"))
+								g_config.Pfeatures_teleport = true;
+
+							if (ImGui::Button("Kick from vehicle"))
+								g_config.Pfeatures_kickfromveh = true;
+
+							ImGui::Separator();
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
+							{
+								if (ImGui::Button("Kick from lobby"))
+									g_config.Pfeatures_kick = true;
+							}
+							ImGui::PopStyleColor();
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+							{
+								if (ImGui::Button("Crash player"))
+									g_config.Pfeatures_crash = true;
+							}
+							ImGui::PopStyleColor();
+						}
+						ImGui::EndChild();
+					}
+				}
 				ImGui::EndTabItem();
 			}
 
@@ -372,6 +372,8 @@ namespace big::base_tab
 
 	void render_settings_tab()
 	{
+		auto& style = ImGui::GetStyle();
+
 		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("Config"))
@@ -388,9 +390,12 @@ namespace big::base_tab
 
 				if (ImGui::Button("Load"))
 					g_config.load(configs.at(selectedConfig));
-				
-				ImGui::Separator();
 
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Misc"))
+			{
 				if (ImGui::Button("Unload"))
 					g_running = false;
 
@@ -401,11 +406,11 @@ namespace big::base_tab
 			{
 				if (ImGui::BeginTabItem("Debug"))
 				{
-					InputText("##localIndex", &format("localIndex: {}", reinterpret_cast<void*>(features::localIndex)), 0);
-					InputText("##localPed", &format("localPed: {}", reinterpret_cast<void*>(features::localPed)), 0);
-					InputText("##local", &format("local: {}", reinterpret_cast<void*>(features::local)), 0);
-					InputText("##localInfo", &format("localInfo: {}", reinterpret_cast<void*>(features::localInfo)), 0);
-					InputText("##localCPed", &format("localCPed: {}", reinterpret_cast<void*>(features::localCPed)), 0); //bugged, will return nullptr
+					InputText("localIndex", &format("{}", reinterpret_cast<void*>(features::localIndex)), 0);
+					InputText("localPed", &format("{}", reinterpret_cast<void*>(features::localPed)), 0);
+					InputText("local", &format("{}", reinterpret_cast<void*>(features::local)), 0);
+					InputText("localInfo", &format("{}", reinterpret_cast<void*>(features::localInfo)), 0);
+					InputText("localCPed", &format("{}", reinterpret_cast<void*>(features::localCPed)), 0); //bugged, will return nullptr
 
 					ImGui::EndTabItem();
 				}

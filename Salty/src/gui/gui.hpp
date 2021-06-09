@@ -32,14 +32,18 @@ namespace big
 		bool Lfeatures_nomental = false;
 		bool Lfeatures_fastrun = false;
 
-		bool Wfeatures_infammo = true;
+		bool Wfeatures_infammo = false;
 		bool Wfeatures_autoshoot = false;
 		bool Wfeatures_instakill = false;
 		bool Wfeatures_addweapons = false;
 
-		bool ESPfeatures_health = true;
+		bool ESPfeatures_health = false;
 		bool ESPfeatures_visible = false;
-		bool ESPfeatures = false;
+		bool ESPfeatures_box = false;
+		bool ESPfeatures_name = false;
+		bool ESPfeatures_distance = false;
+		bool ESPfeatures_marker = false;
+		bool ESPfeatures_snapline = false;
 
 		bool Pfeatures_teleport = false;
 		bool Pfeatures_kickfromveh = false;
@@ -61,9 +65,12 @@ namespace big
 		bool Vfeatures_hornboost = false;
 		bool Vfeatures_godmode = false;
 
-		float Vfeatures_vcol[3] = { 255.f, 255.f, 255.f };
-		float ESPfeatures_col[3] = { 0.f, 0.f, 0.f };
-		float menucolor[3] = { 0.28f, 0.56f, 1.00f };
+		float Vfeatures_vcol[3] = { .624f, .792f, .169f };
+		float ESPfeatures_boxcol[3] = { .624f, .792f, .169f };
+		float ESPfeatures_namecol[3] = { .624f, .792f, .169f };
+		float ESPfeatures_snapcol[3] = { .624f, .792f, .169f };
+		float ESPfeatures_markercol[3] = { .624f, .792f, .169f };
+		float menucolor[3] = { .624f, .792f, .169f };
 
 		bool save(const std::string file_name);
 		bool load(const std::string file_name);

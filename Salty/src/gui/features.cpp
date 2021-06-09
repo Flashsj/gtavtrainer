@@ -382,7 +382,7 @@ namespace big::features
 
 			if (g_config.Pfeatures_crash)
 			{
-				log_map(fmt::format("Attempting to desktop player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
+				log_map(fmt::format("Attempting to crash player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
 				scriptCrash(selectedPlayer);
 				g_config.Pfeatures_crash = false;
 			}
@@ -1022,13 +1022,30 @@ namespace big::features
 
 		float distance = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(theircoords.x, theircoords.y, theircoords.z, mycoords.x, mycoords.y, mycoords.z, true);
 
-		float ColR, ColG, ColB;
 		int maxHealth = features::players[p].maxHealth - 100;
 		int health = std::clamp(features::players[p].health - 100, 0, maxHealth);
 
 		Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-		g_config.ESPfeatures_health ? (ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z) : (ColR = g_config.ESPfeatures_col[0] * 255, ColG = g_config.ESPfeatures_col[1] * 255, ColB = g_config.ESPfeatures_col[2] * 255);
+		float nColR, nColG, nColB;
+		float snColR, snColG, snColB;
+		float mColR, mColG, mColB;
+		float bColR, bColG, bColB;
+
+		if (g_config.ESPfeatures_health)
+		{
+			nColR = healthColor.x, nColG = healthColor.y, nColB = healthColor.z;
+			snColR = healthColor.x, snColG = healthColor.y, snColB = healthColor.z;
+			mColR = healthColor.x, mColG = healthColor.y, mColB = healthColor.z;
+			bColR = healthColor.x, bColG = healthColor.y, bColB = healthColor.z;
+		}
+		else
+		{
+			nColR = g_config.ESPfeatures_namecol[0] * 255, nColG = g_config.ESPfeatures_namecol[1] * 255, nColB = g_config.ESPfeatures_namecol[2] * 255;
+			snColR = g_config.ESPfeatures_snapcol[0] * 255, snColG = g_config.ESPfeatures_snapcol[1] * 255, snColB = g_config.ESPfeatures_snapcol[2] * 255;
+			mColR = g_config.ESPfeatures_markercol[0] * 255, mColG = g_config.ESPfeatures_markercol[1] * 255, mColB = g_config.ESPfeatures_markercol[2] * 255;
+			bColR = g_config.ESPfeatures_boxcol[0] * 255, bColG = g_config.ESPfeatures_boxcol[1] * 255, bColB = g_config.ESPfeatures_boxcol[2] * 255;
+		}
 
 		if (!ENTITY::DOES_ENTITY_EXIST(handle))
 			return;
@@ -1044,38 +1061,45 @@ namespace big::features
 
 		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
 
-		if (g_config.ESPfeatures)
+		if (g_config.ESPfeatures_name)
 		{
 			if (PLAYER::GET_PLAYER_NAME(p))
 			{
 				UI::SET_TEXT_CENTRE(true);
-				UI::SET_TEXT_COLOUR(ColR, ColG, ColB, 255);
+				UI::SET_TEXT_COLOUR(nColR, nColG, nColB, 255);
 				UI::SET_TEXT_FONT(0);
 				UI::SET_TEXT_SCALE(0.21f, 0.21f);
 				UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 0);
 				UI::SET_TEXT_EDGE(1, 0, 0, 0, 0);
 				UI::SET_TEXT_OUTLINE();
 				UI::BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
-				UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(fmt::format("[{}]m~n~{}", (int)distance, pname).c_str());
+				if (g_config.ESPfeatures_distance)
+					UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(fmt::format("[{}]m~n~{}", (int)distance, pname).c_str());
+				else
+					UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(pname);
 				UI::END_TEXT_COMMAND_DISPLAY_TEXT(xoffset, yoffset);
 			}
+		}
 
-			GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, ColR, ColG, ColB, 255); //snapline
-			GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, ColR, ColG, ColB, 100, true, false, 2, true, false, false, false); //marker
+		if (g_config.ESPfeatures_snapline)
+			GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, snColR, snColG, snColB, 255); //snapline
+		if (g_config.ESPfeatures_marker)
+			GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, mColR, mColG, mColB, 100, true, false, 2, true, false, false, false); //marker
 
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
-
+		if (g_config.ESPfeatures_box)
+		{
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
+			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
 		}
 	}
 

@@ -102,6 +102,8 @@ namespace big
 
 	void renderer::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
+		auto& style = ImGui::GetStyle();
+
 		if ((msg == WM_KEYUP) && (wparam == VK_INSERT || wparam == VK_DELETE))
 		{
 			//Persist and restore the cursor position between menu instances.
@@ -110,6 +112,7 @@ namespace big
 				GetCursorPos(&cursor_coords);
 			else if (cursor_coords.x + cursor_coords.y != 0)
 				SetCursorPos(cursor_coords.x, cursor_coords.y);
+			
 			g_gui.m_opened ^= true;
 		}
 			
