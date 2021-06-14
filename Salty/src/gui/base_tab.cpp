@@ -152,13 +152,27 @@ namespace big::base_tab
 			g_config.Vfeatures_autoupgrade = true;
 	}
 
+	static int selectedWeather = 0;
+
 	void render_online_tab()
 	{
 		if (ImGui::BeginTabBar("##tabs6", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("World"))
 			{
-				ImGui::Text("todo");
+				Combo("Weather", &g_config.Wfeatures_selectedweather, { "EXTRASUNNY", "CLEAR", "CLOUDS", "SMOG", "FOGGY", "OVERCAST", "RAIN", "THUNDER", "CLEARING", "NEUTRAL", "SNOW", "BLIZZARD", "SNOWLIGHT", "XMAS", "HALLOWEEN", "BLACK SCREEN" });
+				
+				ImGui::SameLine();
+
+				if (ImGui::Button("Apply"))
+					g_config.Wfeatures_weather = true;
+
+				//if (g_pointers->m_ClockTime)
+				//{
+				//	if (ImGui::SliderInt("Lobby hour", &g_pointers->m_ClockTime->hour, 0, 23))
+				//		g_pointers->m_SessionTime(4, 0);
+				//}
+
 				ImGui::EndTabItem();
 			}
 

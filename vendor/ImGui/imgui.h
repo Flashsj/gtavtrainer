@@ -763,6 +763,7 @@ namespace ImGui
     IMGUI_API void          EndGroupBox();
     IMGUI_API bool          ToggleButton(const char* label, bool* v, const ImVec2& size_arg);
     IMGUI_API static int    InputTextCallback(ImGuiInputTextCallbackData* data);
+    //IMGUI_API bool          ColorBar(const char* label, const ImVec2& size = ImVec2(0, 0));    // ColorBar
     //IMGUI_API bool          InputText(const char* label, string* str, ImGuiInputTextFlags flags);
 
 } // namespace ImGui
