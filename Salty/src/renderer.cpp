@@ -55,7 +55,7 @@ namespace big
 
 		mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
 		(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();
-		tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\GTAVTRAINER\\Astriumtabs2.ttf", 14.f);
+		tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Users\\cland\\Documents\\GTA Stuff\\gtavtrainer\\font.ttf", 14.f);
 		(tabfont != NULL) ? ImGui::GetIO().FontDefault = tabfont : ImGui::GetIO().Fonts->AddFontDefault();
 		m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
 

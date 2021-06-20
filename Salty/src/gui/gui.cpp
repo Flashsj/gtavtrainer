@@ -132,9 +132,11 @@ namespace big
 		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
 
+		ImGui::SetNextWindowSize(ImVec2(700, 362));
+
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
-		if (ImGui::Begin("LandrySoftware", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
+		if (ImGui::Begin("##body_main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
 			ImGui::PushFont(tabfont);
 			{
@@ -153,7 +155,7 @@ namespace big
 
 			ImGui::PushFont(mainfont);
 			{
-				ImGui::BeginGroupBox("##body", size);
+				ImGui::BeginGroupBox("##body_sub", size);
 				{
 					style.FrameRounding = 1.5f;
 					ImGui::PushItemWidth(145.f);

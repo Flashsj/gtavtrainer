@@ -7,9 +7,8 @@ render in d3d instead of in game
 fix vehicle entity request bug
 work on kick protection
 cache multiplayer speed matrix for individual players
-POOP
+
 
 TODO LONG TERM:
 
 learn more about proto events
-POOP
