@@ -10377,6 +10377,7 @@ void ImGui::ShowMetricsWindow(bool*) { }
 
 #endif // #ifndef IMGUI_DISABLE
 
+
 //FUNCTIONS ADDED BY ME
 
 bool ImGui::ToggleButton(const char* label, bool* v, const ImVec2& size_arg)
@@ -10433,10 +10434,12 @@ bool ImGui::BeginGroupBox(const char* name, const ImVec2& size_arg)
     window->DC.CursorPos.y += GImGui->FontSize / 2;
     const ImVec2 content_avail = ImGui::GetContentRegionAvail();
     ImVec2 size = ImFloor(size_arg);
-    if (size.x <= 0.0f)
+    if (size.x <= 0.0f) {
         size.x = ImMax(content_avail.x, 4.0f) - fabsf(size.x); // Arbitrary minimum zero-ish child size of 4.0f (0.0f causing too much issues)
-    if (size.y <= 0.0f)
+    }
+    if (size.y <= 0.0f) {
         size.y = ImMax(content_avail.y, 4.0f) - fabsf(size.y);
+    }
 
     ImGui::SetNextWindowSize(size);
     bool ret;
@@ -10449,8 +10452,7 @@ bool ImGui::BeginGroupBox(const char* name, const ImVec2& size_arg)
 
     auto text_size = ImGui::CalcTextSize(name, NULL, true);
 
-    if (text_size.x > 1.0f)
-    {
+    if (text_size.x > 1.0f) {
         window->DrawList->PushClipRectFullScreen();
         //window->DrawList->AddRectFilled(window->DC.CursorPos - ImVec2{ 4, 0 }, window->DC.CursorPos + (text_size + ImVec2{ 4, 0 }), GetColorU32(ImGuiCol_ChildWindowBg));
         //RenderTextClipped(pos, pos + text_size, name, NULL, NULL, GetColorU32(ImGuiCol_Text));
@@ -10468,3 +10470,4 @@ void ImGui::EndGroupBox()
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     window->DC.CursorPosPrevLine.y -= GImGui->FontSize / 2;
 }
+

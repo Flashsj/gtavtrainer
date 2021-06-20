@@ -65,10 +65,6 @@ namespace big
 		bool Vfeatures_hornboost = false;
 		bool Vfeatures_godmode = false;
 
-		int Wfeatures_selectedweather = 0;
-		bool Wfeatures_weather = false;
-		bool Wfeatures_time = false;
-
 		float Vfeatures_vcol[3] = { .624f, .792f, .169f };
 		float ESPfeatures_boxcol[3] = { .624f, .792f, .169f };
 		float ESPfeatures_namecol[3] = { .624f, .792f, .169f };
