@@ -16,8 +16,6 @@
 #include <../imgui/examples/imgui_impl_win32.h>
 #include <renderer.hpp>
 
-//This class needs a little organization... I'll get to it eventually
-
 namespace big
 {
 	static char* sidebar_tabs[] = { "C", "E", "H", "F" };
@@ -87,53 +85,12 @@ namespace big
 		return ImVec2{ size_w, ImMax(325.0f, size_h) };
 	}
 
-	void gui::dx_init()
-	{
-		auto& style = ImGui::GetStyle();
-		auto& colors = style.Colors;
-
-		//ImGui::StyleColorsDark();
-		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
-
-		style.WindowRounding = 0.1f;
-		style.TabRounding = 0.f;
-		style.ChildRounding = 0.0f;
-
-		colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
-		colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
-		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
-		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.989f);
-		colors[ImGuiCol_Tab] = ImVec4(0.21f, 0.21f, 0.21f, 0.86f);
-		colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
-
-		ImGui::GetStyle() = style;
-	}
-
-	void gui::dx_on_tick()
+	void draw()
 	{
 		auto& style = ImGui::GetStyle();
 		auto& colors = style.Colors;
 		const auto sidebar_size = get_sidebar_size();
 		static int active_sidebar_tab = 0;
-
-		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_FrameBgActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_TabHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_TabActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_ResizeGripHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_ResizeGripActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		colors[ImGuiCol_HeaderHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-
-		ImGui::SetNextWindowSize(ImVec2(700, 362));
-
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
 		if (ImGui::Begin("##body_main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
@@ -142,9 +99,9 @@ namespace big
 			{
 				ImGui::BeginGroupBox("##sidebar", sidebar_size);
 				{
-					style.FrameRounding = 0.f;
+					style.FrameRounding = 0.f; //force tab rounding to be sharp
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.5, 1.5));
-						render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
+					render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
 					ImGui::PopStyleVar();
 				}
 				ImGui::EndGroupBox();
@@ -157,7 +114,7 @@ namespace big
 			{
 				ImGui::BeginGroupBox("##body_sub", size);
 				{
-					style.FrameRounding = 1.5f;
+					style.FrameRounding = 1.5f; //force rounding for everything but the tabs
 					ImGui::PushItemWidth(145.f);
 					{
 						switch (active_sidebar_tab)
@@ -186,7 +143,55 @@ namespace big
 		}
 	}
 
-	void gui::script_init() {}
+	void gui::dx_init()
+	{
+		auto& style = ImGui::GetStyle();
+		auto& colors = style.Colors;
+		const auto sidebar_size = get_sidebar_size();
+		static int active_sidebar_tab = 0;
+		auto size = ImVec2{ 0.0f, sidebar_size.y };
+
+		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
+
+		style.WindowRounding = 0.1f;
+		style.TabRounding = 0.f;
+		style.ChildRounding = 0.0f;
+
+		colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.989f);
+		colors[ImGuiCol_Tab] = ImVec4(0.21f, 0.21f, 0.21f, 0.86f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
+
+		ImGui::GetStyle() = style;
+	}
+
+	void gui::dx_on_tick()
+	{
+		auto& colors = ImGui::GetStyle().Colors;
+
+		//these are here to auto update the menu colors based on the custom menu colorpicker
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_TabHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_TabActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+
+		draw();
+	}
+
+	void gui::script_init() {} //unused
 
 	void gui::script_on_tick()
 	{
