@@ -421,11 +421,9 @@ namespace big
 		uint8_t* data = buffer->m_data;
 		bool kick = false, g_event = false, m_event = false;
 
-		//the kick and event protection being added here seemed to be working just fine for me. if it doesnt work then you can add the hooks if you want.
-
 		features::features_kickprotection ? kick = FIND(event_id, misc::blocked_kick) : false;
 		features::features_maleventprotection ? m_event = FIND(event_id, misc::blocked_malev) : false;
-		features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false; //this works, this was added by salty. I just redid it a little.
+		features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
 		bool crash = misc::block_crash(n, data);
 		bool catalog = event_type > NETWORK_CHECK_CATALOG_CRC;
 		bool flood = (!kick && !g_event && !m_event) && misc::flood_event(src, event_type, bitset);
@@ -457,7 +455,6 @@ namespace big
 	}
 
 	//i am working on rewiriting most of this. its garbage right now but it will be fixed in the near future. i need to do something about the manual passing of the event types because it looks so bad rn.
-	//known bug: control event issues on session change (sometimes u get booted from ur vehicle, this is a default salty issue)
 
 	static bool network_event(void* event_manager, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer* buffer)
 	{

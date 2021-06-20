@@ -959,22 +959,6 @@ namespace big::features
 				//localCPed = localInfo->ped;
 		}
 
-		/*if (local)
-		{
-			localInfo = local->m_PlayerInfo;
-			if (localInfo)
-			{
-				localCPed = localInfo->ped;
-				if (localCPed)
-				{
-					lastVehicle = localCPed->m_vehicle;
-
-					if (lastVehicle)
-						lastVehicleHandling = lastVehicle->handlingData;
-				}
-			}
-		}*/
-
 		//cache local info real quick
 		if (i == player) { localPed = ped;	localIndex = i; }
 
