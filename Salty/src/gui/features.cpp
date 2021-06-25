@@ -947,7 +947,7 @@ namespace big::features
 
 			if (players[i].info && players[i].info->ped)
 			{
-				//players[i].invincible = players[i].info->ped->m_godmode;
+				players[i].invincible = players[i].info->ped->m_godmode;
 				players[i].rockstarId3 = players[i].info->rockstarID;
 			}
 
@@ -997,14 +997,14 @@ namespace big::features
 
 		Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-		float nColR, nColG, nColB;
+		float nColR, nColG, nColB; // i fucking hate this shit so much make a fucking class or something please you retard
 		float snColR, snColG, snColB;
 		float mColR, mColG, mColB;
 		float bColR, bColG, bColB;
 
 		if (g_config.ESPfeatures_health)
 		{
-			nColR = healthColor.x, nColG = healthColor.y, nColB = healthColor.z;
+			nColR = healthColor.x, nColG = healthColor.y, nColB = healthColor.z; // fuck you
 			snColR = healthColor.x, snColG = healthColor.y, snColB = healthColor.z;
 			mColR = healthColor.x, mColG = healthColor.y, mColB = healthColor.z;
 			bColR = healthColor.x, bColG = healthColor.y, bColB = healthColor.z;
@@ -1016,6 +1016,8 @@ namespace big::features
 			mColR = g_config.ESPfeatures_markercol[0] * 255, mColG = g_config.ESPfeatures_markercol[1] * 255, mColB = g_config.ESPfeatures_markercol[2] * 255;
 			bColR = g_config.ESPfeatures_boxcol[0] * 255, bColG = g_config.ESPfeatures_boxcol[1] * 255, bColB = g_config.ESPfeatures_boxcol[2] * 255;
 		}
+
+		if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
 
 		if (!ENTITY::DOES_ENTITY_EXIST(handle))
 			return;
