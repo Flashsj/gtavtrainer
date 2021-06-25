@@ -933,7 +933,7 @@ namespace big::features
 		auto ped = PLAYER::GET_PLAYER_PED(i);
 		auto netPlayer = getNetGamePlayer(i);
 		Vector3 pos = ENTITY::GET_ENTITY_COORDS(ped, 1);
-		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(ped, 1);
+		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 1);
 
 		if (netPlayer)
 		{
@@ -993,7 +993,7 @@ namespace big::features
 		auto pname = PLAYER::GET_PLAYER_NAME(p);
 
 		Vector3 theircoords = ENTITY::GET_ENTITY_COORDS(handle, TRUE);
-		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(ped, TRUE);
+		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
 
 		float xoffset, yoffset;
 
@@ -1030,7 +1030,7 @@ namespace big::features
 		if (p == player)
 			return;
 
-		if (distance > 10000)
+		if (distance > g_config.esp.render_distance)
 			return;
 
 		if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground

@@ -199,8 +199,9 @@ namespace big::base_tab
 					ImGui::Checkbox("Skeleton", &g_config.esp.skeleton_enabled); // to do: colorpicker
 				}
 
-				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
+				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible); 
 				ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
+				ImGui::SliderFloat("Render distance", &g_config.esp.render_distance, 100.f, 10000.f); // dont know why you removed this
 				ImGui::Checkbox("Box", &g_config.ESPfeatures_box); ImGui::SameLine(); ImGui::ColorEdit3("##boxcol", g_config.ESPfeatures_boxcol, ImGuiColorEditFlags_NoInputs);
 				ImGui::Checkbox("Snapline", &g_config.ESPfeatures_snapline); ImGui::SameLine(); ImGui::ColorEdit3("##snapcol", g_config.ESPfeatures_snapcol, ImGuiColorEditFlags_NoInputs);
 				ImGui::Checkbox("Marker", &g_config.ESPfeatures_marker); ImGui::SameLine(); ImGui::ColorEdit3("##mcol", g_config.ESPfeatures_markercol, ImGuiColorEditFlags_NoInputs);

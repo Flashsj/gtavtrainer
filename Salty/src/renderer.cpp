@@ -171,7 +171,7 @@ namespace big
 				if (!g_config.Lfeatures_invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
 					continue;													// to do: figure out edit and continue and the performance profiler since i can attach a debugger now
 
-				if (features::players[i].distanceToLocal > g_config.ESPfeatures_distance)
+				if (features::players[i].distanceToLocal > g_config.esp.render_distance)
 					continue;
 
 				if (g_config.ESPfeatures_visible && !features::players[i].visible)

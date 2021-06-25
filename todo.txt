@@ -3,6 +3,15 @@ charles shit to do and ideas for cagen landey :)
 - fix the retarded spacing on the menu (im too lazy to redo the entire menu rn)
 - put the fonts in byte arrays and then load the byte arrays with imgui (binary_to_compressed_c, or you can use HxD iirc)
 - redo the retarded skeleton shit where i call storeSkeleton and connectSkeleton shit and replace it with a for loop
+- fix this error, is something leaking memory?
+---------------------------
+ERR_MEM_MULTIALLOC_FREE
+---------------------------
+Game memory error. Please reboot and restart the game.
+
+---------------------------
+OK   
+---------------------------
 
 TODO SHORT TERM:
 

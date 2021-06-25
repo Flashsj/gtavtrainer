@@ -13,7 +13,7 @@ namespace big
 
 		template<size_t N>
 		void render_tab(char* (&names)[N], int& activetab, float w, float h, bool sameline);
-
+		 
 		bool m_opened{};
 	};
 
@@ -48,6 +48,7 @@ namespace big
 		{
 			bool enable_d3d_esp = false;
 			bool skeleton_enabled = false;
+			float render_distance = 3000.f;
 		}esp;
 
 		bool Pfeatures_teleport = false;
