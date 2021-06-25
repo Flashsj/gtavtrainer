@@ -954,13 +954,6 @@ namespace big::features
 			players[i].isSessionHost = netPlayer->is_host();
 		}
 
-		if (local)
-		{
-			localInfo = local->m_PlayerInfo;
-			if (localInfo)
-				localCPed = localInfo->ped;
-		}
-
 		//cache local info real quick
 		if (i == player) { localPed = ped;	localIndex = i; }
 
@@ -1174,11 +1167,26 @@ namespace big::features
 		return false;
 	}
 
-	void dec_var()
+	void dec_var() // what the fuck does dec_var mean????
 	{
 		player = PLAYER::PLAYER_ID();
 		ped = PLAYER::PLAYER_PED_ID();
 		local = getNetGamePlayer(player);
+		if (local)
+		{
+			localInfo = local->m_PlayerInfo;
+			if (localInfo)
+			{
+				localCPed = localInfo->ped;
+				if (localCPed)
+				{
+					if (g_config.vehicle.seatbelt)
+						features::localCPed->seatbelt = features::localCPed->seatbelt | 0x01;
+					else
+						features::localCPed->seatbelt = (features::localCPed->seatbelt | 0x01) ^ 0x01;
+				}
+			}
+		}
 		inSession = NETWORK::NETWORK_IS_IN_SESSION();
 		sessionActive = NETWORK::NETWORK_IS_SESSION_ACTIVE();
 		scriptIndex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);

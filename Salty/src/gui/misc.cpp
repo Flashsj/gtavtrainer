@@ -440,7 +440,10 @@ namespace big::misc
 	float distance(rage::netSyncTree* netSyncTree, int16_t object_type)
 	{
 		float* a = netSyncTree->m_sync_tree_node->pos(object_type);
-		rage::vector3 b = gta_util::get_local_ped()->m_navigation->m_position;
+		rage::vector3 b = gta_util::get_local_ped()->m_position; // to do: fix m_navigation->m_position;
+
+		LOG(INFO) << b.x << " " << b.y << " " << b.z;
+
 		rage::vector3 c = { a[0] - b.x, a[1] - b.y, a[2] - b.z };
 
 		return sqrt(c.x * c.x + c.y * c.y + c.z * c.z);

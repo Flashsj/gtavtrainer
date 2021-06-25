@@ -48,17 +48,70 @@ namespace rage
 		vector3 m_position; //0x0050
 	}; //Size: 0x005C
 
-	class CPed : public fwEntity
+	//class CPed : public fwEntity
+	//{
+	//public:
+	//	char pad_018C[2972]; //0x018C
+	//	class CVehicle* m_last_vehicle; //0x0D28
+	//	char pad_0D30[892]; //0x0D30
+	//	int8_t m_decal_index; //0x10AC
+	//	int8_t m_decal_info; //0x10AD
+	//	char pad_10AE[26]; //0x10AE
+	//	class CPlayerInfo* m_player_info; //0x10C8
+	//};
+
+	class CAutomobile
 	{
 	public:
-		char pad_018C[2972]; //0x018C
-		class CVehicle* m_last_vehicle; //0x0D28
-		char pad_0D30[892]; //0x0D30
-		int8_t m_decal_index; //0x10AC
-		int8_t m_decal_info; //0x10AD
-		char pad_10AE[26]; //0x10AE
+		char pad_0000[880]; //0x0000
+		float speedLimit; //0x0370
+		char pad_0374[1360]; //0x0374
+		float acceleration; //0x08C4
+		char pad_08C8[8]; //0x08C8
+		float engineRPM; //0x08D0
+		float engineRPM2; //0x08D4
+		char pad_08D8[4]; //0x08D8
+		float clutch; //0x08DC
+		float throttle; //0x08E0
+		char pad_08E4[84]; //0x08E4
+		void* handlingData; //0x0938 // to do: redo CHandlingData with the handling.meta file
+		char pad_0940[340]; //0x0940
+		float dashboardSpeed; //0x0A94
+		char pad_0A98[452]; //0x0A98
+		float gravity; //0x0C5C
+		char pad_0C60[3452]; //0x0C60
+		float rideHeight1; //0x19DC
+		float rideHeight2; //0x19E0
+		char pad_19E4[1653]; //0x19E4
+	}; //Size: 0x2059
+
+	class CPed
+	{
+	public:
+		char pad_0000[144]; //0x0000
+		rage::vector3 m_position; //0x0090
+		char pad_009C[237]; //0x009C
+		uint8_t m_godmode; //0x0189
+		char pad_018A[246]; //0x018A
+		float m_health; //0x0280 
+		char pad_0284[28]; //0x0284
+		float m_maxhealth; //0x02A0
+		char pad_02A4[2700]; //0x02A4
+		CAutomobile* m_vehicle; //0x0D30
+		char pad_0D38[912]; //0x0D38
 		class CPlayerInfo* m_player_info; //0x10C8
-	};
+		char pad_10D0[8]; //0x10D0
+		class CPedWeaponManager* m_weapon_manager; //0x10D8
+		char pad_10E0[812]; //0x10E0
+		uint8_t seatbelt; //0x140C
+		char pad_140D[117]; //0x140D
+		uint8_t unk; //0x1482
+		uint8_t gettingInVehicle; //0x1483
+		char pad_1484[5]; //0x1484
+		uint8_t inVehicle; //0x1489
+		char pad_148A[86]; //0x148A
+		float armor; //0x14E0
+	}; //Size: 0x14E4
 
 	class CObject : public fwEntity
 	{

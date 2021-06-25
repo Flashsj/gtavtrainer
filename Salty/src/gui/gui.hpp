@@ -70,6 +70,10 @@ namespace big
 		bool Vfeatures_autoclean = false;
 		bool Vfeatures_hornboost = false;
 		bool Vfeatures_godmode = false;
+		struct
+		{
+			bool seatbelt = false;
+		}vehicle;
 
 		float Vfeatures_vcol[3] = { .624f, .792f, .169f };
 		float ESPfeatures_boxcol[3] = { .624f, .792f, .169f };
