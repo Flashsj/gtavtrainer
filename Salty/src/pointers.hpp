@@ -3,6 +3,7 @@
 #include "function_types.hpp"
 #include "gta/replay.hpp"
 #include "gta/script_program.hpp"
+#include <gta/matrix.hpp>
 
 using NetPlayer = rage::CNetGamePlayer* (int player);
 
@@ -74,6 +75,12 @@ namespace big
 		IDXGISwapChain** m_swapchain{};
 
 		PVOID m_model_spawn_bypass{};
+
+		// nigga hack v2 shit
+		typedef void* (__fastcall* GetBoneFromMask2)(void* pThis, rage::vector4& vBonePos, WORD dwMask);
+		GetBoneFromMask2 getBone2;
+
+		rage::CViewPort* viewport;
 	};
 
 	inline pointers* g_pointers{};

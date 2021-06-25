@@ -85,11 +85,11 @@ namespace rage
 
 	class CNetworkPlayerMgr : netPlayerMgrBase {};
 
-	class CPlayerInfo : public rage::fwExtensibleBase
+	class CPlayerInfo // fixed this, it didnt work because you had  : public rage::fwExtensibleBase, this does extend fwExtensibleBase but i didnt account for that in reclass and idk the size of fwExtensibleBase and i dont want to figure it out
 	{
 	public:
 		char pad_0000[108]; //0x0000
-		uint32_t externalIP; //0x006C
+		uint32_t externalIP; //0x006C // to do: replace this with netAddress so i can get rid of the retarded shit with pointers in the gui
 		uint16_t externalPort; //0x0070 
 		char pad_0072[30]; //0x0072
 		uint64_t rockstarID; //0x0090
@@ -104,7 +104,7 @@ namespace rage
 		char pad_0881[7]; //0x0881
 		uint8_t wantedLevel; //0x0888
 		char pad_0889[1975]; //0x0889
-	};
+	}; //Size: 0x1040
 }
 
 #pragma pack(pop)

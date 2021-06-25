@@ -33,7 +33,7 @@ namespace big
 		bool Lfeatures_fastrun = false;
 
 		bool Wfeatures_infammo = false;
-		bool Wfeatures_autoshoot = false;
+		bool Wfeatures_autoshoot = false; 
 		bool Wfeatures_instakill = false;
 		bool Wfeatures_addweapons = false;
 
@@ -44,6 +44,11 @@ namespace big
 		bool ESPfeatures_distance = false;
 		bool ESPfeatures_marker = false;
 		bool ESPfeatures_snapline = false;
+		struct // i fucking hate your letter shit, heres an idea if you want to redo this shit
+		{
+			bool enable_d3d_esp = false;
+			bool skeleton_enabled = false;
+		}esp;
 
 		bool Pfeatures_teleport = false;
 		bool Pfeatures_kickfromveh = false;

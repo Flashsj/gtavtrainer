@@ -16,6 +16,8 @@ using namespace rage;
 //The messiest file on the planet. it's complete garbage. don't say I didnt warn you! (:
 //One day this will be organized
 
+// done
+
 namespace big::features
 {
 	bool injected = false;
@@ -955,8 +957,8 @@ namespace big::features
 		if (local)
 		{
 			localInfo = local->m_PlayerInfo;
-			//if (localInfo)
-				//localCPed = localInfo->ped;
+			if (localInfo)
+				localCPed = localInfo->ped;
 		}
 
 		//cache local info real quick
@@ -983,31 +985,6 @@ namespace big::features
 		players[i].visible = ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 17);
 		players[i].distanceToLocal = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(pos.x, pos.y, pos.z, mycoords.x, mycoords.y, mycoords.z, true);
 		players[i].rockstarId = NETWORK::NETWORK_MEMBER_ID_FROM_GAMER_HANDLE(&netHandle[0]);
-
-		//store bone maxtrix for each player //im lazy and skeleton esp looks so bad so im not gonna add it yet
-		/*storeSkeleton(ped, SKEL_Head, &players[i].skeleton.head);
-		storeSkeleton(ped, SKEL_Neck_1, &players[i].skeleton.neck1);
-		storeSkeleton(ped, SKEL_Spine0, &players[i].skeleton.spine0);
-		storeSkeleton(ped, SKEL_Spine1, &players[i].skeleton.spine1);
-		storeSkeleton(ped, SKEL_Spine2, &players[i].skeleton.spine2);
-		storeSkeleton(ped, SKEL_Spine3, &players[i].skeleton.spine3);
-		storeSkeleton(ped, SKEL_Pelvis, &players[i].skeleton.pelvis);
-		storeSkeleton(ped, SKEL_L_Thigh, &players[i].skeleton.SKEL_L_Thigh);
-		storeSkeleton(ped, SKEL_L_Calf, &players[i].skeleton.SKEL_L_Calf);
-		storeSkeleton(ped, SKEL_L_Foot, &players[i].skeleton.SKEL_L_Foot);
-		storeSkeleton(ped, SKEL_L_Toe0, &players[i].skeleton.SKEL_L_Toe0);
-		storeSkeleton(ped, SKEL_R_Thigh, &players[i].skeleton.SKEL_R_Thigh);
-		storeSkeleton(ped, SKEL_R_Calf, &players[i].skeleton.SKEL_R_Calf);
-		storeSkeleton(ped, SKEL_R_Foot, &players[i].skeleton.SKEL_R_Foot);
-		storeSkeleton(ped, SKEL_R_Toe0, &players[i].skeleton.SKEL_R_Toe0);
-		storeSkeleton(ped, SKEL_L_Clavicle, &players[i].skeleton.SKEL_L_Clavicle);
-		storeSkeleton(ped, SKEL_L_UpperArm, &players[i].skeleton.SKEL_L_UpperArm);
-		storeSkeleton(ped, SKEL_L_Forearm, &players[i].skeleton.SKEL_L_Forearm);
-		storeSkeleton(ped, SKEL_L_Hand, &players[i].skeleton.SKEL_L_Hand);
-		storeSkeleton(ped, SKEL_R_Clavicle, &players[i].skeleton.SKEL_R_Clavicle);
-		storeSkeleton(ped, SKEL_R_UpperArm, &players[i].skeleton.SKEL_R_UpperArm);
-		storeSkeleton(ped, SKEL_R_Forearm, &players[i].skeleton.SKEL_R_Forearm);
-		storeSkeleton(ped, SKEL_R_Hand, &players[i].skeleton.SKEL_R_Hand);*/
 	}
 
 	void features_esp(int p)
@@ -1056,30 +1033,30 @@ namespace big::features
 		if (distance > 10000)
 			return;
 
-		if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17))
+		if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground
 			return;
 
 		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
 
-		if (g_config.ESPfeatures_name)
-		{
-			if (PLAYER::GET_PLAYER_NAME(p))
-			{
-				UI::SET_TEXT_CENTRE(true);
-				UI::SET_TEXT_COLOUR(nColR, nColG, nColB, 255);
-				UI::SET_TEXT_FONT(0);
-				UI::SET_TEXT_SCALE(0.21f, 0.21f);
-				UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 0);
-				UI::SET_TEXT_EDGE(1, 0, 0, 0, 0);
-				UI::SET_TEXT_OUTLINE();
-				UI::BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
-				if (g_config.ESPfeatures_distance)
-					UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(fmt::format("[{}]m~n~{}", (int)distance, pname).c_str());
-				else
-					UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(pname);
-				UI::END_TEXT_COMMAND_DISPLAY_TEXT(xoffset, yoffset);
-			}
-		}
+		//if (g_config.ESPfeatures_name)
+		//{
+		//	if (PLAYER::GET_PLAYER_NAME(p))
+		//	{
+		//		UI::SET_TEXT_CENTRE(true);
+		//		UI::SET_TEXT_COLOUR(nColR, nColG, nColB, 255);
+		//		UI::SET_TEXT_FONT(0);
+		//		UI::SET_TEXT_SCALE(0.21f, 0.21f);
+		//		UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 0);
+		//		UI::SET_TEXT_EDGE(1, 0, 0, 0, 0);
+		//		UI::SET_TEXT_OUTLINE();
+		//		UI::BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
+		//		if (g_config.ESPfeatures_distance)
+		//			UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(fmt::format("[{}]m~n~{}", (int)distance, pname).c_str());
+		//		else
+		//			UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(pname);
+		//		UI::END_TEXT_COMMAND_DISPLAY_TEXT(xoffset, yoffset);
+		//	}
+		//}
 
 		if (g_config.ESPfeatures_snapline)
 			GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, snColR, snColG, snColB, 255); //snapline

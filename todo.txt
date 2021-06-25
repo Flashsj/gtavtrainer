@@ -1,3 +1,9 @@
+charles shit to do and ideas for cagen landey :)
+- figure out edit and continue (so we can make changes to the cheat without having to unload) and the performance profiler (improve the cheats performance with cpu times, memory, etc) since we can attach the msvc debugger to the game without it crashing
+- fix the retarded spacing on the menu (im too lazy to redo the entire menu rn)
+- put the fonts in byte arrays and then load the byte arrays with imgui (binary_to_compressed_c, or you can use HxD iirc)
+- redo the retarded skeleton shit where i call storeSkeleton and connectSkeleton shit and replace it with a for loop
+
 TODO SHORT TERM:
 
 add recovery options for online (unlock all, upgrade all stats)

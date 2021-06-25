@@ -76,6 +76,7 @@ namespace big::features
 
 		struct
 		{
+			ImVec2 name;
 			ImVec2 head;
 			ImVec2 neck1;
 			ImVec2 spine0;

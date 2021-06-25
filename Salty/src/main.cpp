@@ -12,6 +12,18 @@
 #include "gui/misc.h"
 #include "gui/crash.hpp"
 
+
+void SetBeingDebuggedFlag(bool value) // pasted this from somewhere, allows you to debug while in game without getting random exceptions (too lazy to fix the actual problem so im using this ghetto shit)
+{
+#ifdef _WIN64
+	auto peb = (uint8_t*)__readgsqword(0x60);
+	*(uint8_t*)(peb + 2) = value;
+#else
+	auto peb = (uint8_t*)__readfsdword(0x30);
+	*(uint8_t*)(peb + 2) = value;
+#endif
+}
+
 using send_t = int(__stdcall*) (SOCKET s, const char* buf, int len, int flags);
 using recv_t = int(__stdcall*) (SOCKET s, const char* buf, int len, int flags);
 using sendto_t = int(__stdcall*) (SOCKET s, char* data, int n, int flags, sockaddr_in* a, int b);
@@ -191,15 +203,17 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] SUCCESS! DEBUG INFORMATION WILL BE LOGGED IN THIS WINDOW.";
 
-				while (g_running)
+				while (g_running) 
 				{
+					SetBeingDebuggedFlag(false); // this actually works btw, left the debugger attached on a breakpoint and i went to go shit and came back and i removed the breakpoint and the game was still running just fine
+
 					try
 					{
 						g_hooking->ensure_dynamic_hooks();
 						//LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] <DYNAMIC HOOK TICK>";
 					}
 					catch (std::exception const&) { misc::log_blue(true, ",EXCEPTION,ensure_dynamic_hooks,", true); }
-					std::this_thread::sleep_for(500ms);
+					std::this_thread::sleep_for(0ns);
 				}
 
 				big::crash::disable();

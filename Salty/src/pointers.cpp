@@ -203,7 +203,23 @@ namespace big
 			m_game_event = ptr.sub(42).as<functions::game_event_t>();
 		});
 
-		main_batch.run(memory::module(nullptr));
+		// stuff pasted from nigga hack v2
+		main_batch.add("getBone2", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 60 48 8B 01 41 8B E8 48 8B F2 48 8B F9 33 DB", [this](memory::handle ptr)
+		{
+			getBone2 = ptr.as<decltype(getBone2)>();
+		});
+
+		main_batch.add("viewport", "48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD", [this](memory::handle ptr)
+		{
+			/* https://www.unknowncheats.me/forum/downloads.php?do=file&id=24133 // to do: reverse this and look at how he does it, or maybe pm the guy that made this thread and ask him for the source
+			Pattern Used                                        -> 48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD
+			Method Used                                         -> pattern + readInt(pattern + 3) + 7
+			*/ 
+			auto addr = ptr.as<uint64_t>();
+			viewport = *reinterpret_cast<rage::CViewPort**>(addr + *(int*)(addr + 3) + 7);
+		});
+
+		main_batch.run(memory::module(nullptr)); // to do: make this throw exceptions and unload the cheat if it cant find a sig, because crashing is really annoying and retarded
 
 		m_hwnd = FindWindowW(L"grcWindow", nullptr);
 		if (!m_hwnd)

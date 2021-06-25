@@ -190,12 +190,18 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("ESP"))
+			if (ImGui::BeginTabItem("ESP")) // i removed the "ESP" from "Box ESP" and "Name ESP" because thats retarded
 			{
+				ImGui::Checkbox("Enable D3D ESP", &g_config.esp.enable_d3d_esp);
+				if (g_config.esp.enable_d3d_esp) 
+				{
+					ImGui::Checkbox("Name", &g_config.ESPfeatures_name); ImGui::SameLine(); ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
+					ImGui::Checkbox("Skeleton", &g_config.esp.skeleton_enabled); // to do: colorpicker
+				}
+
 				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
 				ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
-				ImGui::Checkbox("Box ESP", &g_config.ESPfeatures_box); ImGui::SameLine(); ImGui::ColorEdit3("##boxcol", g_config.ESPfeatures_boxcol, ImGuiColorEditFlags_NoInputs);
-				ImGui::Checkbox("Name ESP", &g_config.ESPfeatures_name); ImGui::SameLine(); ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
+				ImGui::Checkbox("Box", &g_config.ESPfeatures_box); ImGui::SameLine(); ImGui::ColorEdit3("##boxcol", g_config.ESPfeatures_boxcol, ImGuiColorEditFlags_NoInputs);
 				ImGui::Checkbox("Snapline", &g_config.ESPfeatures_snapline); ImGui::SameLine(); ImGui::ColorEdit3("##snapcol", g_config.ESPfeatures_snapcol, ImGuiColorEditFlags_NoInputs);
 				ImGui::Checkbox("Marker", &g_config.ESPfeatures_marker); ImGui::SameLine(); ImGui::ColorEdit3("##mcol", g_config.ESPfeatures_markercol, ImGuiColorEditFlags_NoInputs);
 				ImGui::Checkbox("Display distance", &g_config.ESPfeatures_distance);
@@ -316,16 +322,16 @@ namespace big::base_tab
 								auto netData = features::players[features::selectedPlayer].netData;
 								BYTE* IP = reinterpret_cast<BYTE*>(&info->externalIP);
 
-								//if (netData) {}
-									//ImGui::Text(fmt::format("Host token: {}", netData->m_host_token).c_str());
+								if (netData) // why the fuck did you put {} here
+									ImGui::Text(fmt::format("Host token: {}", netData->m_host_token).c_str());
 
-								/*if (IP)
+								if (IP)
 								{
 									string IPString = fmt::format("{}.{}.{}.{}:{} ext:{}", *(IP + 3), *(IP + 2), *(IP + 1), *IP, info->externalPort, info->externalIP);
 									InputText("IP", &IPString, 0);
 								}
 								else
-									ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "IP is nullptr");*/
+									ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "IP is nullptr");
 							}
 
 							InputText("RSID", &rockstarId, 0);

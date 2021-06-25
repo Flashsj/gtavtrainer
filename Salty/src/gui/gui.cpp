@@ -93,12 +93,12 @@ namespace big
 		static int active_sidebar_tab = 0;
 		auto size = ImVec2{ 0.0f, sidebar_size.y };
 
-		if (ImGui::Begin("##body_main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
+		if (ImGui::Begin("##body_main", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar))
 		{
 			ImGui::PushFont(tabfont);
 			{
 				ImGui::BeginGroupBox("##sidebar", sidebar_size);
-				{
+				{ 
 					style.FrameRounding = 0.f; //force tab rounding to be sharp
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.5, 1.5));
 					render_tabs(sidebar_tabs, active_sidebar_tab, get_sidebar_item_width(), get_sidebar_item_height(), false);
@@ -111,7 +111,7 @@ namespace big
 			ImGui::SameLine();
 
 			ImGui::PushFont(mainfont);
-			{
+			{ 
 				ImGui::BeginGroupBox("##body_sub", size);
 				{
 					style.FrameRounding = 1.5f; //force rounding for everything but the tabs
@@ -193,12 +193,23 @@ namespace big
 
 	void gui::script_init() {} //unused
 
+	// to do: maybe make an enum with the names of the controls and fix Error	C2712	Cannot use __try in functions that require object unwinding	Cheat
+	static vector<int> blocked_controls = { 22, 23, 75, 145, 14, 15, 16, 17, 27, 99, 115, 199, 244, 245, 246, 247, 248, 1, 2, 3, 4, 5, 6, 24, 25, 68, 69, 70, 91, 92, 106, 114, 122, 135, 142, 144, 176, 177, 257, 329, 346, 157, 158, 159, 160, 161, 162, 163, 164, 165, 26, 79 };
 	void gui::script_on_tick()
 	{
 		TRY_CLAUSE
 		{
+			//if (g_gui.m_opened)
+			//	PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
+
 			if (g_gui.m_opened)
-				PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
+			{
+				for (int i = 0; i < blocked_controls.size(); i++)
+				{
+					CONTROLS::DISABLE_CONTROL_ACTION(0, blocked_controls.at(i), 1);
+					CONTROLS::DISABLE_CONTROL_ACTION(2, blocked_controls.at(i), 1);
+				}
+			}
 		}
 		EXCEPT_CLAUSE
 	}
