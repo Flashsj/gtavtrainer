@@ -1180,6 +1180,11 @@ namespace big::features
 				localCPed = localInfo->ped;
 				if (localCPed)
 				{
+					lastVehicle = localCPed->m_vehicle;
+					if (lastVehicle)
+						lastVehicleHandling = lastVehicle->handlingData;
+
+					// to do: put this somewhere else
 					if (g_config.vehicle.seatbelt)
 						features::localCPed->seatbelt = features::localCPed->seatbelt | 0x01;
 					else

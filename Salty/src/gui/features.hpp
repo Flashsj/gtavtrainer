@@ -6,6 +6,7 @@
 #include "gta/player.hpp"
 #include "gta/natives.hpp"
 #include <math.h>
+#include "gta/replay.hpp"
 
 //This file is a complete mess as well lol
 
@@ -106,6 +107,8 @@ namespace big::features
 	inline rage::CNetGamePlayer* local;
 	inline rage::CPlayerInfo* localInfo;
 	inline rage::CPed* localCPed;
+	inline rage::CAutomobile* lastVehicle;
+	inline rage::CHandlingData* lastVehicleHandling;
 	inline Vehicle vehicle;
 	inline Ped scriptIndex;
 

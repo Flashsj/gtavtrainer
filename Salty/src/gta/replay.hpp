@@ -60,6 +60,106 @@ namespace rage
 	//	class CPlayerInfo* m_player_info; //0x10C8
 	//};
 
+
+	class CBikeHandlingData
+	{
+	public:
+		char pad_0000[88]; //0x0000
+		float jumpHeight; //0x0058
+		char pad_005C[172]; //0x005C
+	}; //Size: 0x0108
+
+	class CHandlingData // to do: redo this with handling.meta since this shit is pasted and old af
+	{
+	public:
+		char _0x0000[8];
+		DWORD dwHandlingNameHash; //0x0008 
+		float fMass; //0x000C  verified (mass in Kg)
+		char _0x0010[16];
+		rage::vector3 vecCentreOfMassOffset; //0x0020   verified (between -10 and 10)
+		char _0x002C[4];
+		rage::vector3 vecInertiaMultiplier; //0x0030  verified (between -10 and 10)
+		float N0000228C; //0x003C maybe vec3x again?
+		float fPercentSubmerged; //0x0040  verified (10 to 120, drag coeff proportional to velocity squared)
+		float N0000227D; //0x0044 
+		float N000021CC; //0x0048 
+		float nDriveBias; //0x004C  (1.0 = fwd, 0.0 = rwd, 0.5 = 4x4)
+		BYTE nInitialDiveGears; //0x0050  verified (number of gears, excluding reverse)
+		char _0x0051[3];
+		float fDriveInertia; //0x0054  (between 0 and 1, lower=slower accel)
+		float fClutchChangeRateScaleUpShift; //0x0058 (speed multiplier on up shifts)
+		float fClutchChangeRateScaleDownShift; //0x005C (speed multiplier on down shifts)
+		float fInitialDriveForce; //0x0060 
+		float fInitialDriveMaxFlatVel; //0x0064 
+		float fSteeringLock2; //0x0068  GUESSING (max wheel angle of outer wheel at low speed)
+		float fBrakeForce; //0x006C verified (higher=faster stop)
+		DWORD dwUnknown1; //0x0070 
+		float N0000229A; //0x0074 fSuspensionCompDamp?
+		float N000021D2; //0x0078 
+		float fHandBrakeForce; //0x007C 
+		float fSteeringLock; //0x0080  (angle to restrict turning, between 0 and 1 suggested)
+		float N0000229E; //0x0084 
+		float fTractionCurveMax; //0x0088  (formally fTractionMult)
+		float m_fAcceleration; //0x008C 
+		float fTractionCurveMin; //0x0090  (formally fTractionLoss)
+		float fInitialDragCoeff; //0x0094 
+		float N000021D6; //0x0098 
+		float m_fGrip; //0x009C 
+		float fTractionSpringDeltaMax; //0x00A0 
+		float N000022A6; //0x00A4 
+		float fLowSpeedTractionLostMult; //0x00A8 
+		float fCamberStiffness; //0x00AC GUESSING
+		float N000021D9; //0x00B0 
+		float N000022AA; //0x00B4 
+		float fTractionLossMult; //0x00B8 verified
+		float fSuspensionForce; //0x00BC  verified (1/(Force*NumWheels)) = Lower limit for zero force at full extension)
+		float funknown; //0x00C0  fSuspensionCompDamp? *10?
+		float fSuspensionReboundDamp; //0x00C4  unlikely unless *10
+		float fSuspensionUpperLimit; //0x00C8  verified (visual limit of how far wheels can move up from orig pos)
+		float fSuspensionLowerLimit; //0x00CC  verified (visual limit of how far wheels can move down from orig pos)
+		float N000021DD; //0x00D0 fSuspensionRaise?
+		float N000022B2; //0x00D4 
+		float N000021DE; //0x00D8 
+		float fAntiRollBarForce; //0x00DC ?
+		float fUnknown3; //0x00E0 ?
+		float fUnknown2; //0x00E4 ?
+		float fRollCentreHeightFront; //0x00E8 verified
+		float fRollCentreHeightRear; //0x00EC verified
+		float fCollisionDamageMult; //0x00F0 verified
+		float fWeaponDamageMult; //0x00F4 verified
+		float fDeformationDamageMult; //0x00F8 verified
+		float fEngineDamageMult; //0x00FC verified
+		float fPetrolTankVolume; //0x0100  verified (for damage)
+		float fOilVolume; //0x0104  verified (for damage)
+		float N000021E4; //0x0108 
+		float fSeatOffsetDistX; //0x010C 
+		float fSeatOffsetDistY; //0x0110 verified
+		float fSeatOffsetDistZ; //0x0114 
+		DWORD dwMonetaryValue; //0x0118 verified
+		DWORD dwStrModelFlags; //0x011C verified
+		DWORD dwStrHandlingFlags; //0x0120 probable
+		DWORD dwStrDamageFlags; //0x0124 probable
+		DWORD N0000256D; //0x0128 
+		DWORD N00002575; //0x012C 
+		DWORD N000021E9; //0x0130 
+		DWORD dwAIHandlingHash; //0x0134 verified
+		float N000021EA; //0x0138 
+		float N000025C4; //0x013C 
+		char _0x0140[8];
+		void* ptrAIHandling; //0x0148 
+		char _0x0150[8]; // 150
+		CBikeHandlingData** bikeHandlingData; //0x0158
+		float N000021EF; //0x0160 
+		char _0x0164[12];
+		void* ptrUnknown; //0x0170 
+		float fBackEndPopUpCarImpulseMult; //0x0178 
+		float fBackEndPopUpBuildingImpulseMult; //0x017C 
+		float fBackEndPopUpMaxDeltaSpeed; //0x0180 
+		char _0x0184[700];
+
+	};//Size=0x0440
+
+
 	class CAutomobile
 	{
 	public:
@@ -74,7 +174,7 @@ namespace rage
 		float clutch; //0x08DC
 		float throttle; //0x08E0
 		char pad_08E4[84]; //0x08E4
-		void* handlingData; //0x0938 // to do: redo CHandlingData with the handling.meta file
+		CHandlingData* handlingData; //0x0938 
 		char pad_0940[340]; //0x0940
 		float dashboardSpeed; //0x0A94
 		char pad_0A98[452]; //0x0A98

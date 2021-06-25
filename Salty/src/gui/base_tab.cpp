@@ -137,16 +137,46 @@ namespace big::base_tab
 		ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
 		ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
 		ImGui::Checkbox("Spawn with random colors", &g_config.Vfeatures_randomizecol);
-
-		if (ImGui::Button("Import vehicle"))
-			g_config.Vfeatures_requestentity = true;
-
-		ImGui::Separator();
-
-		ImGui::Text("");
-		ImGui::Checkbox("indestructible vehicle", &g_config.Vfeatures_godmode);
+		// why
+		if (ImGui::Button("Import vehicle"))// why
+			g_config.Vfeatures_requestentity = true;// why
+		// why
+		ImGui::Separator();// why
+		// why
+		ImGui::Text("");// why
+		ImGui::Checkbox("indestructible vehicle", &g_config.Vfeatures_godmode);// why
 		ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
 		ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
+		ImGui::Checkbox("Seatbelt", &g_config.vehicle.seatbelt);
+		if (features::localCPed && features::lastVehicle) // to do: make this less retarded with sub tabs or something
+		{
+			ImGui::SliderFloat("Mass", &features::lastVehicleHandling->fMass, 0.f, 10000.f);
+			ImGui::SliderFloat("Acceleration", &features::lastVehicle->acceleration, 0.f, 10.f);
+			ImGui::SliderFloat("Brake force", &features::lastVehicleHandling->fBrakeForce, 0.f, 10.f);
+			ImGui::SliderFloat("Hand brake force", &features::lastVehicleHandling->fHandBrakeForce, 0.f, 10.f);
+			ImGui::SliderFloat("Steering lock", &features::lastVehicleHandling->fSteeringLock, 0.f, 1.f);
+			ImGui::SliderFloat("Traction", &features::lastVehicleHandling->m_fAcceleration, 0.f, 1.f);
+			ImGui::SliderFloat("Traction curve minimum", &features::lastVehicleHandling->fTractionCurveMin, 0.f, 25.f);
+			ImGui::SliderFloat("Traction curve maximum", &features::lastVehicleHandling->fTractionCurveMax, 0.f, 25.f);
+			ImGui::SliderFloat("Up shift", &features::lastVehicleHandling->fClutchChangeRateScaleUpShift, 0, 10.f);
+			ImGui::SliderFloat("Down shift", &features::lastVehicleHandling->fClutchChangeRateScaleDownShift, 0, 10.f);
+			ImGui::SliderFloat("Suspension force", &features::lastVehicleHandling->fSuspensionForce, 0, 10.f);
+			ImGui::SliderFloat("Suspension lower limit", &features::lastVehicleHandling->fSuspensionLowerLimit, -1.f, 1.f);
+			ImGui::SliderFloat("Suspension upper limit", &features::lastVehicleHandling->fSuspensionUpperLimit, -1.f, 1.f);
+			ImGui::SliderFloat("Suspension dampening", &features::lastVehicleHandling->funknown, 0, 10.f);
+			ImGui::SliderFloat("Suspension rebound dampening", &features::lastVehicleHandling->fSuspensionReboundDamp, 0, 10.f);
+			ImGui::SliderFloat("Grip", &features::lastVehicleHandling->m_fGrip, 0, 10.f);
+			ImGui::SliderFloat("Ride height", &features::lastVehicle->rideHeight1, -1.f, 1.f);
+			ImGui::SliderFloat("Gravity", &features::lastVehicle->gravity, -30.f, 30.f);
+			ImGui::SliderFloat("Speed limit", &features::lastVehicle->speedLimit, -1.f, 500.f);
+			ImGui::SliderFloat("Anti roll bar force", &features::lastVehicleHandling->fAntiRollBarForce, 0.f, 10.f);
+			ImGui::SliderFloat("Drive inertia", &features::lastVehicleHandling->fDriveInertia, 0.f, 5.f);
+			ImGui::SliderFloat("Drive bias", &features::lastVehicleHandling->nDriveBias, 0.f, 5.f);
+			ImGui::SliderFloat("Traction loss multiplier", &features::lastVehicleHandling->fLowSpeedTractionLostMult, 0.f, 1.f);
+			ImGui::SliderFloat("Initial drive force", &features::lastVehicleHandling->fInitialDriveForce, 0.f, 1.f);
+			if (features::lastVehicleHandling->bikeHandlingData && (*features::lastVehicleHandling->bikeHandlingData))
+				ImGui::SliderFloat("Bike jump height", &(*features::lastVehicleHandling->bikeHandlingData)->jumpHeight, 0.f, 25.f);
+		}
 
 		if (ImGui::Button("Upgrade current vehicle"))
 			g_config.Vfeatures_autoupgrade = true;
@@ -213,6 +243,7 @@ namespace big::base_tab
 			{
 				ImGui::Columns(2);
 				{
+					// why did you remove this revolutionary feature
 					/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
 					{
 						if (ImGui::Button("KICK ALL"));
