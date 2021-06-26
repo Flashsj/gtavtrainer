@@ -152,7 +152,7 @@ namespace big
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		if (g_config.esp.enable_d3d_esp && g_running)
+		if (g_config.esp.enable_d3d_esp && g_running) // this is a lot better than before but sometimes the esp still glitches out, rarely tho
 		{
 			for (int i = 0; i < 32; i++)
 			{
@@ -182,7 +182,8 @@ namespace big
 				int maxHealth = features::players[i].maxHealth - 100; // to do: fix the colorpicker, im too lazy rn
 				int health = std::clamp(features::players[i].health - 100, 0, maxHealth);
 				Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
-				if (features::players[i].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+				if (features::players[i].invincible) 
+					{ healthColor.x = 255; healthColor.y = 255; healthColor.z = 255; }
 				auto color = ImGui::ColorConvertFloat4ToU32(ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
 
 				auto screen_size = ImGui::GetIO().DisplaySize;
@@ -242,8 +243,8 @@ namespace big
 
 				if (g_config.ESPfeatures_name)
 				{
-					//ImGui::PushFont(esp_font);
-
+					//ImGui::PushFont(esp_font); 
+					// to do: outline or maybe a drop shadow on the name esp font
 					storeSkeleton(features::players[i].info->ped, SKEL_ROOT, screen_size, features::players[i].skeleton.name);
 					features::players[i].skeleton.name.x -= ImGui::CalcTextSize(features::players[i].name).x / 2;
 					ImGui::GetBackgroundDrawList()->AddText(features::players[i].skeleton.name, color, features::players[i].name);

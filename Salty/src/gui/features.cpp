@@ -452,6 +452,30 @@ namespace big::features
 				g_config.Pfeatures_crashall = false;
 			}
 
+			if (g_config.auto_host_kick)
+			{
+				if (features::isHost)
+				{
+					for (int i = 0; i < 32; i++)
+					{
+						if (i == player)
+							continue;
+
+						if (!PLAYER::GET_PLAYER_PED(i))
+							continue;
+
+						if (features::players[i].isfriend)
+							continue;
+
+						log_map(fmt::format("auto kicking {}", features::players[i].name), logtype::LOG_INFO);						
+						kick(i);
+						script::get_current()->yield();
+					}
+				}
+				else
+					g_config.auto_host_kick = false;
+			}
+
 			script::get_current()->yield();
 		}
 	}
@@ -955,7 +979,7 @@ namespace big::features
 		}
 
 		//cache local info real quick
-		if (i == player) { localPed = ped;	localIndex = i; }
+		if (i == player) { localPed = ped;	localIndex = i; } // why are you doing this here
 
 		NETWORK::NETWORK_HANDLE_FROM_PLAYER(i, netHandle, 13);
 
@@ -997,24 +1021,32 @@ namespace big::features
 
 		Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-		float nColR, nColG, nColB; // i fucking hate this shit so much make a fucking class or something please you retard
-		float snColR, snColG, snColB;
-		float mColR, mColG, mColB;
+		float nColR, nColG, nColB; // i hate this shit so much make a class or struct or something please
+		float snColR, snColG, snColB; // another idea would be to make functions that draw the players box, snapline, etc and theres a color parameter for g_config.ESPfeatures_namecol or whatever you're drawing
+		float mColR, mColG, mColB; 
 		float bColR, bColG, bColB;
 
 		if (g_config.ESPfeatures_health)
 		{
-			nColR = healthColor.x, nColG = healthColor.y, nColB = healthColor.z; // fuck you
+			nColR = healthColor.x,	nColG = healthColor.y,	nColB = healthColor.z;
 			snColR = healthColor.x, snColG = healthColor.y, snColB = healthColor.z;
-			mColR = healthColor.x, mColG = healthColor.y, mColB = healthColor.z;
-			bColR = healthColor.x, bColG = healthColor.y, bColB = healthColor.z;
+			mColR = healthColor.x,	mColG = healthColor.y,	mColB = healthColor.z;
+			bColR = healthColor.x,	bColG = healthColor.y,	bColB = healthColor.z;
 		}
 		else
 		{
-			nColR = g_config.ESPfeatures_namecol[0] * 255, nColG = g_config.ESPfeatures_namecol[1] * 255, nColB = g_config.ESPfeatures_namecol[2] * 255;
-			snColR = g_config.ESPfeatures_snapcol[0] * 255, snColG = g_config.ESPfeatures_snapcol[1] * 255, snColB = g_config.ESPfeatures_snapcol[2] * 255;
-			mColR = g_config.ESPfeatures_markercol[0] * 255, mColG = g_config.ESPfeatures_markercol[1] * 255, mColB = g_config.ESPfeatures_markercol[2] * 255;
-			bColR = g_config.ESPfeatures_boxcol[0] * 255, bColG = g_config.ESPfeatures_boxcol[1] * 255, bColB = g_config.ESPfeatures_boxcol[2] * 255;
+			nColR = g_config.ESPfeatures_namecol[0] * 255,		nColG = g_config.ESPfeatures_namecol[1] * 255,		nColB = g_config.ESPfeatures_namecol[2] * 255;
+			snColR = g_config.ESPfeatures_snapcol[0] * 255,		snColG = g_config.ESPfeatures_snapcol[1] * 255,		snColB = g_config.ESPfeatures_snapcol[2] * 255;
+			mColR = g_config.ESPfeatures_markercol[0] * 255,	mColG = g_config.ESPfeatures_markercol[1] * 255,	mColB = g_config.ESPfeatures_markercol[2] * 255;
+			bColR = g_config.ESPfeatures_boxcol[0] * 255,		bColG = g_config.ESPfeatures_boxcol[1] * 255,		bColB = g_config.ESPfeatures_boxcol[2] * 255;
+		}
+
+		if (p < 32 && features::players[p].invincible)
+		{
+			nColR = 255,	nColG = 255,	nColB = 255;
+			snColR = 255,	snColG = 255,	snColB = 255;
+			mColR = 255,	mColG = 255,	mColB = 255;
+			bColR = 255,	bColG = 255,	bColB = 255;
 		}
 
 		if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
@@ -1198,6 +1230,7 @@ namespace big::features
 		sessionActive = NETWORK::NETWORK_IS_SESSION_ACTIVE();
 		scriptIndex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);
 		vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, player); //calls a function that checks if ur in a vehicle, what seat, and if you're the owner. will make everything else easier.
+		isHost = NETWORK::NETWORK_IS_HOST();
 
 		if (inSession)
 		{

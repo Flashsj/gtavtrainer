@@ -39,6 +39,7 @@ namespace big::features
 	inline std::string carToSpawn = "";
 
 	inline int inSession;
+	inline int isHost = 0;
 	inline int sessionActive;
 	inline int scriptHost = 0;
 	inline int numberOfPlayers = 0;

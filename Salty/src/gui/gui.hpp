@@ -59,6 +59,7 @@ namespace big
 		bool Pfeatures_kickall = false;
 
 		bool Ofeatures_skipcutscene = false;
+		bool auto_host_kick = false;
 
 		bool Vfeatures_spawngodmode = false;
 		bool Vfeatures_requestentity = false;

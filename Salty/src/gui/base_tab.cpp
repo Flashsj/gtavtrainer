@@ -200,11 +200,14 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Misc"))
 			{
-				ImGui::Text("if needed. might remove");
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.1f, 0.1f, 1.f));
+				if (features::isHost)
+					ImGui::Checkbox("Auto host kick all", &g_config.auto_host_kick);
+				ImGui::PopStyleColor();
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Protex"))
+			if (ImGui::BeginTabItem("Protection"))
 			{
 				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
 				ImGui::Checkbox("Crash protection", &features::protection); //force enabled
@@ -300,6 +303,8 @@ namespace big::base_tab
 								ImGui::SameLine();
 								ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 							}
+
+							// i think these flags should be in the info area instead of next to their name
 							if (features::players[i].interior)
 							{
 								ImGui::SameLine();
@@ -354,8 +359,8 @@ namespace big::base_tab
 								auto netData = features::players[features::selectedPlayer].netData;
 								BYTE* IP = reinterpret_cast<BYTE*>(&info->externalIP);
 
-								if (netData) // why the fuck did you put {} here
-									ImGui::Text(fmt::format("Host token: {}", netData->m_host_token).c_str());
+								//if (netData)
+								//	ImGui::Text(fmt::format("Host token: {}", netData->m_host_token).c_str());
 
 								if (IP)
 								{
@@ -407,7 +412,6 @@ namespace big::base_tab
 	}
 
 	static int selectedConfig = 0;
-
 	void render_settings_tab()
 	{
 		auto& style = ImGui::GetStyle();

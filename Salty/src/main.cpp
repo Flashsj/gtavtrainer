@@ -187,10 +187,8 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATING SCRIPTS";
 
-				g_script_mgr.add_script(std::make_unique<script>(&features::script_func));
-
+				g_script_mgr.add_script(std::make_unique<script>(&features::script_func));	// to do: make these scripts automatically start again if they throw exceptions
 				g_script_mgr.add_script(std::make_unique<script>(&gui::script_func));
-
 				g_script_mgr.add_script(std::make_unique<script>(&features::kickFunc));
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATED TRAINER SCRIPTS";
