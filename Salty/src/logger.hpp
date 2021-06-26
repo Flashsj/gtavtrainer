@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <string>
 
 namespace big
 {
@@ -44,6 +46,10 @@ namespace big
 	class logger;
 	inline logger* g_logger{};
 
+	// sorry i had to do it 
+	static std::vector<std::string> titles{ "caden hvh software", "fuck you", "bughook", "frog hack", "lisdexamfetahook", "doesniggerhook",
+	"functional 3rd party game enhancer",	"read if gay", "nigga hack", "BO$$ HACK", "HOLY S(1100)HIT cSHUT THE FUCK UP FUCK()ING KILL YOURSELF SHUT TH()E FUCK", "]= - { [P0WER H4CK] } - =[",
+	"prozac hack", "LandryLabs (c) HvH Software", "big black sweaty nigger cock balls", "Build: 1 succeeded, 0 failed, 1 up-to-date, 0 skipped", "why did my game close itself" };
 	class logger
 	{
 	public:
@@ -56,7 +62,8 @@ namespace big
 
 			if ((m_console_handle = GetStdHandle(STD_OUTPUT_HANDLE)) != nullptr)
 			{
-				SetConsoleTitleA("GTA V DEBUG CONSOLE");
+				srand(time(NULL));
+				SetConsoleTitleA(titles[rand() % titles.size()].c_str());//SetConsoleTitleA("GTA V DEBUG CONSOLE");
 				SetConsoleOutputCP(CP_UTF8);
 
 				m_console_out.open("CONOUT$", std::ios_base::out | std::ios_base::app);

@@ -269,15 +269,19 @@ namespace big::features
 
 	void kick(int player)
 	{
+		LOG(INFO) << "attempting to kick " << player;
+
 		if (NETWORK::NETWORK_IS_HOST())
 		{
 			NETWORK::NETWORK_SESSION_KICK_PLAYER(player);
+			LOG(INFO) << "host kicked " << player;
 			return;
 		}
 
 		auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 0);
 		static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
 
+		// all of this shit was pasted from 2take1 luas, u can find them on github if u want to find some more or find updated ones
 		std::int64_t args1[3] = { -435067392, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
 		std::int64_t args2[24] = { 1070934291, player, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10 };
 		std::int64_t args3[4] = { -1729804184, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647), player };
@@ -333,6 +337,8 @@ namespace big::features
 			std::int64_t args[2] = { kicks.at(i), player };
 			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 2, 1 << player);
 		}
+
+		LOG(INFO) << "kicked " << player;
 	}
 
 	void scriptCrash(int player) // ive noticed that the events with the // ? next to them arent in freemode.c, and if i comment them out and script crash someone they still crash
