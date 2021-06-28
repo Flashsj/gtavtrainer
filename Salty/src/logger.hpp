@@ -47,9 +47,8 @@ namespace big
 	inline logger* g_logger{};
 
 	// sorry i had to do it 
-	static std::vector<std::string> titles{ "caden hvh software (GTA ONLINE EDITION)", "fuck you", "bughook (GTA ONLINE EDITION)", "frog hack (GTA ONLINE EDITION)", "lisdexamfetahook", "doesniggerhook",
-	"functional 3rd party game enhancer",	"read if gay", "nigga hack", "BO$$ HACK", "HOLY S(1100 se 14th street stuart florida)HIT cSHUT THE FUCK UP FUCK(cg1245)ING KILL YOURSELF SHUT TH(clandry52902)E FUCK", "]= - { [P0WER H4CK] } - =[",
-	"prozac hack", "LandryLabs (c) HvH Software", "big black sweaty nigger cock balls", "Build: 1 succeeded, 0 failed, 1 up-to-date, 0 skipped", "why did my game close itself" };
+	static std::vector<std::string> titles{ "caden hvh software", "fuck you", "lisdexamfetahook", "doesniggerhook", "functional 3rd party game enhancer", "read if gay", "nigga hack", "BO$$ HACK",
+	"prozac hack", "LandryLabs (c) HvH Software", "big black sweaty nigger cock balls", "Build: 1 succeeded, 0 failed, 6 up-to-date, 0 skipped", "why did my game close itself" };
 	class logger
 	{
 	public:

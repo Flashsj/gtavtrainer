@@ -5,6 +5,7 @@
 #include "fonts.hpp"
 #include <gui/gui.hpp>
 #include <gui/features.hpp>
+#include "../fonts.hpp"
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -54,11 +55,16 @@ namespace big
 		ImGui::GetIO().Fonts->Clear();
 		//m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg); //obsolete
 
-		mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
-		(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();
-		tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Users\\cland\\Documents\\GTA Stuff\\gtavtrainer\\font.ttf", 14.f); // use binary_to_compressed_c, if you dont want to make a new vs project for this i already remade this in rotorhack and theres an example, it just puts the array in a text document in the csgo folder
-		(tabfont != NULL) ? ImGui::GetIO().FontDefault = tabfont : ImGui::GetIO().Fonts->AddFontDefault();
-		m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
+		//mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
+		//(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();
+		//tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Users\\cland\\Documents\\GTA Stuff\\gtavtrainer\\font.ttf", 14.f); // use binary_to_compressed_c, if you dont want to make a new vs project for this i already remade this in rotorhack and theres an example, it just puts the array in a text document in the csgo folder
+		//(tabfont != NULL) ? ImGui::GetIO().FontDefault = tabfont : ImGui::GetIO().Fonts->AddFontDefault();
+		//m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
+
+		mainfont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 14.f);
+		m_monospace_font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 14.f);
+		m_font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 14.f);
+		tabfont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 16.f);
 
 		g_gui.dx_init();
 		g_renderer = this;
@@ -243,13 +249,19 @@ namespace big
 
 				if (g_config.ESPfeatures_name)
 				{
-					//ImGui::PushFont(esp_font); 
 					// to do: outline or maybe a drop shadow on the name esp font
 					storeSkeleton(features::players[i].info->ped, SKEL_ROOT, screen_size, features::players[i].skeleton.name);
 					features::players[i].skeleton.name.x -= ImGui::CalcTextSize(features::players[i].name).x / 2;
-					ImGui::GetBackgroundDrawList()->AddText(features::players[i].skeleton.name, color, features::players[i].name);
 
-					//ImGui::PopFont();
+					ImVec2 pos = features::players[i].skeleton.name;
+					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x + 1, pos.y + 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name); // ghetto bold
+					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x - 1, pos.y - 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name);
+					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x + 1, pos.y - 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name);
+					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x - 1, pos.y + 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name);
+
+					ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x, pos.y + 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name); // ghetto drop shadow
+
+					ImGui::GetBackgroundDrawList()->AddText(features::players[i].skeleton.name, color, features::players[i].name);
 				}
 			}
 		}

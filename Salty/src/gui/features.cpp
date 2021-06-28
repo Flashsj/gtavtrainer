@@ -323,7 +323,7 @@ namespace big::features
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args18, 8, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args19, 9, 1 << player);
 
-		for (int i = 1; i < rotor.size(); i++)
+		for (int i = 0; i < rotor.size(); i++)
 		{
 			std::int64_t args7[14] = { -1949011582, player, rotor.at(i), i, 1, -10, -10, -10, -10, -10, player, -10, -10, -10 };
 			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 4, 1 << player);

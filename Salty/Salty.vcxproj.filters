@@ -181,6 +181,7 @@
     <ClInclude Include="src\gta\structs.hpp">
       <Filter>menu</Filter>
     </ClInclude>
+    <ClInclude Include="fonts.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common.cpp" />

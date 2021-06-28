@@ -126,6 +126,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="fonts.hpp" />
     <ClInclude Include="src\common.hpp" />
     <ClInclude Include="src\crossmap.hpp" />
     <ClInclude Include="src\detour_hook.hpp" />

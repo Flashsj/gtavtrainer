@@ -10,11 +10,10 @@ namespace big
 		void script_init();
 		void script_on_tick();
 		static void script_func();
-
-		template<size_t N>
-		void render_tab(char* (&names)[N], int& activetab, float w, float h, bool sameline);
+		void draw();
 		 
 		bool m_opened{};
+		std::string title;
 	};
 
 	class config
