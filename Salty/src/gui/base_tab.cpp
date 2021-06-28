@@ -440,6 +440,7 @@ namespace big::base_tab
 					InputText("lastVehicle", &format("{}", reinterpret_cast<void*>(features::lastVehicle)), 0);
 					InputText("lastVehicleHandling", &format("{}", reinterpret_cast<void*>(features::lastVehicleHandling)), 0);
 
+					ImGui::Text(fmt::format("numberOfPlayers: {}", features::numberOfPlayers).c_str());
 					ImGui::Text(fmt::format("sync: {}", features::sync).c_str());
 					ImGui::Text(fmt::format("network: {}", features::network).c_str());
 					ImGui::Text(fmt::format("script: {}", features::script).c_str());
