@@ -209,6 +209,11 @@ namespace big
 			getBone2 = ptr.as<decltype(getBone2)>();
 		});
 
+		main_batch.add("ScriptEventHandler", "40 53 48 81 EC ? ? ? ? 44 8B 81", [this](memory::handle ptr)
+		{
+			ScriptEventHandler = ptr.as<decltype(ScriptEventHandler)>();
+		});
+
 		main_batch.add("viewport", "48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD", [this](memory::handle ptr)
 		{
 			/* https://www.unknowncheats.me/forum/downloads.php?do=file&id=24133 // to do: reverse this and look at how he does it, or maybe pm the guy that made this thread and ask him for the source

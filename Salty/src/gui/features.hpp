@@ -21,6 +21,7 @@ namespace big::features
 	extern volatile uint64_t sync;
 	extern volatile uint64_t network;
 	extern volatile uint64_t script;
+	extern volatile uint64_t script2;
 
 	extern void show_bye();
 	extern void add_user(std::string _user);
@@ -45,6 +46,7 @@ namespace big::features
 	inline int numberOfPlayers = 0;
 	inline int selectedPlayer = 0;
 	inline ImVec2 screenSize = { 0.f, 0.f };
+	inline int network_time = 0;
 
 	struct playerList
 	{

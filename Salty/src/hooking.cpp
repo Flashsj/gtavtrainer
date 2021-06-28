@@ -421,8 +421,10 @@ namespace big
 		uint8_t* data = buffer->m_data;
 		bool kick = false, g_event = false, m_event = false;
 
-		features::features_kickprotection ? kick = FIND(event_id, misc::blocked_kick) : false;
-		features::features_maleventprotection ? m_event = FIND(event_id, misc::blocked_malev) : false;
+		int64_t yep = event_id; // yep
+
+		features::features_kickprotection ? kick = FIND(yep, misc::blocked_kick) : false;
+		features::features_maleventprotection ? m_event = FIND(yep, misc::blocked_malev) : false;
 		features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
 		bool crash = misc::block_crash(n, data);
 		bool catalog = event_type > NETWORK_CHECK_CATALOG_CRC;
@@ -598,6 +600,68 @@ namespace big
 		return nullptr;
 	}
 
+	void log_ScriptEventHandler(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer) // yep i can call a different function that has "object unwinding" in a function with __try but when i do the "object unwinding" in the same function as the __try in it the compiler cries its eyes out			Cannot use __try in functions that require object unwinding
+	{
+		auto args = reinterpret_cast<std::int64_t*>(NetEventStruct + 0x70);
+		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
+		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
+
+		std::string argString = "";
+		for (std::uint32_t i = 0; i < argCount; ++i) 
+			argString += fmt::format("{}, ", args[i]);
+
+		LOG(INFO) << fmt::format("ScriptEventHandler | a1: {} sender: {} {} args[{}] = [ {} ]", reinterpret_cast<void*>(NetEventStruct), PLAYER::GET_PLAYER_NAME(senderID), senderID, argCount, argString).c_str();
+	}
+
+	void log_ScriptEventHandler_blocked(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer) // yep.
+	{
+		auto args = reinterpret_cast<std::int64_t*>(NetEventStruct + 0x70);
+		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
+		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
+
+		logs.push_back({fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?"), features::network_time + 6000}); // testing purposes 
+		LOG(INFO) << fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?").c_str();
+	}
+
+	static bool ScriptEventHandler(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer)
+	{
+		auto args = reinterpret_cast<std::int64_t*>(NetEventStruct + 0x70);
+		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
+		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
+
+		log_ScriptEventHandler(NetEventStruct, CNetGamePlayer);
+
+		if (misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), false))
+		{
+			features::script++;
+			return true;
+		}
+
+		if ((features::features_gameeventprotection || features::features_kickprotection) && FIND(args[0], misc::blocked_kick))
+		{
+			features::script2++;
+			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer);
+			return true;
+		}
+
+		if (features::features_maleventprotection && FIND(args[0], misc::blocked_malev))
+		{
+			features::script2++;
+			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer);
+			return true;
+		}
+
+		__try
+		{
+			return g_hooking->ScriptEventHandler_hook.get_original<decltype(&ScriptEventHandler)>()(NetEventStruct, CNetGamePlayer);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			features::script2++;
+			misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), true);
+		}
+	}
+
 	hooking::hooking() :
 		m_og_wndproc(NULL),
 		m_swapchain_hook(*g_pointers->m_swapchain, hooks::swapchain_num_funcs),
@@ -620,6 +684,8 @@ namespace big
 		m_network_event_hook("NetworkEvent", g_pointers->m_network_event, &network_event),
 		m_script_event_hook("ScriptEvent", g_pointers->m_script_event, &script_event),
 		//m_game_invite_hook("game_invite", g_pointers->m_game_invite, &game_invite),
+
+		ScriptEventHandler_hook("ScriptEventHandler_hook", g_pointers->ScriptEventHandler, &ScriptEventHandler),
 
 		m_run_script_threads_hook("RunScriptThreads", g_pointers->m_run_script_threads, &hooks::run_script_threads),
 		m_convert_thread_to_fiber_hook("ConvertThreadToFiber", memory::module("kernel32.dll").get_export("ConvertThreadToFiber").as<void*>(), &hooks::convert_thread_to_fiber)
@@ -661,6 +727,8 @@ namespace big
 		m_script_event_hook.enable();
 		//m_game_invite_hook.enable();
 
+		ScriptEventHandler_hook.enable();
+
 		m_run_script_threads_hook.enable();
 		m_convert_thread_to_fiber_hook.enable();
 
@@ -694,6 +762,7 @@ namespace big
 		m_run_script_threads_hook.disable();
 
 		//m_game_invite_hook.disable();
+		ScriptEventHandler_hook.disable();
 		m_script_event_hook.disable();
 		m_network_event_hook.disable();
 

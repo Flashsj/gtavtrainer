@@ -77,6 +77,9 @@ namespace big
 		PVOID m_model_spawn_bypass{};
 
 		// nigga hack v2 shit
+		using ScriptEventHandlerfn = bool(std::uint64_t, std::int64_t);
+		ScriptEventHandlerfn* ScriptEventHandler;
+
 		typedef void* (__fastcall* GetBoneFromMask2)(void* pThis, rage::vector4& vBonePos, WORD dwMask);
 		GetBoneFromMask2 getBone2;
 

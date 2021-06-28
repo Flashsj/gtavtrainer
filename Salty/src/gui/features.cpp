@@ -34,6 +34,7 @@ namespace big::features
 	volatile uint64_t sync = 0;
 	volatile uint64_t network = 0;
 	volatile uint64_t script = 0;
+	volatile uint64_t script2 = 0;
 
 	std::list<std::string> user;
 	std::mutex mutex;
@@ -1237,6 +1238,7 @@ namespace big::features
 		scriptIndex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);
 		vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, player); //calls a function that checks if ur in a vehicle, what seat, and if you're the owner. will make everything else easier.
 		isHost = NETWORK::NETWORK_IS_HOST();
+		network_time = NETWORK::GET_NETWORK_TIME();
 
 		if (inSession)
 		{

@@ -7,6 +7,7 @@
 #include "gui/features.hpp"
 #include "gta/net_object_mgr.hpp"
 #include "gta/structs.hpp"
+#include "renderer.hpp"
 
 using namespace std;
 using namespace fmt;
@@ -270,18 +271,20 @@ namespace big::misc
 
 	string get_address(uint32_t ip, uint16_t port) { return format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port); }
 
+	// i had to remove all the fucking stupid ass commas i couldnt take it anymore looking at that shit in the console
+
 	void log_buff(bool __log, int32_t sync_type, int16_t object_type, int index, int length, uint32_t value, bool blocked, const char* status)
 	{
 		if (__log)
 		{
-			string log = CSV(blocked ? (string("BUFF,") + status).c_str() : "BUFF,OK");
+			string log = CSV(blocked ? (string("BUFF | ") + status).c_str() : "BUFF | OK");
 			string hash;
 
 			string _sync_type = sync_type >= rage::PACK && sync_type < rage::END ? rage::name_sync_type[sync_type] : CSV("INVALID");
 
 			log += CSV(_sync_type);
 
-			log += CSV(",,,,");
+			//log += CSV(",,,,");
 
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : _sync_type);
 			log += CSV("");
@@ -321,7 +324,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(" | ") + status).c_str() : "| OK"));
 			log += CSV(type);
 
 			if (src != nullptr)
@@ -332,14 +335,16 @@ namespace big::misc
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
-			else
-				log += CSV(",,,,");
+			//else
+			//	log += CSV(",,,,");
 
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : "INVALID");
 			log += CSV(object_id);
 			log += CSV(object_flag);
 			log += CSV(timestamp);
 			log += CSV(ack_code);
+
+			logs.push_back({ log, features::network_time + 6000 });
 
 			log_blue(true, log.c_str(), blocked);
 		}
@@ -349,7 +354,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(" | ") + status).c_str() : ",OK"));
 			log += CSV(type);
 
 			log_blue(true, log.c_str(), blocked);
@@ -360,10 +365,10 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			string log = CSV(string("SYNC") + (blocked ? (string(",") + status).c_str() : ",OK"));
+			string log = CSV(string("SYNC") + (blocked ? (string(" | ") + status).c_str() : ",OK"));
 			log += CSV(type);
 
-			log += CSV(",,,,");
+			//log += CSV(",,,,");
 
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : "INVALID");
 			log += CSV(object_hash);
@@ -376,7 +381,7 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			string log = CSV(blocked ? (string("NETWORK,") + status + ",").c_str() : "NETWORK,OK,") + rage::name_network_event[event_type];
+			string log = CSV(blocked ? (string("NETWORK,") + status + " | ").c_str() : "NETWORK,OK,") + rage::name_network_event[event_type];
 
 			if (src != nullptr)
 			{
@@ -386,10 +391,10 @@ namespace big::misc
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
-			else
-				log += CSV(",,,,");
+			//else
+			//	log += CSV(",,,,");
 
-			log += CSV(",,,,");
+			//log += CSV(",,,,");
 			log += CSV(event_id);
 			log += CSV(bitset);
 
@@ -401,9 +406,9 @@ namespace big::misc
 	{
 		if (__log)
 		{
-			string log = CSV(blocked ? "SCRIPT,BLOCKED,SCRIPT" : "SCRIPT,OK,SCRIPT");
+			string log = CSV(blocked ? "SCRIPT | BLOCKED | SCRIPT" : "SCRIPT | OK | SCRIPT");
 
-			log += CSV(",,,,,,,,DATA");
+			log += CSV(" | DATA");
 
 			for (uint32_t i = 0; i < n; i++)
 				log += CSV(data[i]);
@@ -619,21 +624,21 @@ namespace big::misc
 
 	string pointer(void* function) { return format("GTA5.exe+0x{:x}", (PBYTE)function - (PBYTE)GetModuleHandle(NULL)); }
 
-	string CSV(int8_t i) { return format(",{}", i); }
+	string CSV(int8_t i) { return format(" | {}", i); }
 
-	string CSV(uint8_t i) { return format(",{:#04x}", i); }
+	string CSV(uint8_t i) { return format(" | {:#04x}", i); }
 
-	string CSV(int32_t i) { return format(",{}", i); }
+	string CSV(int32_t i) { return format(" | {}", i); }
 
-	string CSV(uint32_t i) { return format(",{:#x}", i); }
+	string CSV(uint32_t i) { return format(" | {:#x}", i); }
 
-	string CSV(int64_t i) { return format(",{}", i); }
+	string CSV(int64_t i) { return format(" | {}", i); }
 
-	string CSV(uint64_t i) { return format(",{:#x}", i); }
+	string CSV(uint64_t i) { return format(" | {:#x}", i); }
 
-	string CSV(float i) { return format(",{:.2f}", i); }
+	string CSV(float i) { return format(" | {:.2f}", i); }
 
-	string CSV(string s) { return string(",") + s; }
+	string CSV(string s) { return string(" | ") + s; }
 
 	void log_green(bool __log, const char* log, bool warn)
 	{

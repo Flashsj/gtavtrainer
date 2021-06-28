@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <vector>
 
 namespace big
 {
@@ -26,4 +28,12 @@ namespace big
 	inline ImFont *tabfont;
 	inline ImFont* mainfont;
 	inline renderer *g_renderer{};
+
+	struct log_t
+	{ 
+		std::string log;
+		int time;
+	}; 
+
+	inline std::vector<log_t> logs; // testing purposes 
 }

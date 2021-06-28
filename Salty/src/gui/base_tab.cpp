@@ -10,6 +10,7 @@
 #include "math.h"
 #include <time.h>
 #include <sstream>
+#include <renderer.hpp>
 
 // https://github.com/Sainan/GTA-V-Decompiled-Scripts
 // https://github.com/Pocakking/BigBaseV2
@@ -256,18 +257,23 @@ namespace big::base_tab
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 					}
+					if (features::scriptHost == i)
+					{
+						ImGui::SameLine();
+						ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
+					}
 
 					// i think these flags should be in the info area instead of next to their name
-					if (features::players[i].interior)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(i)"); //todo: patch flickering caused by casino interior
-					}
-					if (features::players[i].invehicle)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(v)");
-					}
+					//if (features::players[i].interior)
+					//{
+					//	ImGui::SameLine();
+					//	ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(i)"); //todo: patch flickering caused by casino interior
+					//}
+					//if (features::players[i].invehicle)
+					//{
+					//	ImGui::SameLine();
+					//	ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(v)");
+					//}
 				}
 
 				if (features::selectedPlayer > -1)
@@ -398,6 +404,8 @@ namespace big::base_tab
 				// to do: fix this
 				//ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
 
+				ImGui::SliderInt("Log length limit", &g_config.log_limit, 0, 100);
+
 				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India" };
 				Combo("Configs", &selectedConfig, configs);
 
@@ -424,11 +432,18 @@ namespace big::base_tab
 			{
 				if (ImGui::BeginTabItem("Debug"))
 				{
-					InputText("localIndex", &format("{}", reinterpret_cast<void*>(features::localIndex)), 0);
-					InputText("localPed", &format("{}", reinterpret_cast<void*>(features::localPed)), 0);
+					InputText("localIndex", &format("{}", features::localIndex), 0);
+					InputText("localPed", &format("{}", (int)features::localPed), 0);
 					InputText("local", &format("{}", reinterpret_cast<void*>(features::local)), 0);
 					InputText("localInfo", &format("{}", reinterpret_cast<void*>(features::localInfo)), 0);
 					InputText("localCPed", &format("{}", reinterpret_cast<void*>(features::localCPed)), 0);
+					InputText("lastVehicle", &format("{}", reinterpret_cast<void*>(features::lastVehicle)), 0);
+					InputText("lastVehicleHandling", &format("{}", reinterpret_cast<void*>(features::lastVehicleHandling)), 0);
+
+					ImGui::Text(fmt::format("sync: {}", features::sync).c_str());
+					ImGui::Text(fmt::format("network: {}", features::network).c_str());
+					ImGui::Text(fmt::format("script: {}", features::script).c_str());
+					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());	
 
 					ImGui::EndTabItem();
 				}

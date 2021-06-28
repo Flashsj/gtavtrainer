@@ -82,6 +82,8 @@ namespace big
 		float ESPfeatures_markercol[3] = { .624f, .792f, .169f };
 		float menucolor[3] = { .624f, .792f, .169f };
 
+		int log_limit = 100;
+
 		bool save(const std::string file_name);
 		bool load(const std::string file_name);
 	};

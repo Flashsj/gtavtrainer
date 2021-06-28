@@ -75,7 +75,7 @@ namespace big
 					selected_tab = i;
 				ImGui::PopFont();
 			} 
-			ImGui::Dummy({ 0, 500 }); // to do: make this less retarded and make it actually line up with the rest of the menu (or just have boxes)
+			ImGui::Dummy({ 0, 240 }); // to do: make this less retarded and make it actually line up with the rest of the menu (or just have boxes)
 			ImGui::NextColumn();
 
 			switch (selected_tab)

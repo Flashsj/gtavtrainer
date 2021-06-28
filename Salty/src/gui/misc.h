@@ -133,7 +133,7 @@ namespace big::misc
 		RAGE_JOAAT("MPPLY_PARA_CHEAT_END"),RAGE_JOAAT("MPPLY_PARA_CHEAT_QUIT"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_START"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_END"),RAGE_JOAAT("MPPLY_FMEVN_CHEAT_QUIT"),
 	};
 
-	const int32_t blocked_malev[] =
+	const int64_t blocked_malev[] =
 	{
 		24902297,
 		42685294,
@@ -574,9 +574,10 @@ namespace big::misc
 		1971885813336,
 		2294008360536,
 		2865239010904,
+		1120313136,
 	};
 
-	const int32_t blocked_kick[] =
+	const int64_t blocked_kick[] =
 	{
 		3,
 		-941739545,
@@ -824,7 +825,6 @@ namespace big::misc
 		140694538682404,
 		-171207973,
 		-87967637,
-		1120313136,
 	};
 
 	const int16_t blocked_network[] =

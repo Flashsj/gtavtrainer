@@ -133,13 +133,16 @@ namespace big
 
 	void storeSkeleton(void* ped, int bone, ImVec2 screen_size, ImVec2& out)
 	{
+		if (!ped)
+			return;
+
 		Vector3 vec{};
 		GetBonePosition2(ped, &vec, bone);
 
 		world_to_screen(vec, out, screen_size.x, screen_size.y);
 		out.x *= screen_size.x;
 		out.y *= screen_size.y;
-	}
+	} 
 
 	void renderer::on_present()
 	{
@@ -264,6 +267,29 @@ namespace big
 					ImGui::GetBackgroundDrawList()->AddText(features::players[i].skeleton.name, color, features::players[i].name);
 				}
 			}
+		}
+
+		for (size_t i = 0; i < logs.size(); i++)
+		{
+			if (!features::inSession || !features::sessionActive)
+			{
+				logs.clear();
+				break;
+			}
+
+			if (logs.at(i).time < features::network_time)
+			{
+				logs.erase(logs.begin() + i);
+				continue;
+			}
+
+			if (i > g_config.log_limit)
+			{
+				logs.erase(logs.begin() + i);
+				continue;
+			}
+
+			ImGui::GetBackgroundDrawList()->AddText({ 8.f, 5.f + (i * 15.f) }, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 1.f, 1.f, 1.f)), logs.at(i).log.c_str());
 		}
 
 		if (g_gui.m_opened)
