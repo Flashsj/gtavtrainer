@@ -139,33 +139,35 @@ namespace big
 		}
 	}
 
-	//fuck this function i need to do more research
+	//function requires attention if crashing for unknown reasons
+	//this function is exprimental and i dont know much about it. it gives me headaches when i uncomment it trying to fish through all of its nonsense so its completely disabled for now
 	static void clone_pack(rage::CNetworkObjectMgr* mgr, rage::netObject* netObject, rage::CNetGamePlayer* src, rage::datBitBuffer* buffer)
 	{
 		sync_src = src;
 		sync_type = rage::PACK;
 		sync_object_type = -1;
 
-		//if (big::features::protection && big::features::injected)
-		//{
-		//	//bool proto = misc::block_proto(src, rage::PACK, 0, 0);
-		//	bool flood = misc::flood_pack(src);
+		if (big::features::protection && big::features::injected)
+		{
+			//bool proto = misc::block_proto(src, rage::PACK, 0, 0);
+			bool flood = misc::flood_pack(src);
 
-		//	bool blocked = misc::block_user(src, false) || flood; //|| proto;
+			bool blocked = misc::block_user(src, false) || flood; //|| proto;
 
-		//	char status[256] = "BLOCKED";
+			char status[256] = "BLOCKED";
 
-		//	if (blocked)
-		//	{
-		//		//if (proto) strcat(status, "_PROTO");
-		//		if (flood) strcat(status, "_FLOOD");
+			//if (blocked)
+			//{
+			//	if (flood) strcat(status, "_FLOOD");
+			//	//if (proto) strcat(status, "_PROTO");
+			//
 
-		//		features::sync++;
-		//		buffer->m_unkBit = buffer->m_maxBit;
-		//		misc::log_clone(LOG_FAIL, sync_src, "PACK", -1, 0, 0, 0, 0, blocked, status);
-		//		return;
-		//	}
-		//}
+			//	features::sync++;
+			//	buffer->m_unkBit = buffer->m_maxBit;
+			//	misc::log_clone(LOG_FAIL, sync_src, "PACK", -1, 0, 0, 0, 0, blocked, status);
+			//	return;
+			//}
+		}
 
 		__try
 		{
@@ -182,6 +184,7 @@ namespace big
 		}
 	}
 
+	//function requires attention if crashing for unknown reasons
 	static bool clone_create(rage::CNetworkObjectMgr* mgr, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _object_type, int32_t _object_id, int32_t _object_flag, rage::datBitBuffer* buffer, int32_t timestamp)
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
@@ -343,6 +346,7 @@ namespace big
 	}
 
 	//look more into this, a lot of the crashes result in this being called
+	//function requires attention if crashing for unknown reasons
 	static bool sync_read(rage::netSyncTree* netSyncTree, int32_t sync_type, int32_t _sync_flag, rage::datBitBuffer* buffer, void* netLogStub)
 	{
 		sync_flag = _sync_flag;
@@ -374,7 +378,7 @@ namespace big
 		}
 	}
 
-	static bool sync_can_apply(rage::netSyncTree* netSyncTree, rage::netObject* netObject) //this entire function needs more testing
+	static bool sync_can_apply(rage::netSyncTree* netSyncTree, rage::netObject* netObject) //function requires attention if crashing for unknown reasons
 	{
 		if (big::features::protection && big::features::injected)
 		{
@@ -415,37 +419,35 @@ namespace big
 		}
 	}
 
+	//game event data
 	static bool event_blocked(rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, rage::datBitBuffer* buffer, int16_t event_type, int32_t event_id, int32_t bitset)
 	{
+		//removed kick and malicious events to another hook, prevention doesnt need to be called twice. game events remain here.
+
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
 		uint8_t* data = buffer->m_data;
-		bool kick = false, g_event = false, m_event = false;
 
-		int64_t yep = event_id; // yep
-
-		features::features_kickprotection ? kick = FIND(yep, misc::blocked_kick) : false;
-		features::features_maleventprotection ? m_event = FIND(yep, misc::blocked_malev) : false;
+		bool g_event;
 		features::features_gameeventprotection ? g_event = FIND(event_type, misc::blocked_network) : false;
+
 		bool crash = misc::block_crash(n, data);
 		bool catalog = event_type > NETWORK_CHECK_CATALOG_CRC;
-		bool flood = (!kick && !g_event && !m_event) && misc::flood_event(src, event_type, bitset);
+		bool flood = !g_event && misc::flood_event(src, event_type, bitset);
 		bool clock = (event_type == GAME_CLOCK_EVENT && !src->is_host());
-		//bool respawn = misc::flood_respawn(src, event_type); || respawn
+		//bool respawn = misc::flood_respawn(src, event_type);
 		//bool proto = misc::block_proto(src, event_type);
 
-		bool blocked = misc::block_user(src, crash) || flood || clock || catalog || kick || g_event || m_event; // || respawn || proto;
+		bool blocked = misc::block_user(src, crash) || flood || clock || catalog || g_event; /*|| respawn || proto;*/
 
 		char status[265] = "BLOCKED";
 
 		if (blocked)
 		{
-			if (kick) strcat(status, "_KICK");
 			if (crash) strcat(status, "_CRASH");
-			if (m_event) strcat(status, "_EVENT");
-			if (m_event) strcat(status, "_MALEVENT");
 			if (catalog) strcat(status, "_CATALOG");
 			if (flood) strcat(status, "_FLOOD");
 			if (clock) strcat(status, "_CLOCK");
+			if (g_event) strcat(status, "_EVENT");
 			//if (respawn) strcat(status, "_RESPAWN");
 			//if (proto) strcat(status, "_PROTO");
 
@@ -456,8 +458,7 @@ namespace big
 		return blocked;
 	}
 
-	//i am working on rewiriting most of this. its garbage right now but it will be fixed in the near future. i need to do something about the manual passing of the event types because it looks so bad rn.
-
+	//what the fuck is the point of this if ScriptEventHandler exists??? or vice versa???
 	static bool network_event(void* event_manager, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer* buffer)
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
@@ -469,7 +470,8 @@ namespace big
 		sync_type = rage::NETWORK;
 		sync_object_type = -1;
 
-		if ((features::features_kickprotection || features::features_maleventprotection) && big::features::injected && src != features::local)
+		//used to be (features::features_kickprotection || features::features_maleventprotection) for some reason. those arent passed through here anymore. just game event types.
+		if (features::features_gameeventprotection && big::features::injected && src != features::local)
 		{
 			if (event_blocked(src, dst, buffer, event_type, event_id, bitset))
 			{
@@ -560,6 +562,7 @@ namespace big
 		//	}
 		//	//misc::log_clone(LOG_PASS, nullptr, "UNREGISTER", netObject->object_type, netObject->object_id, netObject->GetObjectFlags(), 0, 0, false, "OK");
 		//}
+
 		__try { g_hooking->m_unregister_object_hook.get_original<functions::unregister_object_t>()(mgr, netObject, reason, force1, force2); }
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
@@ -600,6 +603,9 @@ namespace big
 		return nullptr;
 	}
 
+	//what the fuck is even happening here both of these functions do the same shit???
+	//can you please just make one function with a parameter that determines if its blocked or not you monkey
+
 	void log_ScriptEventHandler(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer) // yep i can call a different function that has "object unwinding" in a function with __try but when i do the "object unwinding" in the same function as the __try in it the compiler cries its eyes out			Cannot use __try in functions that require object unwinding
 	{
 		auto args = reinterpret_cast<std::int64_t*>(NetEventStruct + 0x70);
@@ -628,37 +634,41 @@ namespace big
 		auto args = reinterpret_cast<std::int64_t*>(NetEventStruct + 0x70);
 		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
 		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
+		
+		//why? not everything needs to be logged all the time. please add a toggle. also causes fps issues
 
-		log_ScriptEventHandler(NetEventStruct, CNetGamePlayer);
+		log_ScriptEventHandler(NetEventStruct, CNetGamePlayer); //please find a better way to do this there are two indentical functions
 
-		if (misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), false))
+		//look at block_user you fucking retard it will always pass the event and never block. i made it this way because people getting blocked for false positives was extremely annoying
+		//and i didnt wanna remove every instance where it was called
+
+		/*if (misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), false))
 		{
 			features::script++;
 			return true;
-		}
+		}*/
 
-		if ((features::features_gameeventprotection || features::features_kickprotection) && FIND(args[0], misc::blocked_kick))
+		//here you check to see if the game event protection is enabled but you never actually search the array? i commented it out. game event protection is now only in network_event and kicks/malformed data is handled here
+
+		if (/*(features::features_gameeventprotection ||*/ features::features_kickprotection/*)*/ && FIND(args[0], misc::blocked_kick))
 		{
 			features::script2++;
-			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer);
+			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer); //please find a better way to do this there are two indentical functions
 			return true;
 		}
 
 		if (features::features_maleventprotection && FIND(args[0], misc::blocked_malev))
 		{
 			features::script2++;
-			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer);
+			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer); //please find a better way to do this there are two indentical functions
 			return true;
 		}
 
-		__try
-		{
-			return g_hooking->ScriptEventHandler_hook.get_original<decltype(&ScriptEventHandler)>()(NetEventStruct, CNetGamePlayer);
-		}
+		__try { return g_hooking->ScriptEventHandler_hook.get_original<decltype(&ScriptEventHandler)>()(NetEventStruct, CNetGamePlayer); }
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
 			features::script2++;
-			misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), true);
+			//misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), true); //again this literally does fucking nothing 
 		}
 	}
 

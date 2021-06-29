@@ -252,6 +252,8 @@ namespace big
 
 				if (g_config.ESPfeatures_name)
 				{
+					//visible only is not accounted for. enabling it still causes the name to be visible across the map.
+
 					// to do: outline or maybe a drop shadow on the name esp font
 					storeSkeleton(features::players[i].info->ped, SKEL_ROOT, screen_size, features::players[i].skeleton.name);
 					features::players[i].skeleton.name.x -= ImGui::CalcTextSize(features::players[i].name).x / 2;
