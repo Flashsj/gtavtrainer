@@ -113,7 +113,7 @@ namespace big
 		return true;
 	}
 
-	bool GetBonePosition2(void* pThis, Vector3* BonePosOut, WORD Mask)
+	bool renderer::GetBonePosition2(void* pThis, Vector3* BonePosOut, WORD Mask)
 	{
 		if (!pThis || !g_pointers->getBone2)
 			return false;
@@ -137,7 +137,7 @@ namespace big
 			return;
 
 		Vector3 vec{};
-		GetBonePosition2(ped, &vec, bone);
+		renderer::GetBonePosition2(ped, &vec, bone);
 
 		world_to_screen(vec, out, screen_size.x, screen_size.y);
 		out.x *= screen_size.x;
@@ -264,8 +264,8 @@ namespace big
 					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x + 1, pos.y - 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name);
 					//ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x - 1, pos.y + 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name);
 
+					// i actually really like how this looks
 					ImGui::GetBackgroundDrawList()->AddText(ImVec2(pos.x, pos.y + 1), ImGui::ColorConvertFloat4ToU32(ImVec4(0.f, 0.f, 0.f, 1.f)), features::players[i].name); // ghetto drop shadow
-
 					ImGui::GetBackgroundDrawList()->AddText(features::players[i].skeleton.name, color, features::players[i].name);
 				}
 			}
@@ -285,11 +285,8 @@ namespace big
 				continue;
 			}
 
-			if (i > g_config.log_limit)
-			{
-				logs.erase(logs.begin() + i);
+			if (i >= g_config.log_limit)
 				continue;
-			}
 
 			ImGui::GetBackgroundDrawList()->AddText({ 8.f, 5.f + (i * 15.f) }, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 1.f, 1.f, 1.f)), logs.at(i).log.c_str());
 		}

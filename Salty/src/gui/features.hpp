@@ -48,6 +48,8 @@ namespace big::features
 	inline ImVec2 screenSize = { 0.f, 0.f };
 	inline int network_time = 0;
 
+	inline std::unordered_map<Ped, Player> peds; // this is so retarded
+
 	struct playerList
 	{
 		int index;

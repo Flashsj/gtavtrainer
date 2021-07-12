@@ -10,17 +10,22 @@
 #include <script_global.hpp>
 //#include "math.h"
 //#include <gta/replay.hpp>
+#include "renderer.hpp"
 
 using namespace rage;
 
-//The messiest file on the planet. it's complete garbage. don't say I didnt warn you! (:
+//The messiest (POOPY STINKY) file on the planet. it's complete garbage. don't say I didnt warn you! (:
 //One day this will be organized
 
 // done
 
+// NOT DONE FUCK YOU
+
 namespace big::features
 {
 	bool injected = false;
+
+	// why do you have this shit here when theres g_config
 	bool protection = true; //crash protection
 	bool features_kickprotection = true; //kick protection
 	bool features_gameeventprotection = true; //game event protection
@@ -806,7 +811,7 @@ namespace big::features
 			}
 		}
 
-		//TODO: fix inaccuracy when firing at ped in vehicle
+		// to do: test this, im too lazy 
 		if (g_config.Wfeatures_autoshoot)
 		{
 			Entity AimedAtEntity;
@@ -816,19 +821,26 @@ namespace big::features
 			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
+				if (AimedAtEntity >= 0 && AimedAtEntity < 32)
 				{
-					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
-					if (g_config.Wfeatures_instakill) //updated to account for instakill
+					auto player = peds[AimedAtEntity]; // this is so fucking stupid but i cant think of another way to do this so fuck you
+					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
 					{
-						for (int i = 0; i < 6; i++)
-							GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, Mouth.x, Mouth.y, Mouth.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+						Vector3 vec{};
+						renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
+
+						if (g_config.Wfeatures_instakill) //this is so retarded i hate this so much
+						{
+							for (int i = 0; i < 6; i++)
+								GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, vec.x, vec.y, vec.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+						}
+						else
+							PED::SET_PED_SHOOTS_AT_COORD(ped, vec.x, vec.y, vec.z, true);
 					}
-					else
-						PED::SET_PED_SHOOTS_AT_COORD(ped, Mouth.x, Mouth.y, Mouth.z, true);
 				}
 			}
 		}
+
 
 		if (g_config.Wfeatures_addweapons)
 		{
@@ -989,7 +1001,7 @@ namespace big::features
 		if (i == player) { localPed = ped;	localIndex = i; } // why are you doing this here
 
 		NETWORK::NETWORK_HANDLE_FROM_PLAYER(i, netHandle, 13);
-
+		peds[ped] = i; // fuck you
 		players[i].ped = ped;
 		players[i].index = i;
 		players[i].exists = ENTITY::DOES_ENTITY_EXIST(ped);;

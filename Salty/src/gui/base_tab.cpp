@@ -354,7 +354,7 @@ namespace big::base_tab
 				{
 					ImGui::Checkbox("Event protection", &features::features_maleventprotection);
 					if (ImGui::IsItemHovered())
-						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (purchases).");
+						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (POOPY (stinky)).");
 				}
 				ImGui::PopStyleColor();
 
@@ -366,7 +366,7 @@ namespace big::base_tab
 				ImGui::Checkbox("Enable D3D ESP", &g_config.esp.enable_d3d_esp);
 				if (g_config.esp.enable_d3d_esp) 
 				{
-					ImGui::Checkbox("Name", &g_config.ESPfeatures_name); ImGui::SameLine(); //ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
+					ImGui::Checkbox("Name", &g_config.ESPfeatures_name); //ImGui::SameLine(); //ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
 					ImGui::Checkbox("Skeleton", &g_config.esp.skeleton_enabled); // to do: colorpicker
 				}
 
