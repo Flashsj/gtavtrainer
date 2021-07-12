@@ -821,7 +821,7 @@ namespace big::features
 			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (AimedAtEntity >= 0 && AimedAtEntity < 32)
+				if (PED::IS_PED_A_PLAYER(AimedAtEntity))
 				{
 					auto player = peds[AimedAtEntity]; // this is so fucking stupid but i cant think of another way to do this so fuck you
 					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
@@ -835,7 +835,7 @@ namespace big::features
 								GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, vec.x, vec.y, vec.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
 						}
 						else
-							PED::SET_PED_SHOOTS_AT_COORD(ped, vec.x, vec.y, vec.z, true);
+							PED::SET_PED_SHOOTS_AT_COORD(PLAYER::PLAYER_PED_ID(), vec.x, vec.y, vec.z, true);
 					}
 				}
 			}
