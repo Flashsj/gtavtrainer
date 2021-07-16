@@ -102,20 +102,63 @@ namespace big
 
 #pragma endregion
 
-	void gui::style()
+	void gui::style_async()
 	{
 		auto& style = ImGui::GetStyle();
 		auto& colors = style.Colors;
 
-		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
-		ImGui::StyleColorsDark();
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_TabHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_TabActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_SliderGrabActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_Header] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+		colors[ImGuiCol_HeaderActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
+	}
+
+	void gui::style()
+	{
+		//constexpr auto ColorFromBytes = [](uint8_t r, uint8_t g, uint8_t b) {return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f); };
+
+		//const ImVec4 bgColor = ColorFromBytes(37, 37, 38);
+		//const ImVec4 lightBgColor = ColorFromBytes(82, 82, 85);
+		//const ImVec4 veryLightBgColor = ColorFromBytes(90, 90, 95);
+
+		//const ImVec4 panelColor = ColorFromBytes(51, 51, 55);
+		//const ImVec4 panelHoverColor = ColorFromBytes(29, 151, 236);
+		//const ImVec4 panelActiveColor = ColorFromBytes(0, 119, 200);
+
+		//const ImVec4 textColor = ColorFromBytes(255, 255, 255);
+		//const ImVec4 textDisabledColor = ColorFromBytes(151, 151, 151);
+		//const ImVec4 borderColor = ColorFromBytes(78, 78, 78);
+
+		auto& style = ImGui::GetStyle();
+		auto& colors = style.Colors;
 
 		style.WindowRounding = 0.1f;
 		style.TabRounding = 0.f;
 		style.ChildRounding = 0.0f;
 
-		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.98f);
-		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.98f);
+		colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
+		colors[ImGuiCol_Tab] = ImVec4(0.21f, 0.21f, 0.21f, 0.86f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
 	}
 
 	void gui::draw() 
@@ -125,22 +168,24 @@ namespace big
 
 		if (ImGui::Begin("", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
 		{
-			ImGui::Text("> v0.1 pre-alpha - proof of concept");
-
-			if (ImGui::BeginGroupBox("##body_main", ImVec2{ width - 17, height - 41 }))
+			ImGui::Columns(2);
 			{
-				ImGui::BeginColumns("##columns_main_body", 2);
-				{
-					ImGui::SetColumnWidth(0, 100.f);
+				ImGui::SetColumnWidth(0, 100.f);
 
+				ImGui::BeginChild("##col 1", ImVec2(0.0f, 384), true);
+				{
 					for (size_t i = 0; i < tabs.size(); i++)
 					{
 						if (ImGui::Selectable(tabs.at(i).c_str(), selected_tab == i))
 							selected_tab = i;
 					}
+				}
+				ImGui::EndChild();
 
-					ImGui::NextColumn();
+				ImGui::NextColumn();
 
+				ImGui::BeginChild("##col 2", ImVec2(0.0f, 384), true);
+				{
 					switch (selected_tab)
 					{
 					case 0:
@@ -157,16 +202,15 @@ namespace big
 						break;
 					}
 				}
-				ImGui::EndColumns();
+				ImGui::EndChild();
 			}
-			ImGui::EndGroupBox();
-
 			ImGui::End();
 		}
 	}
 
 	void gui::dx_on_tick()
 	{
+		style_async();
 		draw();
 	}
 

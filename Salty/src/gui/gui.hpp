@@ -11,8 +11,8 @@ namespace big
 		void script_on_tick();
 		static void script_func();
 		void draw();
-		void style();
-		 
+		void style();		
+		void style_async();
 		bool m_opened{};
 		std::string title;
 	};
@@ -75,12 +75,12 @@ namespace big
 			bool seatbelt = false;
 		}vehicle;
 
-		float Vfeatures_vcol[3] = { .624f, .792f, .169f };
-		float ESPfeatures_boxcol[3] = { .624f, .792f, .169f };
-		float ESPfeatures_namecol[3] = { .624f, .792f, .169f };
-		float ESPfeatures_snapcol[3] = { .624f, .792f, .169f };
-		float ESPfeatures_markercol[3] = { .624f, .792f, .169f };
-		float menucolor[3] = { .624f, .792f, .169f };
+		float Vfeatures_vcol[3] = { 0.374f, 0.196f, 0.879f };
+		float ESPfeatures_boxcol[3] = { 0.374f, 0.196f, 0.879f };
+		float ESPfeatures_namecol[3] = { 0.374f, 0.196f, 0.879f };
+		float ESPfeatures_snapcol[3] = { 0.374f, 0.196f, 0.879f };
+		float ESPfeatures_markercol[3] = { 0.374f, 0.196f, 0.879f };
+		float menucolor[3] = { 0.374f, 0.196f, 0.879f };
 
 		int log_limit = 0; //5
 

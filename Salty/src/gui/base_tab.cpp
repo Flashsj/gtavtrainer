@@ -207,167 +207,6 @@ namespace big::base_tab
 	{
 		if (ImGui::BeginTabBar("##online tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
-			if (ImGui::BeginTabItem("Players"))
-			{
-				// why did you remove this revolutionary feature
-				/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-				{
-					if (ImGui::Button("KICK ALL"));
-					g_config.Pfeatures_kickall = true;
-					ImGui::SameLine();
-					if (ImGui::Button("CRASH ALL"))
-						g_config.Pfeatures_crashall = true;
-				}
-				ImGui::PopStyleColor();*/
-
-				static string currentPlayerSearch = "";
-				ImGui::PushItemWidth(215);
-				InputText("##Search##players", &currentPlayerSearch, 0);
-				ImGui::PopItemWidth();
-				for (int i = 0; i < 32; i++)
-				{
-					string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
-					string str = features::players[i].name, search = currentPlayerSearch;
-					transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
-					transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
-					bool searchFound = str.find(search) != string::npos;
-
-					if (!features::players[i].ped)
-						continue;
-
-					if (!features::players[features::selectedPlayer].name)
-					{
-						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
-						continue;
-					}
-
-					if (currentPlayerSearch.size() > 0 && !searchFound)
-						continue;
-
-					if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
-						features::selectedPlayer = i;
-
-					if (features::players[i].index == features::localIndex)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "LOCAL");
-					}
-					if (features::players[i].isfriend)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(0.1f, 1.f, 0.1f, 1.f), "FRIEND");
-					}
-					if (features::players[i].isSessionHost)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
-					}
-
-					#ifdef _DEBUG
-					if (features::scriptHost == i)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
-					}
-					#endif
-				}
-
-				if (features::selectedPlayer > -1)
-				{
-					if (ImGui::Begin("Selected player", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
-					{
-						ImGui::SetNextWindowSize(ImVec2{ 280, 320 }, ImGuiCond_FirstUseEver);
-
-						if (features::players[features::selectedPlayer].name)
-							ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
-						else
-							ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
-
-						ImGui::Text("Health:");
-
-						int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
-						int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
-						Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
-
-						if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
-
-						ImGui::SameLine();
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
-						ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
-						ImGui::PopStyleColor();
-
-						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
-						ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
-						ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
-						ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
-
-						ImGui::PushItemWidth(150);
-						if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
-						{
-							BYTE* IP = reinterpret_cast<BYTE*>(&features::players[features::selectedPlayer].info->externalIP);
-							if (IP)
-							{
-								string IPString = fmt::format("{}.{}.{}.{}:{}", *(IP + 3), *(IP + 2), *(IP + 1), *IP, features::players[features::selectedPlayer].info->externalPort);
-								InputText("IP", &IPString, 0);
-							}
-							else
-								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "IP is nullptr");
-						}
-
-						string rockstarId = features::players[features::selectedPlayer].rockstarId;
-						InputText("RSID", &rockstarId, 0);
-						ImGui::PopItemWidth();
-
-						if (ImGui::Button("Teleport to player"))
-							g_config.Pfeatures_teleport = true;
-
-						if (ImGui::Button("Kick from vehicle"))
-							g_config.Pfeatures_kickfromveh = true;
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
-						{
-							if (ImGui::Button("Kick from lobby"))
-								g_config.Pfeatures_kick = true;
-						}
-						ImGui::PopStyleColor();
-
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-						{
-							if (ImGui::Button("Crash player"))
-								g_config.Pfeatures_crash = true;
-						}
-						ImGui::PopStyleColor();
-
-						#ifdef _DEBUG
-						ImGui::Separator();
-
-						if (features::players[features::selectedPlayer].player)
-						{
-							ImGui::Separator();
-							string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
-							InputText("##debug 1", &debug, 0);
-
-							debug = fmt::format("CPlayerInfo: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
-							InputText("##debug 2", &debug, 0);
-
-							debug = fmt::format("netData: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
-							InputText("##debug 3", &debug, 0);
-
-							if (features::players[features::selectedPlayer].info)
-							{
-								debug = fmt::format("CPed: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
-								InputText("##debug 4", &debug, 0);
-							}
-						}
-						#endif
-					}
-					ImGui::End();
-
-				}
-				ImGui::EndTabItem();
-			}
-	
 			if (ImGui::BeginTabItem("Protection"))
 			{
 				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
@@ -403,6 +242,165 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
+			if (ImGui::BeginTabItem("Players"))
+			{
+
+				ImGui::Columns(2);
+				{
+					ImGui::BeginChild("##col 3", ImVec2(0.0f, 305), false);
+					{
+						static string currentPlayerSearch = "";
+						ImGui::PushItemWidth(215);
+						InputText("##Search##players", &currentPlayerSearch, 0);
+						ImGui::PopItemWidth();
+						for (int i = 0; i < 32; i++)
+						{
+							string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
+							string str = features::players[i].name, search = currentPlayerSearch;
+							transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
+							transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return tolower(c); });
+							bool searchFound = str.find(search) != string::npos;
+
+							if (!features::players[i].ped)
+								continue;
+
+							if (!features::players[features::selectedPlayer].name)
+							{
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
+								continue;
+							}
+
+							if (currentPlayerSearch.size() > 0 && !searchFound)
+								continue;
+
+							if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
+								features::selectedPlayer = i;
+
+							if (features::players[i].index == features::localIndex)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "LOCAL");
+							}
+							if (features::players[i].isfriend)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(0.1f, 1.f, 0.1f, 1.f), "FRIEND");
+							}
+							if (features::players[i].isSessionHost)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
+							}
+
+#ifdef _DEBUG
+							if (features::scriptHost == i)
+							{
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
+							}
+#endif
+						}
+					}
+					ImGui::EndChild();
+
+					ImGui::NextColumn();
+
+					ImGui::BeginChild("##col 4", ImVec2(0.0f, 305), false);
+					{
+						if (features::selectedPlayer > -1)
+						{
+							if (features::players[features::selectedPlayer].name)
+								ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
+							else
+								ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "NAME IS NULLPTR");
+
+							ImGui::Text("Health:");
+
+							int maxHealth = features::players[features::selectedPlayer].maxHealth - 100;
+							int health = clamp(features::players[features::selectedPlayer].health - 100, 0, maxHealth);
+							Vector3 healthColor = features::FromHSB(clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
+
+							if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+
+							ImGui::SameLine();
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
+							ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
+							ImGui::PopStyleColor();
+
+							ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
+							ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
+							ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
+							ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
+
+							ImGui::PushItemWidth(150);
+							if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
+							{
+								BYTE* IP = reinterpret_cast<BYTE*>(&features::players[features::selectedPlayer].info->externalIP);
+								if (IP)
+								{
+									string IPString = fmt::format("{}.{}.{}.{}:{}", *(IP + 3), *(IP + 2), *(IP + 1), *IP, features::players[features::selectedPlayer].info->externalPort);
+									InputText("IP", &IPString, 0);
+								}
+								else
+									ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "IP is nullptr");
+							}
+
+							string rockstarId = features::players[features::selectedPlayer].rockstarId;
+							InputText("RSID", &rockstarId, 0);
+							ImGui::PopItemWidth();
+
+							if (ImGui::Button("Teleport to player"))
+								g_config.Pfeatures_teleport = true;
+
+							if (ImGui::Button("Kick from vehicle"))
+								g_config.Pfeatures_kickfromveh = true;
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
+							{
+								if (ImGui::Button("Kick from lobby"))
+									g_config.Pfeatures_kick = true;
+							}
+							ImGui::PopStyleColor();
+
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+							{
+								if (ImGui::Button("Crash player"))
+									g_config.Pfeatures_crash = true;
+							}
+							ImGui::PopStyleColor();
+
+#ifdef _DEBUG
+							ImGui::Separator();
+
+							if (features::players[features::selectedPlayer].player)
+							{
+								ImGui::Separator();
+								string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
+								InputText("##debug 1", &debug, 0);
+
+								debug = fmt::format("CPlayerInfo: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
+								InputText("##debug 2", &debug, 0);
+
+								debug = fmt::format("netData: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
+								InputText("##debug 3", &debug, 0);
+
+								if (features::players[features::selectedPlayer].info)
+								{
+									debug = fmt::format("CPed: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
+									InputText("##debug 4", &debug, 0);
+								}
+							}
+#endif
+						}
+					}
+					ImGui::EndChild();
+				}
+
+				ImGui::EndTabItem();
+			}
+
+
 			#ifdef _DEBUG
 			if (ImGui::BeginTabItem("Debug"))
 			{
@@ -427,8 +425,7 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Config"))
 			{
-				// to do: re add
-				//ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
+				ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
 
 				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India" };
 				Combo("Configs", &selectedConfig, configs);
