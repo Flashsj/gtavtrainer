@@ -205,26 +205,25 @@ namespace big::base_tab
 
 	void render_online_tab()
 	{
-		//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-		//{
-		//if (ImGui::Button("KICK ALL"));
-		//g_config.Pfeatures_kickall = true;
-		//
-		//ImGui::SameLine();
-		//
-		//if (ImGui::Button("CRASH ALL"))
-		//	g_config.Pfeatures_crashall = true;
-		//}
-		//ImGui::PopStyleColor();
-
-		static string currentPlayerSearch = "";
-
 		if (ImGui::BeginTabBar("##online tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
-			if (ImGui::BeginTabItem(""))
+			if (ImGui::BeginTabItem("Players"))
 			{
-				InputText("##Search##players", &currentPlayerSearch, 0);
+				// why did you remove this revolutionary feature
+				/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+				{
+					if (ImGui::Button("KICK ALL"));
+					g_config.Pfeatures_kickall = true;
+					ImGui::SameLine();
+					if (ImGui::Button("CRASH ALL"))
+						g_config.Pfeatures_crashall = true;
+				}
+				ImGui::PopStyleColor();*/
 
+				static string currentPlayerSearch = "";
+				ImGui::PushItemWidth(215);
+				InputText("##Search##players", &currentPlayerSearch, 0);
+				ImGui::PopItemWidth();
 				for (int i = 0; i < 32; i++)
 				{
 					string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
@@ -272,21 +271,13 @@ namespace big::base_tab
 					}
 					#endif
 				}
-				ImGui::EndTabItem();
-			}
-
-			/*if (ImGui::BeginTabItem("Players"))
-			{
-				
-				ImGui::PushItemWidth(215);
-				
-				ImGui::PopItemWidth();
-				
 
 				if (features::selectedPlayer > -1)
 				{
-					ImGui::Begin("test");
+					if (ImGui::Begin("Selected player", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
 					{
+						ImGui::SetNextWindowSize(ImVec2{ 280, 320 }, ImGuiCond_FirstUseEver);
+
 						if (features::players[features::selectedPlayer].name)
 							ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
 						else
@@ -308,8 +299,8 @@ namespace big::base_tab
 
 						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
 						ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
-						ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].rank).c_str());
-						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].invehicle).c_str());
+						ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
+						ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
 
 						ImGui::PushItemWidth(150);
 						if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
@@ -347,11 +338,36 @@ namespace big::base_tab
 								g_config.Pfeatures_crash = true;
 						}
 						ImGui::PopStyleColor();
+
+						#ifdef _DEBUG
+						ImGui::Separator();
+
+						if (features::players[features::selectedPlayer].player)
+						{
+							ImGui::Separator();
+							string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
+							InputText("##debug 1", &debug, 0);
+
+							debug = fmt::format("CPlayerInfo: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
+							InputText("##debug 2", &debug, 0);
+
+							debug = fmt::format("netData: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
+							InputText("##debug 3", &debug, 0);
+
+							if (features::players[features::selectedPlayer].info)
+							{
+								debug = fmt::format("CPed: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
+								InputText("##debug 4", &debug, 0);
+							}
+						}
+						#endif
 					}
+					ImGui::End();
+
 				}
 				ImGui::EndTabItem();
-			}*/
-
+			}
+	
 			if (ImGui::BeginTabItem("Protection"))
 			{
 				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
@@ -387,7 +403,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-#ifdef _DEBUG
+			#ifdef _DEBUG
 			if (ImGui::BeginTabItem("Debug"))
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.1f, 0.1f, 1.f));
@@ -396,7 +412,7 @@ namespace big::base_tab
 				ImGui::PopStyleColor();
 				ImGui::EndTabItem();
 			}
-#endif
+			#endif
 
 			ImGui::EndTabBar();
 		}

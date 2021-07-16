@@ -24,7 +24,6 @@ namespace big
 	static int selected_tab = 0;
 	static vector<string> tabs = { "Local", "Vehicle", "Online", "Config" };
 	static vector<int> blocked_controls = { 22, 23, 75, 145, 14, 15, 16, 17, 27, 99, 115, 199, 244, 245, 246, 247, 248, 1, 2, 3, 4, 5, 6, 24, 25, 68, 69, 70, 91, 92, 106, 114, 122, 135, 142, 144, 176, 177, 257, 329, 346, 157, 158, 159, 160, 161, 162, 163, 164, 165, 26, 79 };
-	static string title = "> Rotorhack Indev, Proof of Concept";
 
 	float width = 750;
 	float height = 400;
@@ -126,9 +125,9 @@ namespace big
 
 		if (ImGui::Begin("", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
 		{
-			ImGui::Text("> Rotorhack [GTA V] Indev, Proof of Concept");
+			ImGui::Text("> v0.1 pre-alpha - proof of concept");
 
-			ImGui::BeginGroupBox("##body_main", ImVec2{ width - 17, height - 41 });
+			if (ImGui::BeginGroupBox("##body_main", ImVec2{ width - 17, height - 41 }))
 			{
 				ImGui::BeginColumns("##columns_main_body", 2);
 				{
@@ -151,7 +150,7 @@ namespace big
 						base_tab::render_vehicle_tab();
 						break;
 					case 2:
-						base_tab::render_online_tab();
+						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
 						break;
 					case 3:
 						base_tab::render_settings_tab();
