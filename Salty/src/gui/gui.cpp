@@ -115,14 +115,14 @@ namespace big
 		style.TabRounding = 0.f;
 		style.ChildRounding = 0.0f;
 
-		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
-		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.98f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.98f);
 	}
 
 	void gui::draw() 
 	{
 		ImGui::SetNextWindowSize(ImVec2{ 750, 400 }, ImGuiCond_Once);
-		ImGui::SetNextWindowPos(ImVec2{ 700, 200 }, ImGuiCond_Once);
+		ImGui::SetNextWindowPos(ImVec2{ 100, 200 }, ImGuiCond_Once);
 
 		if (ImGui::Begin("", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
 		{
@@ -168,9 +168,11 @@ namespace big
 
 	void gui::dx_on_tick()
 	{
-		style();
 		draw();
 	}
 
-	void gui::dx_init() {}
+	void gui::dx_init() 
+	{
+		style();
+	}
 }

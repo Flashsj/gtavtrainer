@@ -201,6 +201,8 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] SUCCESS! DEBUG INFORMATION WILL BE LOGGED IN THIS WINDOW.";
 
+				g_gui.m_opened = true;
+
 				while (g_running) 
 				{
 					SetBeingDebuggedFlag(false); // this actually works btw, left the debugger attached on a breakpoint and i went to go shit and came back and i removed the breakpoint and the game was still running just fine

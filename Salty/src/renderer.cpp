@@ -322,10 +322,8 @@ namespace big
 			g_gui.m_opened ^= true;
 		}
 			
-#ifdef  _DEBUG
 		if (msg == WM_KEYUP && wparam == VK_END)
 			g_running = false;
-#endif //  DEBUG
 
 		if (g_gui.m_opened)
 			ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam);
