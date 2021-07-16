@@ -217,14 +217,14 @@ namespace big::base_tab
 		//}
 		//ImGui::PopStyleColor();
 
+		static string currentPlayerSearch = "";
+
 		if (ImGui::BeginTabBar("##online tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
-			if (ImGui::BeginTabItem("Players"))
+			if (ImGui::BeginTabItem(""))
 			{
-				static string currentPlayerSearch = "";
-				ImGui::PushItemWidth(215);
 				InputText("##Search##players", &currentPlayerSearch, 0);
-				ImGui::PopItemWidth();
+
 				for (int i = 0; i < 32; i++)
 				{
 					string name = features::players[i].name; name += " ##"; name += to_string(i).c_str();
@@ -263,12 +263,25 @@ namespace big::base_tab
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 					}
-					//if (features::scriptHost == i)
-					//{
-					//	ImGui::SameLine();
-					//	ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
-					//}
+
+					#ifdef _DEBUG
+					if (features::scriptHost == i)
+					{
+						ImGui::SameLine();
+						ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
+					}
+					#endif
 				}
+				ImGui::EndTabItem();
+			}
+
+			/*if (ImGui::BeginTabItem("Players"))
+			{
+				
+				ImGui::PushItemWidth(215);
+				
+				ImGui::PopItemWidth();
+				
 
 				if (features::selectedPlayer > -1)
 				{
@@ -337,7 +350,7 @@ namespace big::base_tab
 					}
 				}
 				ImGui::EndTabItem();
-			}
+			}*/
 
 			if (ImGui::BeginTabItem("Protection"))
 			{
@@ -383,8 +396,9 @@ namespace big::base_tab
 				ImGui::PopStyleColor();
 				ImGui::EndTabItem();
 			}
-			ImGui::EndTabBar();
 #endif
+
+			ImGui::EndTabBar();
 		}
 	}
 

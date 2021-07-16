@@ -151,7 +151,7 @@ namespace big
 						base_tab::render_vehicle_tab();
 						break;
 					case 2:
-						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+						base_tab::render_online_tab();
 						break;
 					case 3:
 						base_tab::render_settings_tab();
