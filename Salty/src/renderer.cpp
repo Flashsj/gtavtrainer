@@ -270,7 +270,10 @@ namespace big
 				}
 			}
 		}
+		
+		//logger not intended for any sort of release, it is for debugging purposes only
 
+#ifdef _DEBUG
 		for (size_t i = 0; i < logs.size(); i++)
 		{
 			if (!features::inSession || !features::sessionActive)
@@ -293,6 +296,7 @@ namespace big
 
 			ImGui::GetBackgroundDrawList()->AddText({ 8.f, 5.f + (i * 15.f) }, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 1.f, 1.f, 1.f)), logs.at(i).log.c_str());
 		}
+#endif
 
 		if (g_gui.m_opened)
 			g_gui.dx_on_tick();
@@ -321,8 +325,10 @@ namespace big
 			g_gui.m_opened ^= true;
 		}
 			
+#ifdef  _DEBUG
 		if (msg == WM_KEYUP && wparam == VK_END)
 			g_running = false;
+#endif //  DEBUG
 
 		if (g_gui.m_opened)
 			ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam);

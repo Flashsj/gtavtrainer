@@ -29,6 +29,7 @@ namespace big::base_tab
 
 	const bool LOG_LOG = false;
 	
+#pragma region Move to IMGUI
 	//move to imgui
 	static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	{
@@ -63,6 +64,7 @@ namespace big::base_tab
 		return false;
 	}
 	///
+#pragma endregion
 
 	void render_local_tab()
 	{
@@ -109,8 +111,8 @@ namespace big::base_tab
 			{
 				ImGui::Checkbox("Indestructible vehicle", &g_config.Vfeatures_godmode);
 				ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
-				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
 				ImGui::Checkbox("Seatbelt", &g_config.vehicle.seatbelt);
+				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
 
 				if (ImGui::Button("Upgrade current vehicle"))
 					g_config.Vfeatures_autoupgrade = true;
@@ -120,6 +122,8 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Spawner"))
 			{
+				ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);
+
 				static string currentModelSearch = "";
 				static const char* currentModel = NULL;
 				if (ImGui::BeginCombo("Vehicles", currentModel))
@@ -147,7 +151,6 @@ namespace big::base_tab
 
 				InputText("Custom vehicle", &features::carToSpawn, 0);
 
-				ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);
 				ImGui::Checkbox("Spawn indestructible", &g_config.Vfeatures_spawngodmode);
 				ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
 				ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
@@ -158,7 +161,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Customize"))
+			if (ImGui::BeginTabItem("Attributes"))
 			{
 				if (features::localCPed && features::lastVehicle)
 				{
@@ -189,32 +192,35 @@ namespace big::base_tab
 					if (features::lastVehicleHandling->bikeHandlingData && (*features::lastVehicleHandling->bikeHandlingData))
 						ImGui::SliderFloat("Bike jump height", &(*features::lastVehicleHandling->bikeHandlingData)->jumpHeight, 0.f, 50.f);
 				}
+				else
+					ImGui::Text("You must enter a vehicle in order to modify its attributes");
 				ImGui::EndTabItem();
-				}
+			}
 
 			ImGui::EndTabBar();
 		}
 	}
 
+
+
 	void render_online_tab()
 	{
+		//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
+		//{
+		//if (ImGui::Button("KICK ALL"));
+		//g_config.Pfeatures_kickall = true;
+		//
+		//ImGui::SameLine();
+		//
+		//if (ImGui::Button("CRASH ALL"))
+		//	g_config.Pfeatures_crashall = true;
+		//}
+		//ImGui::PopStyleColor();
+
 		if (ImGui::BeginTabBar("##online tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
 			if (ImGui::BeginTabItem("Players"))
 			{
-				// why did you remove this revolutionary feature
-				/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-				{
-					if (ImGui::Button("KICK ALL"));
-					g_config.Pfeatures_kickall = true;
-
-					ImGui::SameLine();
-
-					if (ImGui::Button("CRASH ALL"))
-						g_config.Pfeatures_crashall = true;
-				}
-				ImGui::PopStyleColor();*/
-
 				static string currentPlayerSearch = "";
 				ImGui::PushItemWidth(215);
 				InputText("##Search##players", &currentPlayerSearch, 0);
@@ -257,28 +263,16 @@ namespace big::base_tab
 						ImGui::SameLine();
 						ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 					}
-					if (features::scriptHost == i)
-					{
-						ImGui::SameLine();
-						ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
-					}
-
-					// i think these flags should be in the info area instead of next to their name
-					//if (features::players[i].interior)
+					//if (features::scriptHost == i)
 					//{
 					//	ImGui::SameLine();
-					//	ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(i)"); //todo: patch flickering caused by casino interior
-					//}
-					//if (features::players[i].invehicle)
-					//{
-					//	ImGui::SameLine();
-					//	ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.f), "(v)");
+					//	ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
 					//}
 				}
 
 				if (features::selectedPlayer > -1)
 				{
-					if (ImGui::Begin("Selected player", 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize))
+					ImGui::Begin("test");
 					{
 						if (features::players[features::selectedPlayer].name)
 							ImGui::TextColored(ImVec4(0.1f, 1.0f, 1.0f, 1.f), features::players[features::selectedPlayer].name);
@@ -301,6 +295,8 @@ namespace big::base_tab
 
 						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
 						ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
+						ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].rank).c_str());
+						ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].invehicle).c_str());
 
 						ImGui::PushItemWidth(150);
 						if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
@@ -339,8 +335,6 @@ namespace big::base_tab
 						}
 						ImGui::PopStyleColor();
 					}
-
-					ImGui::End();
 				}
 				ImGui::EndTabItem();
 			}
@@ -348,7 +342,7 @@ namespace big::base_tab
 			if (ImGui::BeginTabItem("Protection"))
 			{
 				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
-				ImGui::Checkbox("Crash protection", &features::protection); //force enabled
+				ImGui::Checkbox("Crash protection", &features::protection);
 				ImGui::Checkbox("Kick protection", &features::features_kickprotection);
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
 				{
@@ -361,16 +355,16 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("ESP")) // to do: fix color pickers
+			if (ImGui::BeginTabItem("ESP")) // to do: fix color pickers and esp entirely before alpha release
 			{
 				ImGui::Checkbox("Enable D3D ESP", &g_config.esp.enable_d3d_esp);
-				if (g_config.esp.enable_d3d_esp) 
+				if (g_config.esp.enable_d3d_esp)
 				{
 					ImGui::Checkbox("Name", &g_config.ESPfeatures_name); ImGui::SameLine(); //ImGui::ColorEdit3("##namecol", g_config.ESPfeatures_namecol, ImGuiColorEditFlags_NoInputs);
 					ImGui::Checkbox("Skeleton", &g_config.esp.skeleton_enabled); // to do: colorpicker
 				}
 
-				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible); 
+				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
 				ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
 				ImGui::SliderFloat("Render distance", &g_config.esp.render_distance, 100.f, 10000.f); // dont know why you removed this
 				ImGui::Checkbox("Box", &g_config.ESPfeatures_box);// ImGui::SameLine(); ImGui::ColorEdit3("##boxcol", g_config.ESPfeatures_boxcol, ImGuiColorEditFlags_NoInputs);
@@ -380,7 +374,8 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("Misc"))
+#ifdef _DEBUG
+			if (ImGui::BeginTabItem("Debug"))
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.1f, 0.1f, 1.f));
 				if (features::isHost)
@@ -389,6 +384,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
+#endif
 		}
 	}
 
@@ -401,10 +397,8 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Config"))
 			{
-				// to do: fix this
+				// to do: re add
 				//ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
-
-				ImGui::SliderInt("Log length limit", &g_config.log_limit, 0, 100);
 
 				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India" };
 				Combo("Configs", &selectedConfig, configs);
@@ -423,11 +417,15 @@ namespace big::base_tab
 			if (ImGui::BeginTabItem("Misc"))
 			{
 				if (ImGui::Button("Unload"))
+				{
+					exit(0);
 					g_running = false;
-
+				}
+			
 				ImGui::EndTabItem();
 			}
 
+#ifdef _DEBUG
 			if (*g_pointers->m_is_session_started)
 			{
 				if (ImGui::BeginTabItem("Debug"))
@@ -446,9 +444,12 @@ namespace big::base_tab
 					ImGui::Text(fmt::format("script: {}", features::script).c_str());
 					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());	
 
+					ImGui::SliderInt("Log length limit", &g_config.log_limit, 0, 100);
+
 					ImGui::EndTabItem();
 				}
 			}
+#endif
 			ImGui::EndTabBar();
 		}
 	}

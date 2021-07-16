@@ -17,8 +17,20 @@
 #include <renderer.hpp>
 #include <logger.hpp>
 
+using namespace std;
+
 namespace big
 {
+	static int selected_tab = 0;
+	static vector<string> tabs = { "Local", "Vehicle", "Online", "Config" };
+	static vector<int> blocked_controls = { 22, 23, 75, 145, 14, 15, 16, 17, 27, 99, 115, 199, 244, 245, 246, 247, 248, 1, 2, 3, 4, 5, 6, 24, 25, 68, 69, 70, 91, 92, 106, 114, 122, 135, 142, 144, 176, 177, 257, 329, 346, 157, 158, 159, 160, 161, 162, 163, 164, 165, 26, 79 };
+	static string title = "> Rotorhack Indev, Proof of Concept";
+
+	float width = 750;
+	float height = 400;
+
+	#pragma region Confiruation
+
 	bool config::save(const string file_name)
 	{
 		const size_t class_size = sizeof(config);
@@ -57,109 +69,14 @@ namespace big
 		return true;
 	}
 
-	static int selected_tab = 0;
-	static std::vector<std::string> tabs = { "Local", "Vehicle", "Online", "Config" };
-	void gui::draw() 
-	{
-		ImGui::SetNextWindowSize(ImVec2{ 580, 400 }, ImGuiCond_Once);
-		ImGui::SetNextWindowPos(ImVec2{ 700, 200 }, ImGuiCond_Once);
+#pragma endregion
 
-		if (ImGui::Begin(title.c_str(), &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
-		{
-			ImGui::Columns(2); // to do: remove the resize thing when you hover over the column line
-			ImGui::SetColumnWidth(0, 100.f);
-			for (size_t i = 0; i < tabs.size(); i++)
-			{
-				ImGui::PushFont(tabfont);
-				if (ImGui::Selectable(tabs.at(i).c_str(), selected_tab == i))
-					selected_tab = i;
-				ImGui::PopFont();
-			} 
-			ImGui::Dummy({ 0, 240 }); // to do: make this less retarded and make it actually line up with the rest of the menu (or just have boxes)
-			ImGui::NextColumn();
+	#pragma region Script initialization
 
-			switch (selected_tab)
-			{
-			case 0:
-				base_tab::render_local_tab();
-				break;
-			case 1:
-				base_tab::render_vehicle_tab();
-				break;
-			case 2:
-				(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
-				break;
-			case 3:
-				base_tab::render_settings_tab();
-				break;
-			}
-
-			ImGui::Columns(1);
-			ImGui::End();
-		}
-	}
-
-	void gui::dx_init()
-	{
-		auto& style = ImGui::GetStyle();
-		auto& colors = style.Colors;
-		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
-
-		style.WindowRounding = 0.1f;
-		style.TabRounding = 0.f;
-		style.ChildRounding = 0.0f;
-
-		//colors[ImGuiCol_Button] = ImVec4(0.41f, 0.41f, 0.41f, 0.74f);
-		//colors[ImGuiCol_ButtonHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.78f);
-		//colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
-		//colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
-		//colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.989f);
-		//colors[ImGuiCol_Tab] = ImVec4(0.21f, 0.21f, 0.21f, 0.86f);
-		//colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
-
-		ImGui::GetStyle() = style;
-
-		ImGui::StyleColorsDark();
-
-		srand(time(NULL));
-		title = titles[rand() % titles.size()];
-	}
-
-	void gui::dx_on_tick()
-	{
-		auto& colors = ImGui::GetStyle().Colors;
-
-		// to do: redo this
-		//these are here to auto update the menu colors based on the custom menu colorpicker
-		//colors[ImGuiCol_TabUnfocusedActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_SeparatorHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_FrameBgActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_TabHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_ButtonActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_CheckMark] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_TabActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_ResizeGripHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_ResizeGripActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_SeparatorActive] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_ResizeGrip] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-		//colors[ImGuiCol_HeaderHovered] = ImVec4(g_config.menucolor[0], g_config.menucolor[1], g_config.menucolor[2], 1.00f);
-
-		draw();
-	}
-
-	void gui::script_init() {} //unused
-
-	// to do: maybe make an enum with the names of the controls and fix Error	C2712	Cannot use __try in functions that require object unwinding	Cheat
-	static vector<int> blocked_controls = { 22, 23, 75, 145, 14, 15, 16, 17, 27, 99, 115, 199, 244, 245, 246, 247, 248, 1, 2, 3, 4, 5, 6, 24, 25, 68, 69, 70, 91, 92, 106, 114, 122, 135, 142, 144, 176, 177, 257, 329, 346, 157, 158, 159, 160, 161, 162, 163, 164, 165, 26, 79 };
 	void gui::script_on_tick()
 	{
 		TRY_CLAUSE
 		{
-			//if (g_gui.m_opened)
-			//	PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
-
 			if (g_gui.m_opened)
 			{
 				for (int i = 0; i < blocked_controls.size(); i++)
@@ -169,7 +86,7 @@ namespace big
 				}
 			}
 		}
-		EXCEPT_CLAUSE
+			EXCEPT_CLAUSE
 	}
 
 	void gui::script_func()
@@ -181,4 +98,79 @@ namespace big
 			script::get_current()->yield();
 		}
 	}
+
+	void gui::script_init() {}
+
+#pragma endregion
+
+	void gui::style()
+	{
+		auto& style = ImGui::GetStyle();
+		auto& colors = style.Colors;
+
+		ImGui::SetColorEditOptions(ImGuiColorEditFlags_HEX);
+		ImGui::StyleColorsDark();
+
+		style.WindowRounding = 0.1f;
+		style.TabRounding = 0.f;
+		style.ChildRounding = 0.0f;
+
+		colors[ImGuiCol_FrameBg] = ImVec4(0.21f, 0.21f, 0.21f, 0.54f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.78f);
+	}
+
+	void gui::draw() 
+	{
+		ImGui::SetNextWindowSize(ImVec2{ 750, 400 }, ImGuiCond_Once);
+		ImGui::SetNextWindowPos(ImVec2{ 700, 200 }, ImGuiCond_Once);
+
+		if (ImGui::Begin("", &g_gui.m_opened, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
+		{
+			ImGui::Text("> Rotorhack [GTA V] Indev, Proof of Concept");
+
+			ImGui::BeginGroupBox("##body_main", ImVec2{ width - 17, height - 41 });
+			{
+				ImGui::BeginColumns("##columns_main_body", 2);
+				{
+					ImGui::SetColumnWidth(0, 100.f);
+
+					for (size_t i = 0; i < tabs.size(); i++)
+					{
+						if (ImGui::Selectable(tabs.at(i).c_str(), selected_tab == i))
+							selected_tab = i;
+					}
+
+					ImGui::NextColumn();
+
+					switch (selected_tab)
+					{
+					case 0:
+						base_tab::render_local_tab();
+						break;
+					case 1:
+						base_tab::render_vehicle_tab();
+						break;
+					case 2:
+						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+						break;
+					case 3:
+						base_tab::render_settings_tab();
+						break;
+					}
+				}
+				ImGui::EndColumns();
+			}
+			ImGui::EndGroupBox();
+
+			ImGui::End();
+		}
+	}
+
+	void gui::dx_on_tick()
+	{
+		style();
+		draw();
+	}
+
+	void gui::dx_init() {}
 }

@@ -4,12 +4,16 @@
 
 namespace big
 {
+	static const int kEventValue = 400;
+	static const int kRawValue = 600;
+	inline constexpr auto max_padding_length = 26;
+	inline constexpr auto level_padding_length = 8;
+
 	template <typename TP>
 	std::time_t to_time_t(TP tp)
 	{
 		using namespace std::chrono;
-		auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-			+ system_clock::now());
+		auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
 		return system_clock::to_time_t(sctp);
 	}
 
@@ -21,48 +25,34 @@ namespace big
 		intensify = FOREGROUND_INTENSITY
 	};
 
-	enum LOG_FLAGS
-	{
-		FLAG_NO_DISK = (1 << 0),
-		FLAG_NO_CONSOLE = (1 << 1)
-	};
+	enum LOG_FLAGS { FLAG_NO_DISK = (1 << 0), FLAG_NO_CONSOLE = (1 << 1) };
 
-	static const int kEventValue = 400;
-	static const int kRawValue =  600;
-	inline constexpr auto max_padding_length = 26;
-	inline constexpr auto level_padding_length = 8;
+	const LEVELS INFO_TO_FILE{ INFO.value | FLAG_NO_CONSOLE, {"INFO"} }, HACKER{ INFO.value, {"HACKER"} }, EVENT{ kEventValue | FLAG_NO_CONSOLE, {"EVENT"} }, RAW_GREEN_TO_CONSOLE{ kRawValue | FLAG_NO_DISK, {"RAW_GREEN_TO_CONSOLE"} }, RAW_RED{ kRawValue, {"RAW_RED"} };
 
-	const LEVELS INFO_TO_FILE{ INFO.value | FLAG_NO_CONSOLE, {"INFO"} },
-		HACKER{ INFO.value, {"HACKER"} },
-		EVENT{ kEventValue | FLAG_NO_CONSOLE, {"EVENT"} },
-		RAW_GREEN_TO_CONSOLE{ kRawValue | FLAG_NO_DISK, {"RAW_GREEN_TO_CONSOLE"} },
-		RAW_RED{ kRawValue, {"RAW_RED"} };
-
-	inline log_color operator|(log_color a, log_color b)
-	{
-		return static_cast<log_color>(static_cast<std::underlying_type_t<log_color>>(a) | static_cast<std::underlying_type_t<log_color>>(b));
-	}
+	inline log_color operator|(log_color a, log_color b) { return static_cast<log_color>(static_cast<std::underlying_type_t<log_color>>(a) | static_cast<std::underlying_type_t<log_color>>(b)); }
 
 	class logger;
 	inline logger* g_logger{};
 
-	// sorry i had to do it 
-	static std::vector<std::string> titles{ "caden hvh software", "fuck you", "lisdexamfetahook", "doesniggerhook", "functional 3rd party game enhancer", "read if gay", "nigga hack", "BO$$ HACK",
-	"prozac hack", "LandryLabs (c) HvH Software", "big black sweaty nigger cock balls", "Build: 1 succeeded, 0 failed, 6 up-to-date, 0 skipped", "why did my game close itself" };
 	class logger
 	{
 	public:
 		explicit logger() :
 			m_file_path(std::getenv("appdata")),
 			m_worker(g3::LogWorker::createLogWorker())
-		{
+			{
+
+			#ifdef _DEBUG
 			if ((m_did_console_exist = AttachConsole(GetCurrentProcessId())) == false)
+			{
 				AllocConsole();
+			}
+			#endif
 
 			if ((m_console_handle = GetStdHandle(STD_OUTPUT_HANDLE)) != nullptr)
 			{
-				srand(time(NULL));
-				SetConsoleTitleA(titles[rand() % titles.size()].c_str());//SetConsoleTitleA("GTA V DEBUG CONSOLE");
+				//srand(time(NULL));
+				SetConsoleTitleA("GTA V DEBUG CONSOLE");
 				SetConsoleOutputCP(CP_UTF8);
 
 				m_console_out.open("CONOUT$", std::ios_base::out | std::ios_base::app);
