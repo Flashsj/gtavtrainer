@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "natives.hpp"
 
 namespace big
 {
@@ -9,6 +10,8 @@ namespace big
 	public:
 		explicit renderer();
 		~renderer();
+
+		static bool GetBonePosition2(void* pThis, Vector3* BonePosOut, WORD Mask);
 
 		void on_present();
 

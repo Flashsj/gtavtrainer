@@ -1,4 +1,4 @@
-# gtavtrainer
+# GTA V Trainer
 Trainer for GTA V Online
 
 ```

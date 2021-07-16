@@ -1,29 +1,35 @@
-
+//#include "common.hpp"
 #include "features.hpp"
 #include "script.hpp"
 #include "natives.hpp"
+//#include "gui.hpp"
 #include "gui/misc.h"
 #include "gui.hpp"
+//#include "gui/base_tab.h"
 #include "pointers.hpp"
 #include <script_global.hpp>
-#include<thread>
-#include <list>
-#include <iostream>
-#include "wtsapi32.h"
-#define _WIN32_WINNT _WIN32_WINNT_WINXP
+//#include "math.h"
+//#include <gta/replay.hpp>
+#include "renderer.hpp"
 
 using namespace rage;
 
-//The messiest file on the planet. it's complete garbage. don't say I didnt warn you! (:
+//The messiest (POOPY STINKY) file on the planet. it's complete garbage. don't say I didnt warn you! (:
 //One day this will be organized
+
+// done
+
+// NOT DONE FUCK YOU
 
 namespace big::features
 {
 	bool injected = false;
-	bool protection = true;
-	bool features_kickprotection = true;
-	bool features_gameeventprotection = true;
-	bool features_maleventprotection = false;
+
+	// why do you have this shit here when theres g_config
+	bool protection = true; //crash protection
+	bool features_kickprotection = true; //kick protection
+	bool features_gameeventprotection = true; //game event protection
+	bool features_maleventprotection = false; //malicious event protection
 	bool god_mode = true;
 
 	volatile Player player = 0;
@@ -107,312 +113,275 @@ namespace big::features
 		}
 	}
 
-	#pragma region TO BE RELOCATED
+#pragma region TO BE RELOCATED
 
-		rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
+	rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
 
-		double wDegreeToRadian(double n) { return n * 0.017453292519943295; }
+	double wDegreeToRadian(double n) { return n * 0.017453292519943295; }
 
-		Vector3 wRotationToDirection(Vector3 rot)
-		{
-			double num = wDegreeToRadian(rot.z);
-			double num2 = wDegreeToRadian(rot.x);
-			double val = cos(num2);
-			double num3 = abs(val);
-			rot.x = (float)(-(float)sin(num) * num3);
-			rot.y = (float)(cos(num) * num3);
-			rot.z = (float)sin(num2);
-			return rot;
-		}
-
-		Vector3 waddVector(Vector3 vector, Vector3 vector2)
-		{
-			vector.x += vector2.x;
-			vector.y += vector2.y;
-			vector.z += vector2.z;
-			return vector;
-		}
-
-		Vector3 wmultiplyVector(Vector3 vector, float inc)
-		{
-			vector.x *= inc;
-			vector.y *= inc;
-			vector.z *= inc;
-			return vector;
-		}
-
-		float deg_to_rad(float deg) { return deg * 3.141592653589793f / 180.f; }
-
-		Vector3 transformRotToDir(Vector3 nig)
-		{
-			double	a = deg_to_rad(nig.x), b = deg_to_rad(nig.z), c = cos(a);
-			nig.x = (float)-(c * sin(b));
-			nig.y = (float)(c * cos(b));
-			nig.z = (float)sin(a);
-
-			return nig;
-		}
-
-		Vector3	get_coords_infront_of_coords(Vector3 pos, Vector3 rot, float dist)
-		{
-			Vector3 transformed = transformRotToDir(rot);
-
-			transformed.x *= dist;
-			transformed.y *= dist;
-			transformed.z *= dist;
-
-			transformed.x += pos.x;
-			transformed.y += pos.y;
-			transformed.z += pos.z;
-
-			return transformed;
-		}
-
-		Vector3 get_coords_above_coords(Vector3 pos, float dist)
-		{
-			pos.z += dist;
-			return pos;
-		}
-
-		Vector3 FromHSB(float hue, float saturation, float brightness) // put this shit somewhere else
-		{
-			float h = hue == 1.0f ? 0 : hue * 6.0f;
-			float f = h - (int)h;
-			float p = brightness * (1.0f - saturation);
-			float q = brightness * (1.0f - saturation * f);
-			float t = brightness * (1.0f - (saturation * (1.0f - f)));
-			if (h < 1)
-				return Vector3((brightness * 255), (t * 255), (p * 255));
-			else if (h < 2)
-				return Vector3((q * 255), (brightness * 255), (p * 255));
-			else if (h < 3)
-				return Vector3((p * 255), (brightness * 255), (t * 255));
-			else if (h < 4)
-				return Vector3((p * 255), (q * 255), (brightness * 255));
-			else if (h < 5)
-				return Vector3((t * 255), (p * 255), (brightness * 255));
-			else
-				return Vector3((brightness * 255), (p * 255), (q * 255));
-	
-		}
-
-		Vector3 find_blip()
-		{
-			bool waypoint = false;
-			static Vector3 zero;
-			Vector3 coords;
-			bool blipFound = false;
-			int blipIterator = UI::_GET_BLIP_INFO_ID_ITERATOR();
-			for (Blip i = UI::GET_FIRST_BLIP_INFO_ID(blipIterator); UI::DOES_BLIP_EXIST(i) != 0; i = UI::GET_NEXT_BLIP_INFO_ID(blipIterator))
-			{
-				if (UI::GET_BLIP_INFO_ID_TYPE(i) == 4)
-				{
-					coords = UI::GET_BLIP_INFO_ID_COORD(i);
-					blipFound = true;
-					break;
-				}
-			}
-			if (blipFound)
-			{
-				waypoint = true;
-				return coords;
-			}
-			else
-				waypoint = false;
-			return zero;
-		}
-
-		Hash load(const char* name)
-		{
-			Hash hash = MISC::GET_HASH_KEY(name);
-			STREAMING::REQUEST_MODEL(hash);
-			while (!STREAMING::HAS_MODEL_LOADED(hash))
-				script::get_current()->yield();
-			return hash;
-		}
-
-		void RequestControlOfid(Entity netid)
-		{
-			if (!NETWORK::NETWORK_HAS_CONTROL_OF_NETWORK_ID(netid))
-			{
-				NETWORK::NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netid);
-				script::get_current()->yield();
-			}
-		}
-
-		void RequestControlOfEnt(Entity entity)
-		{
-			if (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(entity))
-			{
-				NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(entity);
-				script::get_current()->yield();
-			}
-
-			if (NETWORK::NETWORK_IS_SESSION_STARTED())
-			{
-				int netID = NETWORK::NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity);
-				RequestControlOfid(netID);
-				NETWORK::SET_NETWORK_ID_CAN_MIGRATE(netID, 1);
-			}
-		}
-
-		bool isPlayerFriend(int player)
-		{
-			int handle[76];
-			NETWORK::NETWORK_HANDLE_FROM_PLAYER(player, &handle[0], 13);
-
-			if (NETWORK::NETWORK_IS_HANDLE_VALID(&handle[0], 13))
-				return NETWORK::NETWORK_IS_FRIEND(&handle[0]) == 1;
-			else
-				return false;
-		}
-
-		void kick(int player)
-		{
-			LOG(INFO) << "attempting to kick " << player;
-
-			if (NETWORK::NETWORK_IS_HOST())
-			{
-				NETWORK::NETWORK_SESSION_KICK_PLAYER(player);
-				LOG(INFO) << "host kicked " << player;
-				return;
-			}
-
-			auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 0);
-			static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
-
-			// all of this shit was pasted from 2take1 luas, u can find them on github if u want to find some more or find updated ones
-			std::int64_t args1[3] = { -435067392, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-			std::int64_t args2[24] = { 1070934291, player, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10 };
-			std::int64_t args3[4] = { -1729804184, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647), player };
-			std::int64_t args4[3] = { 1428412924, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647) };
-			std::int64_t args5[6] = { 823645419, player, -1, -1, -1, -1 };
-			std::int64_t args6[4] = { -442306200, player, -1, 0 };
-			std::int64_t args7[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-			std::int64_t args8[17] = { -922075519, player, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1 };
-			std::int64_t args9[11] = { -1975590661, 84857178, 61749268, -80053711, -78045655, 56341553, -78686524, -46044922, -22412109, 29388428, -56335450 };
-			std::int64_t args10[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 2147483647, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
-			std::int64_t args11[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 1000, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
-			std::int64_t args12[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
-			std::int64_t args13[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-			std::int64_t args14[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
-			std::int64_t args15[3] = { 0xE6116600, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
-			std::int64_t args16[6] = { 0xF5CB92DB, 0, 0, 46190868, 0, 2 };
-			std::int64_t args17[6] = { 0xF5CB92DB,  46190868, 0, 46190868, 46190868, 2 };
-			std::int64_t args18[8] = { 0xF5CB92DB, 1337, -1, 1, 1, 0, 0, 0 };
-			std::int64_t args19[9] = { 0xF5CB92DB, player, 1337, -1, 1, 1, 0, 0, 0 };
-	
-
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 4, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 4, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 17, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 11, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 11, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args11, 11, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args12, 7, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args13, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args14, 7, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args15, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args16, 6, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args17, 6, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args18, 8, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args19, 9, 1 << player);
-
-			for (int i = 0; i < rotor.size(); i++)
-			{
-				std::int64_t args7[14] = { -1949011582, player, rotor.at(i), i, 1, -10, -10, -10, -10, -10, player, -10, -10, -10 };
-				SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 4, 1 << player);
-			}
-
-			//disturbed / requiem events
-			static std::vector<std::int64_t> kicks = { -1559754940, 2017765964, 324865135, -1212832151, -1890951223, 1302185744, 639032041, 665709549 };
-
-			for (int i = 0; i < kicks.size(); i++)
-			{
-				std::int64_t args[2] = { kicks.at(i), player };
-				SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 2, 1 << player);
-			}
-
-			LOG(INFO) << "kicked " << player;
-		}
-
-		void scriptCrash(int player) // ive noticed that the events with the // ? next to them arent in freemode.c, and if i comment them out and script crash someone they still crash
-		{
-			std::int64_t args[7] = { 3317451851, -72614, 63007, 59027, -12012, -26996, 33399 };
-			std::int64_t args2[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
-			std::int64_t args3[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
-			std::int64_t args4[3] = { 3859899904, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
-			std::int64_t args5[6] = { -977515445, -1, 500000, 849451549, -1, -1 };
-			std::int64_t args6[6] = { 767605081, -1, 500000, 849451549, -1, -1 };
-			std::int64_t args7[5] = { -1949011582, -1139568479, -1, 1, 100099 };
-			std::int64_t args8[16] = { -2122716210, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this instantly closes your game
-			std::int64_t args9[20] = { -922075519, -1, -1, -1, -1, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this event does nothing
-			std::int64_t args10[16] = { -1975590661, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 };  // only sending this event does nothing
-
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 7, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 7, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 6, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 5, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 16, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 20, 1 << player);
-			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 16, 1 << player);
-		}
-
-		/*void storeSkeleton(Ped ped, int s, ImVec2* out)
-		{
-			float x, y;
-			Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
-			GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
-			out->x = features::screenSize.x * x;
-			out->y = features::screenSize.y * y;
-		}*/
-
-	#pragma endregion
-
-	void features::anti_tamper()
+	Vector3 wRotationToDirection(Vector3 rot)
 	{
-		//while (true)
-		//{
-		//	static string blacklist[] = { "ProcessHacker","apimpooponitor","Wireshark","binaryninja","cheatengine", "ida", "ExplorerSuite", "RebelDotNET", "hw_v", "hiew", "Fiddler", "scylla", "PEiD" }; //this just does fucking work idk lol "ida" blocks all ida shit, "hw_v"is for hexworkshop
-		//	WTS_PROCESS_INFO* pWPIs = NULL;
-		//	DWORD dwProcCount = 0;
-		//	if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, NULL, 1, &pWPIs, &dwProcCount))
-		//	{
-		//		//Go through all processes retrieved
-		//		for (DWORD i = 0; i < dwProcCount; i++)
-		//		{
-		//			//for (int i = 0; i < blacklist[i]; i++)
-		//			//{
-		//			//	if (ImGui::Selectable(blacklist.at(i).c_str(), i++))
-		//			//		selected_tab = i;
-		//			//}
-
-		//			for (int j = 0; j < sizeof(blacklist[i]); j++) //arr is undefined
-		//			{
-		//				log_map("anti tamper triggered", logtype::LOG_WARN);
-		//				exit(0);
-		//				ExitProcess(0);
-		//				//if (pWPIs[i].pProcessName.find(blacklist[j]) != std::string::npos) //expression must have class type but it has type LPWSTR
-		//				//	ExitWindowsEx(EWX_POWEROFF | EWX_FORCEIFHUNG, SHTDN_REASON_MINOR_OTHER);
-		//			}
-		//		}
-		//	}
-
-		//	if (pWPIs)
-		//	{
-		//		WTSFreeMemory(pWPIs);
-		//		pWPIs = NULL;
-		//	}
-		//}
+		double num = wDegreeToRadian(rot.z);
+		double num2 = wDegreeToRadian(rot.x);
+		double val = cos(num2);
+		double num3 = abs(val);
+		rot.x = (float)(-(float)sin(num) * num3);
+		rot.y = (float)(cos(num) * num3);
+		rot.z = (float)sin(num2);
+		return rot;
 	}
+
+	Vector3 waddVector(Vector3 vector, Vector3 vector2)
+	{
+		vector.x += vector2.x;
+		vector.y += vector2.y;
+		vector.z += vector2.z;
+		return vector;
+	}
+
+	Vector3 wmultiplyVector(Vector3 vector, float inc)
+	{
+		vector.x *= inc;
+		vector.y *= inc;
+		vector.z *= inc;
+		return vector;
+	}
+
+	float deg_to_rad(float deg) { return deg * 3.141592653589793f / 180.f; }
+
+	Vector3 transformRotToDir(Vector3 nig)
+	{
+		double	a = deg_to_rad(nig.x), b = deg_to_rad(nig.z), c = cos(a);
+		nig.x = (float)-(c * sin(b));
+		nig.y = (float)(c * cos(b));
+		nig.z = (float)sin(a);
+
+		return nig;
+	}
+
+	Vector3	get_coords_infront_of_coords(Vector3 pos, Vector3 rot, float dist)
+	{
+		Vector3 transformed = transformRotToDir(rot);
+
+		transformed.x *= dist;
+		transformed.y *= dist;
+		transformed.z *= dist;
+
+		transformed.x += pos.x;
+		transformed.y += pos.y;
+		transformed.z += pos.z;
+
+		return transformed;
+	}
+
+	Vector3 get_coords_above_coords(Vector3 pos, float dist)
+	{
+		pos.z += dist;
+		return pos;
+	}
+
+	Vector3 FromHSB(float hue, float saturation, float brightness) // put this shit somewhere else
+	{
+		float h = hue == 1.0f ? 0 : hue * 6.0f;
+		float f = h - (int)h;
+		float p = brightness * (1.0f - saturation);
+		float q = brightness * (1.0f - saturation * f);
+		float t = brightness * (1.0f - (saturation * (1.0f - f)));
+		if (h < 1)
+			return Vector3((brightness * 255), (t * 255), (p * 255));
+		else if (h < 2)
+			return Vector3((q * 255), (brightness * 255), (p * 255));
+		else if (h < 3)
+			return Vector3((p * 255), (brightness * 255), (t * 255));
+		else if (h < 4)
+			return Vector3((p * 255), (q * 255), (brightness * 255));
+		else if (h < 5)
+			return Vector3((t * 255), (p * 255), (brightness * 255));
+		else
+			return Vector3((brightness * 255), (p * 255), (q * 255));
+	
+	}
+
+	Vector3 find_blip()
+	{
+		bool waypoint = false;
+		static Vector3 zero;
+		Vector3 coords;
+		bool blipFound = false;
+		int blipIterator = UI::_GET_BLIP_INFO_ID_ITERATOR();
+		for (Blip i = UI::GET_FIRST_BLIP_INFO_ID(blipIterator); UI::DOES_BLIP_EXIST(i) != 0; i = UI::GET_NEXT_BLIP_INFO_ID(blipIterator))
+		{
+			if (UI::GET_BLIP_INFO_ID_TYPE(i) == 4)
+			{
+				coords = UI::GET_BLIP_INFO_ID_COORD(i);
+				blipFound = true;
+				break;
+			}
+		}
+		if (blipFound)
+		{
+			waypoint = true;
+			return coords;
+		}
+		else
+			waypoint = false;
+		return zero;
+	}
+
+	Hash load(const char* name)
+	{
+		Hash hash = MISC::GET_HASH_KEY(name);
+		STREAMING::REQUEST_MODEL(hash);
+		while (!STREAMING::HAS_MODEL_LOADED(hash))
+			script::get_current()->yield();
+		return hash;
+	}
+
+	void RequestControlOfid(Entity netid)
+	{
+		if (!NETWORK::NETWORK_HAS_CONTROL_OF_NETWORK_ID(netid))
+		{
+			NETWORK::NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netid);
+			script::get_current()->yield();
+		}
+	}
+
+	void RequestControlOfEnt(Entity entity)
+	{
+		if (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(entity))
+		{
+			NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(entity);
+			script::get_current()->yield();
+		}
+
+		if (NETWORK::NETWORK_IS_SESSION_STARTED())
+		{
+			int netID = NETWORK::NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity);
+			RequestControlOfid(netID);
+			NETWORK::SET_NETWORK_ID_CAN_MIGRATE(netID, 1);
+		}
+	}
+
+	bool isPlayerFriend(int player)
+	{
+		int handle[76];
+		NETWORK::NETWORK_HANDLE_FROM_PLAYER(player, &handle[0], 13);
+
+		if (NETWORK::NETWORK_IS_HANDLE_VALID(&handle[0], 13))
+			return NETWORK::NETWORK_IS_FRIEND(&handle[0]) == 1;
+		else
+			return false;
+	}
+
+	void kick(int player)
+	{
+		LOG(INFO) << "attempting to kick " << player;
+
+		if (NETWORK::NETWORK_IS_HOST())
+		{
+			NETWORK::NETWORK_SESSION_KICK_PLAYER(player);
+			LOG(INFO) << "host kicked " << player;
+			return;
+		}
+
+		auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 0);
+		static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
+
+		// all of this shit was pasted from 2take1 luas, u can find them on github if u want to find some more or find updated ones
+		std::int64_t args1[3] = { -435067392, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args2[24] = { 1070934291, player, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10 };
+		std::int64_t args3[4] = { -1729804184, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647), player };
+		std::int64_t args4[3] = { 1428412924, player, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(-2147483647, 2147483647) };
+		std::int64_t args5[6] = { 823645419, player, -1, -1, -1, -1 };
+		std::int64_t args6[4] = { -442306200, player, -1, 0 };
+		std::int64_t args7[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args8[17] = { -922075519, player, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1 };
+		std::int64_t args9[11] = { -1975590661, 84857178, 61749268, -80053711, -78045655, 56341553, -78686524, -46044922, -22412109, 29388428, -56335450 };
+		std::int64_t args10[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 2147483647, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
+		std::int64_t args11[11] = { -1975590661, player, (int)pos.x, (int)pos.y, (int)pos.z, 0, 0, 1000, 0, *script_global(1590682).at(player, 883).at(99).at(28).as<int*>(), 1 };
+		std::int64_t args12[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
+		std::int64_t args13[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args14[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
+		std::int64_t args15[3] = { 0xE6116600, player, *script_global(1630317).at(player, 595).at(506).as<int*>() };
+		std::int64_t args16[6] = { 0xF5CB92DB, 0, 0, 46190868, 0, 2 };
+		std::int64_t args17[6] = { 0xF5CB92DB,  46190868, 0, 46190868, 46190868, 2 };
+		std::int64_t args18[8] = { 0xF5CB92DB, 1337, -1, 1, 1, 0, 0, 0 };
+		std::int64_t args19[9] = { 0xF5CB92DB, player, 1337, -1, 1, 1, 0, 0, 0 };
+	
+
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 4, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 4, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 17, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args11, 11, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args12, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args13, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args14, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args15, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args16, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args17, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args18, 8, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args19, 9, 1 << player);
+
+		for (int i = 0; i < rotor.size(); i++)
+		{
+			std::int64_t args7[14] = { -1949011582, player, rotor.at(i), i, 1, -10, -10, -10, -10, -10, player, -10, -10, -10 };
+			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 4, 1 << player);
+		}
+
+		//disturbed / requiem events
+		static std::vector<std::int64_t> kicks = { -1559754940, 2017765964, 324865135, -1212832151, -1890951223, 1302185744, 639032041, 665709549 };
+
+		for (int i = 0; i < kicks.size(); i++)
+		{
+			std::int64_t args[2] = { kicks.at(i), player };
+			SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 2, 1 << player);
+		}
+
+		LOG(INFO) << "kicked " << player;
+	}
+
+	void scriptCrash(int player) // ive noticed that the events with the // ? next to them arent in freemode.c, and if i comment them out and script crash someone they still crash
+	{
+		std::int64_t args[7] = { 3317451851, -72614, 63007, 59027, -12012, -26996, 33399 };
+		std::int64_t args2[7] = { -2122716210, 91645, -99683, 1788, 60877, 55085, 72028 };
+		std::int64_t args3[3] = { -2120750352, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
+		std::int64_t args4[3] = { 3859899904, player, *script_global(1630317).at(player, 595).at(506).as<int*>() }; // ?
+		std::int64_t args5[6] = { -977515445, -1, 500000, 849451549, -1, -1 };
+		std::int64_t args6[6] = { 767605081, -1, 500000, 849451549, -1, -1 };
+		std::int64_t args7[5] = { -1949011582, -1139568479, -1, 1, 100099 };
+		std::int64_t args8[16] = { -2122716210, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this instantly closes your game
+		std::int64_t args9[20] = { -922075519, -1, -1, -1, -1, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 }; // only sending this event does nothing
+		std::int64_t args10[16] = { -1975590661, -1139568479, -1, 1, 100099, -1, 500000, 849451549, -1, -1, 91645, -99683, 1788, 60877, 55085, 72028 };  // only sending this event does nothing
+
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 7, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args4, 3, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args5, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args6, 6, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args7, 5, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args8, 16, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 20, 1 << player);
+		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 16, 1 << player);
+	}
+
+	/*void storeSkeleton(Ped ped, int s, ImVec2* out)
+	{
+		float x, y;
+		Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
+		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
+		out->x = features::screenSize.x * x;
+		out->y = features::screenSize.y * y;
+	}*/
+
+#pragma endregion
 
 	void features::kickFunc()
 	{
@@ -451,7 +420,7 @@ namespace big::features
 				g_config.Pfeatures_kickfromveh = false;
 			}
 
-			/*if (g_config.Pfeatures_kickall)
+			if (g_config.Pfeatures_kickall)
 			{
 				log_map("Attempting to kick ~r~all players", logtype::LOG_WARN);
 
@@ -493,31 +462,31 @@ namespace big::features
 					script::get_current()->yield();
 				}
 				g_config.Pfeatures_crashall = false;
-			}*/
+			}
 
-			//if (g_config.auto_host_kick)
-			//{
-			//	if (features::isHost)
-			//	{
-			//		for (int i = 0; i < 32; i++)
-			//		{
-			//			if (i == player)
-			//				continue;
+			if (g_config.auto_host_kick)
+			{
+				if (features::isHost)
+				{
+					for (int i = 0; i < 32; i++)
+					{
+						if (i == player)
+							continue;
 
-			//			if (!PLAYER::GET_PLAYER_PED(i))
-			//				continue;
+						if (!PLAYER::GET_PLAYER_PED(i))
+							continue;
 
-			//			if (features::players[i].isfriend)
-			//				continue;
+						if (features::players[i].isfriend)
+							continue;
 
-			//			//log_map(fmt::format("Auto kicking {}", features::players[i].name), logtype::LOG_INFO);						
-			//			kick(i);
-			//			script::get_current()->yield();
-			//		}
-			//	}
-			//	else
-			//		g_config.auto_host_kick = false;
-			//}
+						log_map(fmt::format("auto kicking {}", features::players[i].name), logtype::LOG_INFO);						
+						kick(i);
+						script::get_current()->yield();
+					}
+				}
+				else
+					g_config.auto_host_kick = false;
+			}
 
 			script::get_current()->yield();
 		}
@@ -710,7 +679,7 @@ namespace big::features
 		else
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.f);
 
-		Ped _ped = ped; //to prevent declaration confusion in the following statements
+		Ped _ped = ped; //to prevent declaration confusion in the follow statements
 		if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && owns_veh(_ped)) // kinda a ghetto fix but it works for now 
 			_ped = PED::GET_VEHICLE_PED_IS_IN(_ped, FALSE);
 
@@ -842,7 +811,7 @@ namespace big::features
 			}
 		}
 
-		//TODO: fix inaccuracy when firing at ped in vehicle
+		// to do: test this, im too lazy 
 		if (g_config.Wfeatures_autoshoot)
 		{
 			Entity AimedAtEntity;
@@ -852,19 +821,26 @@ namespace big::features
 			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
+				if (PED::IS_PED_A_PLAYER(AimedAtEntity))
 				{
-					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
-					if (g_config.Wfeatures_instakill) //updated to account for instakill
+					auto player = peds[AimedAtEntity]; // this is so fucking stupid but i cant think of another way to do this so fuck you
+					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
 					{
-						for (int i = 0; i < 6; i++)
-							GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, Mouth.x, Mouth.y, Mouth.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+						Vector3 vec{};
+						renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
+
+						if (g_config.Wfeatures_instakill) //this is so retarded i hate this so much
+						{
+							for (int i = 0; i < 6; i++)
+								GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, vec.x, vec.y, vec.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+						}
+						else
+							PED::SET_PED_SHOOTS_AT_COORD(PLAYER::PLAYER_PED_ID(), vec.x, vec.y, vec.z, true);
 					}
-					else
-						PED::SET_PED_SHOOTS_AT_COORD(ped, Mouth.x, Mouth.y, Mouth.z, true);
 				}
 			}
 		}
+
 
 		if (g_config.Wfeatures_addweapons)
 		{
@@ -1025,7 +1001,7 @@ namespace big::features
 		if (i == player) { localPed = ped;	localIndex = i; } // why are you doing this here
 
 		NETWORK::NETWORK_HANDLE_FROM_PLAYER(i, netHandle, 13);
-
+		peds[ped] = i; // fuck you
 		players[i].ped = ped;
 		players[i].index = i;
 		players[i].exists = ENTITY::DOES_ENTITY_EXIST(ped);;
