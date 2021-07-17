@@ -288,7 +288,7 @@ namespace big::base_tab
 							}
 							if (features::players[i].isSessionHost)
 							{
-								ImGui::SameLine();//aa
+								ImGui::SameLine();
 								ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 							}
 
