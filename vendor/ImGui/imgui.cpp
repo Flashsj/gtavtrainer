@@ -1397,7 +1397,7 @@ const char* ImStristr(const char* haystack, const char* haystack_end, const char
 void ImStrTrimBlanks(char* buf)
 {
     char* p = buf;
-    while (p[0] == ' ' || p[0] == '\t')     // Leading blanks
+    while (p[0] == ' ' || p[0] == '\t')     // Leading blanks//
         p++;
     char* p_start = p;
     while (*p != 0)                         // Find end of string
