@@ -139,7 +139,7 @@ namespace big::features
 		return vector;
 	}
 
-	Vector3 wmultiplyVector(Vector3 vector, float inc)
+	Vector3 wmultiplyVector(Vector3 vector, float inc) //test
 	{
 		vector.x *= inc;
 		vector.y *= inc;
