@@ -86,7 +86,7 @@ namespace big::features
 
 	void show_stat()
 	{
-		if (first) 
+		if (first)
 		{
 			//log_map("Trainer installation successful. Have fun!", logtype::LOG_NONE);
 			first = false;
@@ -199,7 +199,7 @@ namespace big::features
 			return Vector3((t * 255), (p * 255), (brightness * 255));
 		else
 			return Vector3((brightness * 255), (p * 255), (q * 255));
-	
+
 	}
 
 	Vector3 find_blip()
@@ -307,7 +307,7 @@ namespace big::features
 		std::int64_t args17[6] = { 0xF5CB92DB,  46190868, 0, 46190868, 46190868, 2 };
 		std::int64_t args18[8] = { 0xF5CB92DB, 1337, -1, 1, 1, 0, 0, 0 };
 		std::int64_t args19[9] = { 0xF5CB92DB, player, 1337, -1, 1, 1, 0, 0, 0 };
-	
+
 
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
@@ -479,7 +479,7 @@ namespace big::features
 						if (features::players[i].isfriend)
 							continue;
 
-						log_map(fmt::format("auto kicking {}", features::players[i].name), logtype::LOG_INFO);						
+						log_map(fmt::format("auto kicking {}", features::players[i].name), logtype::LOG_INFO);
 						kick(i);
 						script::get_current()->yield();
 					}
@@ -690,7 +690,88 @@ namespace big::features
 
 		//if (GetAsyncKeyState(VK_F5) || CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN))
 			//features::Lfeatures_teleportwp = true;
+		if (GetAsyncKeyState(VK_F5)) {
+			if (UI::IS_WAYPOINT_ACTIVE()) // ?
+			{
+				if (!find_blip().z || !find_blip().x || !find_blip().y) // ?
+				{
+					features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+					return;
+				}
 
+				Vector3 coords = find_blip();
+
+				//if you really care then add a ground check so you can teleport to chilliad because i dont
+				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
+					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
+
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
+
+				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
+			}
+			else
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+
+			g_config.Lfeatures_teleportwp = false;
+		}
+
+		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped))
+			{
+				log_map("Noclip is unavailable as a passenger", logtype::LOG_ERROR);
+				g_config.Lfeatures_noclip = false;
+				return;
+			}
+
+			auto speed = GetAsyncKeyState(VK_SHIFT) ? 10.f : 2.f;
+			Vector3 rot = { 0.f, 0.f, 0.f };
+			Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(_ped, 1);
+
+			ENTITY::SET_ENTITY_COLLISION(_ped, FALSE, FALSE);
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, playerCoords.x, playerCoords.y, playerCoords.z, 0, 0, 0);
+
+			//forward
+			if (GetAsyncKeyState(VK_KEY_W))
+			{
+				rot = ENTITY::GET_ENTITY_ROTATION(_ped, 0);
+				Vector3 to = get_coords_infront_of_coords(playerCoords, rot, .25f * (speed * 1.5f));
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
+			}
+
+			//back
+			if (GetAsyncKeyState(VK_KEY_S))
+			{
+				rot = ENTITY::GET_ENTITY_ROTATION(_ped, 0);
+				Vector3 to = get_coords_infront_of_coords(playerCoords, rot, -.25f * (speed * 1.5f));
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
+			}
+
+			//left
+			if (GetAsyncKeyState(VK_KEY_A))
+				ENTITY::SET_ENTITY_HEADING(_ped, ENTITY::GET_ENTITY_HEADING(_ped) + 2.5f * 2.f);
+
+			//right
+			if (GetAsyncKeyState(VK_KEY_D))
+				ENTITY::SET_ENTITY_HEADING(_ped, ENTITY::GET_ENTITY_HEADING(_ped) - 2.5f * 2.f);
+
+			//up
+			if (GetAsyncKeyState(VK_SPACE))
+			{
+				Vector3 to = get_coords_above_coords(playerCoords, .2f * speed);
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
+			}
+
+			//down
+			if (GetAsyncKeyState(VK_CONTROL))
+			{
+				Vector3 to = get_coords_above_coords(playerCoords, -.2f * speed);
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
+			}
+		}
+		else
+			ENTITY::SET_ENTITY_COLLISION(_ped, TRUE, TRUE);
+	
 		if (g_config.Lfeatures_teleportwp)
 		{
 			if (UI::IS_WAYPOINT_ACTIVE()) // ?
