@@ -20,6 +20,8 @@ namespace big
 	class config
 	{
 	public:
+		bool devOptions = false;
+
 		bool Lfeatures_godmode = false;
 		bool Lfeatures_noragdoll = false;
 		bool Lfeatures_neverwanted = false;
@@ -32,7 +34,8 @@ namespace big
 		bool Lfeatures_fastrun = false;
 
 		bool Wfeatures_infammo = false;
-		bool Wfeatures_autoshoot = false; 
+		bool Wfeatures_triggerbot = false;
+		bool Wfeatures_forceaccuracy = false;
 		bool Wfeatures_instakill = false;
 		bool Wfeatures_addweapons = false;
 

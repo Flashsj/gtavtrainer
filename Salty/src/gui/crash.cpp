@@ -231,55 +231,56 @@ namespace big::crash
 	{
 		hook::set_base();
 
-		//{
-		//	auto location = hook::get_pattern("83 C8 FF 84 D2 74 10", -4);
-		//	MH_CreateHook(location, GetHandlingByHashStub, (void**)&g_origGetHandlingByHash);
-		//	MH_EnableHook(location);
-		//}
+		{
+			auto location = hook::get_pattern("83 C8 FF 84 D2 74 10", -4);
+			MH_CreateHook(location, GetHandlingByHashStub, (void**)&g_origGetHandlingByHash);
+			MH_EnableHook(location);
+		}
 
-		//{
-		//	auto location = hook::get_pattern("66 44 3B A9 50 06 00 00 0F 83", -0x25);
-		//	MH_CreateHook(location, CDrawListMgr_ClothCleanup, (void**)&g_origDrawListMgr_ClothFlush);
-		//	g_clothCritSec = hook::get_address<LPCRITICAL_SECTION>(hook::get_pattern("48 8B F8 48 89 58 10 33 C0 8D 50 10", -0x21));
-		//	MH_EnableHook(location);
-		//}
+		{
+			auto location = hook::get_pattern("66 44 3B A9 50 06 00 00 0F 83", -0x25);
+			MH_CreateHook(location, CDrawListMgr_ClothCleanup, (void**)&g_origDrawListMgr_ClothFlush);
+			g_clothCritSec = hook::get_address<LPCRITICAL_SECTION>(hook::get_pattern("48 8B F8 48 89 58 10 33 C0 8D 50 10", -0x21));
+			MH_EnableHook(location);
+		}
 
-		//{
-		//	auto location1 = hook::get_pattern("4C 8B EA 48 8B F1 E8 ? ? ? ? 40 B5 01 48 8B F8", -0x2D);
-		//	auto location2 = hook::get_pattern("EB 08 C7 44 24 20 01 00 00 00 45 33 C9", -0x17);
-		//	auto location3 = hook::get_pattern("75 0D F6 84 08 ? ? 00 00", -0xB);
-		//	auto location4 = hook::get_pattern("41 BD D8 00 00 00 39 6B 60 74", -0x30);
+		{
+			auto location1 = hook::get_pattern("4C 8B EA 48 8B F1 E8 ? ? ? ? 40 B5 01 48 8B F8", -0x2D);
+			auto location2 = hook::get_pattern("EB 08 C7 44 24 20 01 00 00 00 45 33 C9", -0x17);
+			auto location3 = hook::get_pattern("75 0D F6 84 08 ? ? 00 00", -0xB);
+			auto location4 = hook::get_pattern("41 BD D8 00 00 00 39 6B 60 74", -0x30);
 
-		//	MH_CreateHook(location1, LoadFromStructureCharHook, (void**)&g_origLoadFromStructureChar);
-		//	MH_CreateHook(location2, CText__LoadSlotHook, (void**)&g_origCText__LoadSlot);
-		//	MH_CreateHook(location3, CText__IsSlotLoadedHook, (void**)&g_origCText__IsSlotLoaded);
-		//	MH_CreateHook(location4, CText__UnloadSlotHook, (void**)&g_origCText__UnloadSlot);
+			MH_CreateHook(location1, LoadFromStructureCharHook, (void**)&g_origLoadFromStructureChar);
+			MH_CreateHook(location2, CText__LoadSlotHook, (void**)&g_origCText__LoadSlot);
+			MH_CreateHook(location3, CText__IsSlotLoadedHook, (void**)&g_origCText__IsSlotLoaded);
+			MH_CreateHook(location4, CText__UnloadSlotHook, (void**)&g_origCText__UnloadSlot);
 
-		//	MH_EnableHook(location1);
-		//	MH_EnableHook(location2);
-		//	MH_EnableHook(location3);
-		//	MH_EnableHook(location4);
-		//}
+			MH_EnableHook(location1);
+			MH_EnableHook(location2);
+			MH_EnableHook(location3);
+			MH_EnableHook(location4);
+		}
 
-		//{
-		//	auto location = hook::pattern("41 0F B6 80 4A 03 00 00 3B D0").count(2);
+		{
+			auto location = hook::pattern("41 0F B6 80 4A 03 00 00 3B D0").count(2);
 
-		//	auto v0 = location.get(0).get<void>(-12);
-		//	auto v1 = location.get(1).get<void>(-12);
+			auto v0 = location.get(0).get<void>(-12);
+			auto v1 = location.get(1).get<void>(-12);
 
-		//	MH_CreateHook(v0, VerifyNetObj1, (void**)&origVerifyNetObj1);
-		//	MH_CreateHook(v1, VerifyNetObj2, (void**)&origVerifyNetObj2);
-		//	MH_EnableHook(v0);
-		//	MH_EnableHook(v1);
-		//}
+			MH_CreateHook(v0, VerifyNetObj1, (void**)&origVerifyNetObj1);
+			MH_CreateHook(v1, VerifyNetObj2, (void**)&origVerifyNetObj2);
+			MH_EnableHook(v0);
+			MH_EnableHook(v1);
+		}
 
-		//{
-		//	auto location = hook::get_pattern("4D 8B F0 44 8A 44 24 50 41 8B", -0x19);
+		{
+			auto location = hook::get_pattern("4D 8B F0 44 8A 44 24 50 41 8B", -0x19);
 
-		//	MH_CreateHook(location, DrawModelGeometryHook, (void**)&g_origDrawModelGeometry);
-		//	MH_EnableHook(location);
-		//}
+			MH_CreateHook(location, DrawModelGeometryHook, (void**)&g_origDrawModelGeometry);
+			MH_EnableHook(location);
+		}
 	}
+
 	void disable()
 	{
 	}

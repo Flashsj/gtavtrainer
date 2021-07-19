@@ -92,7 +92,7 @@ namespace big::base_tab
 			{
 				ImGui::Checkbox("Infinite ammo", &g_config.Wfeatures_infammo);
 				ImGui::Checkbox("Insta kill", &g_config.Wfeatures_instakill);
-				ImGui::Checkbox("Triggerbot", &g_config.Wfeatures_autoshoot);
+				ImGui::Checkbox("Triggerbot", &g_config.Wfeatures_triggerbot); //updated and boss
 
 				if (ImGui::Button("Give all weapons"))
 					g_config.Wfeatures_addweapons = true;
@@ -207,6 +207,18 @@ namespace big::base_tab
 	{
 		if (ImGui::BeginTabBar("##online tabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip))
 		{
+			if (g_config.devOptions)
+			{
+				if (ImGui::BeginTabItem("Debug"))
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.1f, 0.1f, 1.f));
+					if (features::isHost)
+						ImGui::Checkbox("Auto host kick all", &g_config.auto_host_kick);
+					ImGui::PopStyleColor();
+					ImGui::EndTabItem();
+				}
+			}
+
 			if (ImGui::BeginTabItem("Protection"))
 			{
 				ImGui::Checkbox("Game event protection", &features::features_gameeventprotection);
@@ -216,7 +228,7 @@ namespace big::base_tab
 				{
 					ImGui::Checkbox("Event protection", &features::features_maleventprotection);
 					if (ImGui::IsItemHovered())
-						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game (POOPY (stinky)).");
+						ImGui::SetTooltip("Experimental. This will trigger false positives and may cause issues with the game.");
 				}
 				ImGui::PopStyleColor();
 
@@ -292,13 +304,14 @@ namespace big::base_tab
 								ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 							}
 
-#ifdef _DEBUG
-							if (features::scriptHost == i)
+							if (g_config.devOptions)
 							{
-								ImGui::SameLine();
-								ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
+								if (features::scriptHost == i)
+								{
+									ImGui::SameLine();
+									ImGui::TextColored(ImVec4(0.f, 0.7f, 1.f, 1.f), "SCRIPT HOST");
+								}
 							}
-#endif
 						}
 					}
 					ImGui::EndChild();
@@ -370,28 +383,29 @@ namespace big::base_tab
 							}
 							ImGui::PopStyleColor();
 
-#ifdef _DEBUG
-							ImGui::Separator();
-
-							if (features::players[features::selectedPlayer].player)
+							if (g_config.devOptions)
 							{
 								ImGui::Separator();
-								string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
-								InputText("##debug 1", &debug, 0);
 
-								debug = fmt::format("CPlayerInfo: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
-								InputText("##debug 2", &debug, 0);
-
-								debug = fmt::format("netData: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
-								InputText("##debug 3", &debug, 0);
-
-								if (features::players[features::selectedPlayer].info)
+								if (features::players[features::selectedPlayer].player)
 								{
-									debug = fmt::format("CPed: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
-									InputText("##debug 4", &debug, 0);
+									ImGui::Separator();
+									string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
+									InputText("##debug 1", &debug, 0);
+
+									debug = fmt::format("CPlayerInfo: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info));
+									InputText("##debug 2", &debug, 0);
+
+									debug = fmt::format("netData: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].netData));
+									InputText("##debug 3", &debug, 0);
+
+									if (features::players[features::selectedPlayer].info)
+									{
+										debug = fmt::format("CPed: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].info->ped));
+										InputText("##debug 4", &debug, 0);
+									}
 								}
 							}
-#endif
 						}
 					}
 					ImGui::EndChild();
@@ -399,18 +413,6 @@ namespace big::base_tab
 
 				ImGui::EndTabItem();
 			}
-
-
-			#ifdef _DEBUG
-			if (ImGui::BeginTabItem("Debug"))
-			{
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.1f, 0.1f, 1.f));
-				if (features::isHost)
-					ImGui::Checkbox("Auto host kick all", &g_config.auto_host_kick);
-				ImGui::PopStyleColor();
-				ImGui::EndTabItem();
-			}
-			#endif
 
 			ImGui::EndTabBar();
 		}
@@ -443,6 +445,7 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Misc"))
 			{
+				ImGui::Checkbox("Enable developer mode", &g_config.devOptions);
 				if (ImGui::Button("Unload"))
 				{
 					exit(0);
@@ -452,8 +455,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-#ifdef _DEBUG
-			if (*g_pointers->m_is_session_started)
+			if (g_config.devOptions && *g_pointers->m_is_session_started)
 			{
 				if (ImGui::BeginTabItem("Debug"))
 				{
@@ -469,14 +471,14 @@ namespace big::base_tab
 					ImGui::Text(fmt::format("sync: {}", features::sync).c_str());
 					ImGui::Text(fmt::format("network: {}", features::network).c_str());
 					ImGui::Text(fmt::format("script: {}", features::script).c_str());
-					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());	
+					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());
 
 					ImGui::SliderInt("Log length limit", &g_config.log_limit, 0, 100);
 
 					ImGui::EndTabItem();
+
 				}
 			}
-#endif
 			ImGui::EndTabBar();
 		}
 	}

@@ -88,7 +88,7 @@ namespace big::features
 	{
 		if (first)
 		{
-			//log_map("Trainer installation successful. Have fun!", logtype::LOG_NONE);
+			log_map("Successfully injected", logtype::LOG_INFO);
 			first = false;
 		}
 		else
@@ -273,6 +273,28 @@ namespace big::features
 			return false;
 	}
 
+	bool features::owns_veh(Ped _ped) //move somewhere else
+	{
+		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(_ped, player);
+		if (ENTITY::DOES_ENTITY_EXIST(vehicle) || ENTITY::IS_ENTITY_A_VEHICLE(vehicle))
+		{
+			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1) == _ped)
+				return true;
+		}
+		return false;
+	}
+
+	void fireBullet(Vector3 startCoords, Vector3 target, bool instakill = false)
+	{
+		if (g_config.Wfeatures_instakill)
+		{
+			for (int i = 0; i < 6; i++)
+				GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(startCoords.x, startCoords.y, startCoords.z, target.x, target.y, target.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
+		}
+		else
+			PED::SET_PED_SHOOTS_AT_COORD(ped, target.x, target.y, target.z, true);
+	}
+
 	void kick(int player)
 	{
 		LOG(INFO) << "attempting to kick " << player;
@@ -371,15 +393,6 @@ namespace big::features
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args9, 20, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args10, 16, 1 << player);
 	}
-
-	/*void storeSkeleton(Ped ped, int s, ImVec2* out)
-	{
-		float x, y;
-		Vector3 vec = PED::GET_PED_BONE_COORDS(ped, s, 0.0f, 0.0f, 0.0f);
-		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(vec.x, vec.y, vec.z, &x, &y);
-		out->x = features::screenSize.x * x;
-		out->y = features::screenSize.y * y;
-	}*/
 
 #pragma endregion
 
@@ -599,20 +612,6 @@ namespace big::features
 		} QUEUE_JOB_END_CLAUSE
 	}
 
-	void block_main()
-	{
-		//block afk
-		misc::set_global(2550148 + 296, -1000000);
-		misc::set_global(1377236 + 1149, -1000000);
-
-		//block vote
-		misc::set_global(1388057, 0);
-		misc::set_global(1388059, 0);
-		misc::set_global(1388060, 0);
-		misc::set_global(1388062, 0);
-		misc::set_global(1388063, 0);
-	}
-
 	void features_local()
 	{
 		if (g_config.Lfeatures_godmode)
@@ -651,7 +650,7 @@ namespace big::features
 			PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(ped, TRUE);
 		}
 
-		if (g_config.Lfeatures_neverwanted)
+		if (g_config.Lfeatures_neverwanted) //this needs to be redone, cops are broken when disabled
 		{
 			PLAYER::SET_MAX_WANTED_LEVEL(0);
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
@@ -772,7 +771,7 @@ namespace big::features
 		else
 			ENTITY::SET_ENTITY_COLLISION(_ped, TRUE, TRUE);
 	
-		if (g_config.Lfeatures_teleportwp)
+		if (g_config.Lfeatures_teleportwp) //buggy and needs to be redone
 		{
 			if (UI::IS_WAYPOINT_ACTIVE()) // ?
 			{
@@ -784,7 +783,7 @@ namespace big::features
 
 				Vector3 coords = find_blip();
 
-				//if you really care then add a ground check so you can teleport to chilliad because i dont
+				//this needs to be updated to account for ground check
 				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
 					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
 
@@ -878,7 +877,7 @@ namespace big::features
 			}
 		}
 
-		if (g_config.Wfeatures_instakill) //might wanna pack this into a function because it gets called here and in autoshoot, just a thought
+		if (g_config.Wfeatures_instakill) //might wanna pack this into a function because it gets called three times
 		{
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
@@ -887,41 +886,37 @@ namespace big::features
 			Vector3 EndCoords = waddVector(StartCoords, wmultiplyVector(CamDirection, 500.0f));
 			if (PED::IS_PED_SHOOTING(ped))
 			{
-				for (int i = 0; i < 6; i++)
+				for (int i = 0; i < 3; i++)
 					GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, EndCoords.x, EndCoords.y, EndCoords.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
 			}
 		}
 
-		// to do: test this, im too lazy 
-		if (g_config.Wfeatures_autoshoot)
+		if (g_config.Wfeatures_triggerbot)
 		{
 			Entity AimedAtEntity;
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
 			Vector3 CamDirection = wRotationToDirection(CamRotation);
 			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
+
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
 				if (PED::IS_PED_A_PLAYER(AimedAtEntity))
 				{
-					auto player = peds[AimedAtEntity]; // this is so fucking stupid but i cant think of another way to do this so fuck you
+					auto player = peds[AimedAtEntity];
 					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
 					{
-						Vector3 vec{};
-						renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
-
-						if (g_config.Wfeatures_instakill) //this is so retarded i hate this so much
-						{
-							for (int i = 0; i < 6; i++)
-								GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(StartCoords.x, StartCoords.y, StartCoords.z, vec.x, vec.y, vec.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
-						}
-						else
-							PED::SET_PED_SHOOTS_AT_COORD(PLAYER::PLAYER_PED_ID(), vec.x, vec.y, vec.z, true);
+						Vector3 vec{}; renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
+						fireBullet(StartCoords, vec);
 					}
+				}
+				else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
+				{
+					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
+					fireBullet(StartCoords, Mouth);
 				}
 			}
 		}
-
 
 		if (g_config.Wfeatures_addweapons)
 		{
@@ -938,7 +933,7 @@ namespace big::features
 	void features_vehicle_delay()
 	{
 		/// <summary>
-		/// Vehicle godmode, this is very messy, a few redeclarations, will redo eventually
+		/// Vehicle godmode, this is very messy, a few redeclarations, this needs to be redone before any sort of release
 		/// </summary>
 
 		Vehicle v = PED::GET_VEHICLE_PED_IS_IN(ped, player);
@@ -1290,18 +1285,23 @@ namespace big::features
 		}
 	}
 
-	bool features::owns_veh(Ped _ped) //move somewhere else
+#pragma region init
+
+	void block_main()
 	{
-		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(_ped, player);
-		if (ENTITY::DOES_ENTITY_EXIST(vehicle) || ENTITY::IS_ENTITY_A_VEHICLE(vehicle))
-		{
-			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1) == _ped)
-				return true;
-		}
-		return false;
+		//block afk
+		misc::set_global(2550148 + 296, -1000000);
+		misc::set_global(1377236 + 1149, -1000000);
+
+		//block vote
+		misc::set_global(1388057, 0);
+		misc::set_global(1388059, 0);
+		misc::set_global(1388060, 0);
+		misc::set_global(1388062, 0);
+		misc::set_global(1388063, 0);
 	}
 
-	void dec_var() // what the fuck does dec_var mean????
+	void dec_var()
 	{
 		player = PLAYER::PLAYER_ID();
 		ped = PLAYER::PLAYER_PED_ID();
@@ -1318,7 +1318,6 @@ namespace big::features
 					if (lastVehicle)
 						lastVehicleHandling = lastVehicle->handlingData;
 
-					// to do: put this somewhere else
 					if (g_config.vehicle.seatbelt)
 						features::localCPed->seatbelt = features::localCPed->seatbelt | 0x01;
 					else
@@ -1352,7 +1351,8 @@ namespace big::features
 
 			if (now - tick_60 > 60000)
 			{
-				block_main();
+				if (features::features_kickprotection)
+					block_main();
 				show_stat();
 				tick_60 = now;
 			}
@@ -1385,4 +1385,5 @@ namespace big::features
 			script::get_current()->yield();
 		}
 	}
+#pragma endregion
 }
