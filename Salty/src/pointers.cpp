@@ -21,7 +21,7 @@ namespace big
 		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11
 		//48 8B 05 ? ? ? ? 8B CF 48 8B 0C C8 39 59 68
 	
-		main_batch.add("Game state", "83 3D ? ? ? ? ? 75 17 8B 42 20 25", [this](memory::handle ptr) //update
+		main_batch.add("Game state", "4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11", [this](memory::handle ptr) //updated and fixed
 		{
 			m_game_state = ptr.add(2).rip().as<enum eGameState*>();
 		});
