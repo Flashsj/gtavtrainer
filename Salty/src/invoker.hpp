@@ -24,16 +24,10 @@ namespace big
 		void end_call(rage::scrNativeHash hash);
 
 		template <typename T>
-		void push_arg(T &&value)
-		{
-			m_call_context.push_arg(std::forward<T>(value));
-		}
+		void push_arg(T&& value) { m_call_context.push_arg(std::forward<T>(value)); }
 
 		template <typename T>
-		T &get_return_value()
-		{
-			return *m_call_context.get_return_value<T>();
-		}
+		T& get_return_value() { return *m_call_context.get_return_value<T>(); }
 	private:
 		native_call_context m_call_context;
 		std::unordered_map<rage::scrNativeHash, rage::scrNativeHandler> m_handler_cache;

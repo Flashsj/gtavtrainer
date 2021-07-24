@@ -13,13 +13,11 @@
     <Filter Include="hooking">
       <UniqueIdentifier>{b984c2d8-7f91-49ad-b5a4-d395146ef50b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{a9f6f960-9a01-457d-bc42-e0dc358141ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\common.hpp" />
-    <ClInclude Include="src\crossmap.hpp" />
-    <ClInclude Include="src\detour_hook.hpp" />
-    <ClInclude Include="src\fiber_pool.hpp" />
-    <ClInclude Include="src\fonts.hpp" />
     <ClInclude Include="src\gta\joaat.hpp">
       <Filter>gta</Filter>
     </ClInclude>
@@ -41,11 +39,9 @@
     <ClInclude Include="src\gta\tls_context.hpp">
       <Filter>gta</Filter>
     </ClInclude>
-    <ClInclude Include="src\gta_util.hpp" />
     <ClInclude Include="src\gui\base_tab.h">
       <Filter>menu</Filter>
     </ClInclude>
-    <ClInclude Include="src\invoker.hpp" />
     <ClInclude Include="src\logger.hpp" />
     <ClInclude Include="src\memory\fwddec.hpp">
       <Filter>memory</Filter>
@@ -65,14 +61,6 @@
     <ClInclude Include="src\memory\range.hpp">
       <Filter>memory</Filter>
     </ClInclude>
-    <ClInclude Include="src\natives.hpp" />
-    <ClInclude Include="src\renderer.hpp" />
-    <ClInclude Include="src\script.hpp" />
-    <ClInclude Include="src\script_global.hpp" />
-    <ClInclude Include="src\script_hook.hpp" />
-    <ClInclude Include="src\script_local.hpp" />
-    <ClInclude Include="src\script_mgr.hpp" />
-    <ClInclude Include="src\vmt_hook.hpp" />
     <ClInclude Include="src\gui\misc.h">
       <Filter>menu</Filter>
     </ClInclude>
@@ -82,16 +70,7 @@
     <ClInclude Include="src\gui\gui.hpp">
       <Filter>menu</Filter>
     </ClInclude>
-    <ClInclude Include="src\gui\natives_logging.hpp">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pointers.hpp">
-      <Filter>menu</Filter>
-    </ClInclude>
     <ClInclude Include="src\function_types.hpp">
-      <Filter>menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hooking.hpp">
       <Filter>menu</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\crash.hpp">
@@ -181,17 +160,69 @@
     <ClInclude Include="src\gta\structs.hpp">
       <Filter>menu</Filter>
     </ClInclude>
-    <ClInclude Include="fonts.hpp" />
+    <ClInclude Include="src\renderer.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script.hpp">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script_global.hpp">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script_hook.hpp">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script_mgr.hpp">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script_local.hpp">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detour_hook.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fiber_pool.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vmt_hook.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\natives.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fonts.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gta_util.hpp">
+      <Filter>gta</Filter>
+    </ClInclude>
+    <ClInclude Include="src\invoker.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crossmap.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pointers.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\natives_logging.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hooking.hpp">
+      <Filter>hooking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common.cpp" />
-    <ClCompile Include="src\detour_hook.cpp" />
-    <ClCompile Include="src\fiber_pool.cpp" />
-    <ClCompile Include="src\fonts.cpp" />
     <ClCompile Include="src\gui\base_tab.cpp">
       <Filter>menu</Filter>
     </ClCompile>
-    <ClCompile Include="src\invoker.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\memory\module.cpp">
       <Filter>memory</Filter>
@@ -205,13 +236,6 @@
     <ClCompile Include="src\memory\range.cpp">
       <Filter>memory</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer.cpp" />
-    <ClCompile Include="src\script.cpp" />
-    <ClCompile Include="src\script_global.cpp" />
-    <ClCompile Include="src\script_hook.cpp" />
-    <ClCompile Include="src\script_local.cpp" />
-    <ClCompile Include="src\script_mgr.cpp" />
-    <ClCompile Include="src\vmt_hook.cpp" />
     <ClCompile Include="src\gui\misc.cpp">
       <Filter>menu</Filter>
     </ClCompile>
@@ -219,15 +243,6 @@
       <Filter>menu</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\gui.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gui\natives_logging.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pointers.cpp">
-      <Filter>menu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooking.cpp">
       <Filter>menu</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\crash.cpp">
@@ -240,6 +255,48 @@
       <Filter>hooking</Filter>
     </ClCompile>
     <ClCompile Include="src\hooking\_Hooking.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer.cpp">
+      <Filter>menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script_global.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script_hook.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script_local.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script_mgr.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\detour_hook.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fiber_pool.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vmt_hook.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fonts.cpp">
+      <Filter>menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\invoker.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pointers.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\natives_logging.cpp">
+      <Filter>hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooking.cpp">
       <Filter>hooking</Filter>
     </ClCompile>
   </ItemGroup>

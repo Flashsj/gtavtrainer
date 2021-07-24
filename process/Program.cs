@@ -10,30 +10,30 @@ namespace process
     {
         static void Main(string[] args)
         {
-            var input = File.ReadAllLines("C:\\Users\\tecel\\AppData\\Roaming\\GTAVTRAINER\\GTAVTRAINER.csv");
-
-            var count = new Dictionary<string, int>();
-
-            foreach (var line in input)
+            try
             {
-                var t = line.Split("\",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+                var input = File.ReadAllLines($"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\GTAVTRAINER");
+                var output = new List<string>();
+                var count = new Dictionary<string, int>();
 
-                if(t.Count > 3 && t[1] == "NATIVE")
+                foreach (var line in input)
                 {
-                    if(!count.ContainsKey(t[3]))
+                    var t = line.Split("\",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (t.Count > 3 && t[1] == "NATIVE")
                     {
-                        count[t[3]] = 1;
+                        if (!count.ContainsKey(t[3]))
+                            count[t[3]] = 1;
+                        count[t[3]]++;
                     }
-                    count[t[3]]++;
                 }
-            }
-            var output = new List<string>();
 
-            foreach (var key in count.Keys)
-            {
-                output.Add(key + "," + count[key].ToString());
+                foreach (var key in count.Keys) { output.Add(key + "," + count[key].ToString()); }
+
+                if (File.Exists(input.ToString()))
+                    File.WriteAllLines(input.ToString(), output);
+                else throw new Exception("Unable to write memory");
             }
-            File.WriteAllLines("C:\\Users\\tecel\\AppData\\Roaming\\GTAVTRAINER\\GTAVTRAINER_processed.csv", output);
+            catch (Exception ex) { throw new Exception($"Fatal runtime error: {ex.Message}"); }
         }
     }
 }

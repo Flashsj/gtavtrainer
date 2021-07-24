@@ -9,12 +9,12 @@ namespace logger
     {
         static void Main(string[]args)
         {
-            var input = File.ReadAllLines("D:\\LuckyStreet\\Modding\\GTAVTRAINER\\GTAVTRAINER\\src\\natives.hpp");
+            var input = File.ReadAllLines($"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\GTAVTRAINER");
             var hpp = new List<string>();
             var cpp = new List<string>();
             var name_hash = new Dictionary<string, string>();
-            var name_list = new List<string>();
             var name_namespace = new Dictionary<string, string>();
+            var name_list = new List<string>();
             string section = "";
 
             string[] _force_namespace =
@@ -31,17 +31,18 @@ namespace logger
                 //"PLAYER",
                 //"VEHICLE",
             };
-            string[] _blocked_manually = 
-                {
+
+            string[] _blocked_manually =
+            {
                 "NETWORK_CAN_BAIL",
                 "REQUEST_SCRIPT",
                 "NETWORK_SESSION_GET_KICK_VOTE",
                 "STAT_SET_INT",
                 "STAT_SET_BOOL_MASKED"
             };
-            string[] _blocked_automatically = 
-                {
 
+            string[] _blocked_automatically = 
+            {
                 //"SET_ENTITY_INVINCIBLE",                            //player/ped
                 //"SET_PLAYER_INVINCIBLE",
                 "_SET_PLAYER_INVINCIBLE_KEEP_RAGDOLL_ENABLED",
@@ -94,8 +95,7 @@ namespace logger
                 //"SET_ENTITY_VISIBLE",
                 //"SET_ENTITY_COORDS",
                 //"SET_ENTITY_HEADING",
-
-                //"FREEZE_ENTITY_POSITION",                       //freese
+                //"FREEZE_ENTITY_POSITION",                       //freeze
 
                 "ATTACH_ENTITY_TO_ENTITY",                      //attach entity
                 "_ATTACH_ENTITY_BONE_TO_ENTITY_BONE",
@@ -126,6 +126,7 @@ namespace logger
                 "START_PARTICLE_FX_LOOPED_ON_ENTITY",
                 "START_PARTICLE_FX_LOOPED_ON_ENTITY_BONE",
             };
+
             string[] _ignore_debug =
             {
                 "GET_BOAT_BOOM_POSITION_RATIO",
@@ -170,7 +171,8 @@ namespace logger
                 "SPECIAL_ABILITY_DEACTIVATE",
             };
 
-            string[] _ignore_prefix = {
+            string[] _ignore_prefix = 
+            {
                 "_0x",
                 "GET",
                 "_GET",
@@ -203,7 +205,9 @@ namespace logger
                 "DOOR_SYSTEM_",
                 "STAT_GET_",
             };
-            string[] _ignore_common = {
+
+            string[] _ignore_common = 
+            {
                 "PLAYER_ID",                                    //too much data, automatic
                 "PLAYER_PED_ID",
                 "PARTICIPANT_ID",
@@ -337,17 +341,14 @@ namespace logger
                 foreach(var prefix in _ignore_prefix)
                 {
                     if (name.IndexOf(prefix) == 0)
-                    {
                         return true;
-                    }
                 }
                 return false;
             }
 
-            bool is_int(string type)
-            {
-                return type == "int" || type == "Any" || type == "Entity" || type == "Player" || type == "FireId" || type == "Interior" || type == "Ped" || type == "Vehicle" || type == "Cam" || type == "Object" || type == "Pickup" || type == "Blip" || type == "Camera" || type == "ScrHandle";
-            }
+            bool is_int(string type) { return type == "int" || type == "Any" || type == "Entity" || type == "Player" || type == "FireId" || type == "Interior" || type == "Ped" || type == "Vehicle" || type == "Cam" || type == "Object" || type == "Pickup" || type == "Blip" || type == "Camera" || type == "ScrHandle"; }
+
+            #region Idk
             hpp.Add("#pragma once");
             hpp.Add("");
             hpp.Add("#include \"natives.hpp\"");
@@ -366,19 +367,17 @@ namespace logger
 
             //cpp.Add("\tstatic std::mutex __m;");
             //hpp.Add("\tstatic std::unordered_map <std::string, bool> __l;");
+            #endregion
 
             foreach (var _line in input)
             {
                 var line = _line.Replace("const char", "const_char");
-
                 var t = line.Split(" \t(),".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 if (t.Count > 0)
                 {
                     if (t[0] == "namespace")
-                    {
                         section = t[1];
-                    }
                     else if (t[0] == "NATIVE_DECL")
                     {
                         int _comment = t.IndexOf("//");
@@ -394,73 +393,44 @@ namespace logger
                             name_hash[name] = hash;
                             name_namespace[name] = section;
 
-                            //start function
                             hpp.Add("\textern void " + name + "(rage::scrNativeCallContext* src);");
                             cpp.Add("\tvoid " + name + "(rage::scrNativeCallContext* src)");
                             cpp.Add("\t{");
 
-                            //parameters
-                            for (int _p = 0, p = _name + 1; p < _end; p += 2)
-                            {
-                                // = src->get_arg<int>(0);
-                                cpp.Add("\t\t" + t[p] + " _" + t[p + 1] + " = src->get_arg<" + t[p] + ">(" + _p++ + ");");
-                            }
+                            for (int _p = 0, p = _name + 1; p < _end; p += 2) { cpp.Add("\t\t" + t[p] + " _" + t[p + 1] + " = src->get_arg<" + t[p] + ">(" + _p++ + ");"); }
 
-                            //logging
                             string logging = "";
                             if (!_blocked_automatically.Contains(name))
-                            {
                                 logging += "\t\tchar __b[256]=\"\";sprintf(__b,\",NATIVE,OK," + name + ",,,,%s,,,,";
-                            }
                             else
-                            {
                                 logging += "\t\tchar __b[256]=\"\";sprintf(__b,\",NATIVE,BLOCKED," + name + ",,,,%s,,,,";
-                            }
                             for (int p = _name + 1; p < _end; p += 2)
                             {
                                 if (is_int(t[p]))
-                                {
                                     logging += ",%d";
-                                }
                                 else if (t[p] == "float")
-                                {
                                     logging += ",%.1f";
-                                }
                                 else if (t[p] == "const_char*" || t[p] == "BOOL")
-                                {
                                     logging += ",%s";
-                                }
                                 else
-                                {
                                     logging += ",0x%X";
-                                }
                             }
                             logging += "\",SCRIPT::GET_THIS_SCRIPT_NAME()";
                             for (int p = _name + 1; p < _end; p += 2)
                             {
                                 if (is_int(t[p]) || t[p] == "Hash" || t[p] == "float" || t[p] == "const_char*")
-                                {
                                     logging += ",_" + t[p + 1];
-                                }
                                 else if (t[p] == "BOOL")
-                                {
                                     logging += ",_" + t[p + 1] + "==0?\"FALSE\":\"TRUE\"";
-                                }
                                 else
-                                {
                                     logging += ",(int32_t)(int64_t)_" + t[p + 1];
-                                }
                             }
                             logging += ");";
                             cpp.Add(logging);
                             if (_blocked_automatically.Contains(name))
-                            {
                                 cpp.Add("\t\tmisc::log_green(LOG_NATIVE, __b, true);");
-                            }
                             else
-                            {
                                 cpp.Add("\t\tmisc::log_green(LOG_NATIVE, __b, false);");
-                            }
 
                             //native
                             if (!_blocked_automatically.Contains(name))
@@ -468,14 +438,10 @@ namespace logger
                                 string hooking = "\t\t";
 
                                 if (ret != "void")
-                                {
                                     hooking += "src->set_return_value<" + ret + ">(";
-                                }
                                 hooking += name_namespace[name] + "::" + name + "(";
                                 for (int p = _name + 1; p < _end; p += 2)
-                                {
                                     hooking += "_" + t[p + 1] + (p < _end - 2 ? "," : "");
-                                }
                                 if (ret != "void") hooking += ")";
 
                                 cpp.Add(hooking + ");");
@@ -483,32 +449,27 @@ namespace logger
                             else
                             {
                                 if (ret != "void")
-                                {
                                     cpp.Add("\t\tsrc->set_return_value<" + ret + ">(1);");
-                                }
                             }
                             cpp.Add("\t}");
                         }
                     }
                 }
             }
-            for(int i = 0; i < cpp.Count; i++)
-            {
-                cpp[i] = cpp[i].Replace("const_char", "const char");
-            }
+
+            for (int i = 0; i < cpp.Count; i++) { cpp[i] = cpp[i].Replace("const_char", "const char"); }
+
             //write the map
             hpp.Add("\tstatic std::unordered_map<rage::scrNativeHash, rage::scrNativeHandler> natives_logging = ");
             hpp.Add("\t{");
-            foreach (var name in name_list)
-            {
-                hpp.Add("\t\t{" + name_hash[name] + ", &" + name +  "},");
-            }
+            foreach (var name in name_list) { hpp.Add("\t\t{" + name_hash[name] + ", &" + name + "},"); }
             hpp.Add("\t};");
 
             cpp.Add("}");
             hpp.Add("}");
-            File.WriteAllLines("D:\\LuckyStreet\\Modding\\GTAVTRAINER\\GTAVTRAINER\\src\\gui\\natives_logging.hpp", hpp.ToArray());
-            File.WriteAllLines("D:\\LuckyStreet\\Modding\\GTAVTRAINER\\GTAVTRAINER\\src\\gui\\natives_logging.cpp", cpp.ToArray());
+
+            File.WriteAllLines($"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\GTAVTRAINER", hpp.ToArray());
+            File.WriteAllLines($"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\GTAVTRAINER", cpp.ToArray());
         }
     }
 }
