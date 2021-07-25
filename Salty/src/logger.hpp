@@ -47,6 +47,11 @@ namespace big
 			}
 #endif
 
+			if ((m_did_console_exist = AttachConsole(GetCurrentProcessId())) == false)
+			{
+				AllocConsole();
+			}
+
 			if ((m_console_handle = GetStdHandle(STD_OUTPUT_HANDLE)) != nullptr)
 			{
 				//srand(time(NULL));

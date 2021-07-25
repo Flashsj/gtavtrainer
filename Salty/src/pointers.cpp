@@ -16,14 +16,20 @@ namespace big
 			m_net_player = ptr.as<decltype(m_net_player)>();
 		});
 
-		//83 3D ? ? ? ? ? 75 17 8B 42 20 25
-		//83 3D ? ? ? ? ? 8A D9 74 0A
-		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11
-		//48 8B 05 ? ? ? ? 8B CF 48 8B 0C C8 39 59 68
-	
-		main_batch.add("Game state", "4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11", [this](memory::handle ptr) //updated and fixed
+		//83 3D ? ? ? ? ? 75 17 8B 42 20 25 //old
+		//83 3D ? ? ? ? ? 8A D9 74 0A //idk
+		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11 //game closes if you do anything but them hack injects with this
+		//48 8B 05 ? ? ? ? 8B CF 48 8B 0C C8 39 59 68 //garbage
+		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11 //found using charles landey method :smile:
+
+		//main_batch.add("Game state", "4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11", [this](memory::handle ptr) //old
+		//{
+		//	m_game_state = ptr.add(2).rip().as<enum eGameState*>();
+		//});
+
+		main_batch.add("Game state", "48 85 C9 74 4B 83 3D", [this](memory::handle ptr) //updated
 		{
-			m_game_state = ptr.add(2).rip().as<enum eGameState*>();
+			m_game_state = ptr.add(7).rip().as<eGameState*>();
 		});
 
 		main_batch.add("Is session started", "40 38 35 ? ? ? ? 75 0E 4C 8B C3 49 8B D7 49 8B CE", [this](memory::handle ptr)

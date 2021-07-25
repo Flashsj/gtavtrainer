@@ -901,7 +901,7 @@ namespace big::features
 
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (PED::IS_PED_A_PLAYER(AimedAtEntity))
+				if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started)
 				{
 					auto player = peds[AimedAtEntity];
 					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
