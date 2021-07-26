@@ -113,6 +113,7 @@ namespace big::base_tab
 				ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
 				ImGui::Checkbox("Seatbelt", &g_config.vehicle.seatbelt);
 				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
+				ImGui::Checkbox("Balls", &g_config.Vfeatures_boss);
 
 				if (ImGui::Button("Upgrade current vehicle"))
 					g_config.Vfeatures_autoupgrade = true;
