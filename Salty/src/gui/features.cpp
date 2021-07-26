@@ -849,21 +849,24 @@ namespace big::features
 			Vector3 CamDirection = wRotationToDirection(CamRotation);
 			Vector3 StartCoords = waddVector(CamCoords, (wmultiplyVector(CamDirection, 1.0f)));
 
-			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
+			if (PLAYER::IS_PLAYER_FREE_AIMING(player))
 			{
-				if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started) //Online players
+				if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 				{
-					auto player = peds[AimedAtEntity];
-					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
+					if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started) //Online players
 					{
-						Vector3 vec{}; renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
-						fireBullet(StartCoords, vec);
+						auto player = peds[AimedAtEntity];
+						if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
+						{
+							Vector3 vec{}; renderer::GetBonePosition2(getNetGamePlayer(player)->m_PlayerInfo->ped, &vec, 31086);
+							fireBullet(StartCoords, vec);
+						}
 					}
-				}
-				else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255) //Pedestrians
-				{
-					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
-					fireBullet(StartCoords, Mouth);
+					else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255) //Pedestrians
+					{
+						Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
+						fireBullet(StartCoords, Mouth);
+					}
 				}
 			}
 		}
