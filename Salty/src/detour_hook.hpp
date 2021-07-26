@@ -23,13 +23,10 @@ namespace big
 	private:
 		std::string m_name;
 		void *m_target;
-		void *m_detour;
-		void *m_original{};
+		void* m_detour;
+		void* m_original{};
 	};
 
 	template <typename T>
-	inline T detour_hook::get_original()
-	{
-		return static_cast<T>(m_original);
-	}
+	inline T detour_hook::get_original() { return static_cast<T>(m_original); }
 }

@@ -12,10 +12,7 @@ namespace big::gta_util
 	inline rage::CPed* get_local_ped()
 	{
 		if (auto ped_factory = *g_pointers->m_ped_factory)
-		{
 			return ped_factory->m_local_ped;
-		}
-
 		return nullptr;
 	}
 
@@ -24,11 +21,8 @@ namespace big::gta_util
 		if (auto ped_factory = *g_pointers->m_ped_factory)
 		{
 			if (auto ped = ped_factory->m_local_ped)
-			{
 				return ped->m_player_info;
-			}
 		}
-
 		return nullptr;
 	}
 

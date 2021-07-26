@@ -16,10 +16,15 @@ namespace big
 			m_net_player = ptr.as<decltype(m_net_player)>();
 		});
 
-		main_batch.add("Game state", "83 3D ? ? ? ? ? 75 17 8B 42 20 25", [this](memory::handle ptr)
-		{
-			m_game_state = ptr.add(2).rip().as<enum eGameState*>();
-		});
+		//83 3D ? ? ? ? ? 75 17 8B 42 20 25 //old
+		//83 3D ? ? ? ? ? 8A D9 74 0A //idk
+		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11 //game closes if you do anything but them hack injects with this
+		//48 8B 05 ? ? ? ? 8B CF 48 8B 0C C8 39 59 68 //garbage
+
+		main_batch.add("Game state", "48 85 C9 74 4B 83 3D", [this](memory::handle ptr) //holy shit i think this is right idk
+			{
+				m_game_state = ptr.add(7).rip().as<eGameState*>();
+			});
 
 		main_batch.add("Is session started", "40 38 35 ? ? ? ? 75 0E 4C 8B C3 49 8B D7 49 8B CE", [this](memory::handle ptr)
 		{
@@ -203,7 +208,8 @@ namespace big
 			m_game_event = ptr.sub(42).as<functions::game_event_t>();
 		});
 
-		// stuff pasted from nigga hack v2
+		//stuff pasted from nigga hack v2
+
 		main_batch.add("getBone2", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 60 48 8B 01 41 8B E8 48 8B F2 48 8B F9 33 DB", [this](memory::handle ptr)
 		{
 			getBone2 = ptr.as<decltype(getBone2)>();

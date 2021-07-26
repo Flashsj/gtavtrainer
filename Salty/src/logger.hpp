@@ -37,17 +37,20 @@ namespace big
 	class logger
 	{
 	public:
-		explicit logger() :
-			m_file_path(std::getenv("appdata")),
-			m_worker(g3::LogWorker::createLogWorker())
-			{
+		explicit logger() :m_file_path(std::getenv("appdata")),m_worker(g3::LogWorker::createLogWorker())
+		{
 
-			#ifdef _DEBUG
+#ifdef _DEBUG
 			if ((m_did_console_exist = AttachConsole(GetCurrentProcessId())) == false)
 			{
 				AllocConsole();
 			}
-			#endif
+#endif
+
+			if ((m_did_console_exist = AttachConsole(GetCurrentProcessId())) == false)
+			{
+				AllocConsole();
+			}
 
 			if ((m_console_handle = GetStdHandle(STD_OUTPUT_HANDLE)) != nullptr)
 			{
@@ -142,7 +145,7 @@ namespace big
 					SetConsoleTextAttribute(g_logger->m_console_handle, static_cast<uint16_t>(log_colors[log_message._level.text]));
 					g_logger->m_console_out << log_message.toString(is_raw ? format_raw : format_console) << std::flush;
 				}
-				
+
 				if (!(level_value & FLAG_NO_DISK))
 				{
 					if (level_value == EVENT.value)
@@ -167,10 +170,7 @@ namespace big
 				return out.str();
 			}
 
-			static std::string format_raw(const g3::LogMessage& msg)
-			{
-				return "";
-			}
+			static std::string format_raw(const g3::LogMessage& msg) { return ""; }
 		};
 
 		template <typename ...Args>
@@ -180,7 +180,7 @@ namespace big
 			if (m_file_out)
 				m_file_out << message << std::endl << std::flush;
 		}
-		
+
 	private:
 		bool m_did_console_exist{};
 		HANDLE m_console_handle{};

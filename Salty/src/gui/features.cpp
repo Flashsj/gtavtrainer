@@ -202,6 +202,34 @@ namespace big::features
 
 	}
 
+	Vector3 find_mission_blip() 
+	{
+		bool waypoint = false;
+		static Vector3 zero;
+		Vector3 coords;
+		bool blipFound = false;
+		int blipIterator = UI::_GET_BLIP_INFO_ID_ITERATOR();
+		for (Blip i = UI::GET_FIRST_BLIP_INFO_ID(blipIterator); UI::DOES_BLIP_EXIST(i) != 0; i = UI::GET_NEXT_BLIP_INFO_ID(blipIterator))
+		{
+			switch (UI::GET_BLIP_INFO_ID_TYPE(i))
+			{
+			default:
+				log_map("", logtype::LOG_ERROR);
+				coords = UI::GET_BLIP_INFO_ID_COORD(i);
+				blipFound = true;
+				
+				if (blipFound)
+				{
+					waypoint = true;
+					return coords;
+				}
+			}
+		}
+
+		return zero;
+		
+	}
+
 	Vector3 find_blip()
 	{
 		bool waypoint = false;
@@ -218,6 +246,7 @@ namespace big::features
 				break;
 			}
 		}
+		
 		if (blipFound)
 		{
 			waypoint = true;
@@ -305,6 +334,7 @@ namespace big::features
 			LOG(INFO) << "host kicked " << player;
 			return;
 		}
+		
 
 		auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player), 0);
 		static std::vector< std::int64_t> rotor = { -1726396442, 154008137, 428882541, -1714354434 };
@@ -400,6 +430,14 @@ namespace big::features
 	{
 		while (true)
 		{
+			if (g_config.Vfeatures_boss) 
+			{
+				if (features::localCPed && features::lastVehicle) //fuck you
+				{
+					if (features::owns_veh(ped)) //boss patch function created by god himself
+						features::lastVehicle->gravity = 30.0f;
+				}
+			}
 			if (g_config.Pfeatures_kick)
 			{
 				kick(selectedPlayer);
@@ -713,6 +751,30 @@ namespace big::features
 
 			g_config.Lfeatures_teleportwp = false;
 		}
+		if (GetAsyncKeyState(VK_F6)) {
+			if (UI::IS_WAYPOINT_ACTIVE()) // ?
+			{
+				if (!find_mission_blip().z || !find_mission_blip().x || !find_mission_blip().y) // ?
+				{
+					features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+					return;
+				}
+
+				Vector3 coords = find_blip();
+
+				//if you really care then add a ground check so you can teleport to chilliad because i dont
+				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
+					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
+
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
+
+				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
+			}
+			else
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+
+			//g_config.Lfeatures_teleportmission = false;
+		}
 
 		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
 		{
@@ -901,7 +963,7 @@ namespace big::features
 
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (PED::IS_PED_A_PLAYER(AimedAtEntity))
+				if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started)
 				{
 					auto player = peds[AimedAtEntity];
 					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)

@@ -56,6 +56,7 @@ namespace big
 		bool Pfeatures_teleport = false;
 		bool Pfeatures_kickfromveh = false;
 		bool Pfeatures_kick = false;
+		bool Vfeatures_boss = false;
 		bool Pfeatures_crash = false;
 		bool Pfeatures_crashall = false;
 		bool Pfeatures_kickall = false;

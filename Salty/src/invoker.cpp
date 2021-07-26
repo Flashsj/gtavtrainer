@@ -22,10 +22,7 @@ namespace big
 		}
 	}
 
-	void native_invoker::begin_call()
-	{
-		m_call_context.reset();
-	}
+	void native_invoker::begin_call() { m_call_context.reset(); }
 
 	void native_invoker::end_call(rage::scrNativeHash hash)
 	{
@@ -36,9 +33,9 @@ namespace big
 			handler(&m_call_context);
 			g_pointers->m_fix_vectors(&m_call_context);
 		}
-		else
-		{
-			//[hash]() { LOG(WARNING) << "Failed to find " << HEX_TO_UPPER(hash) << " native's handler."; }();
-		}
+		//else
+		//{
+		//	//[hash]() { LOG(WARNING) << "Failed to find " << HEX_TO_UPPER(hash) << " native's handler."; }();
+		//}
 	}
 }
