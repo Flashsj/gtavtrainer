@@ -190,6 +190,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 				g_script_mgr.add_script(std::make_unique<script>(&features::script_func));	// to do: make these scripts automatically start again if they throw exceptions
 				g_script_mgr.add_script(std::make_unique<script>(&gui::script_func));
 				g_script_mgr.add_script(std::make_unique<script>(&features::kickFunc));
+				//g_script_mgr.add_script(std::make_unique<script>(&features::anti_tamper));
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATED TRAINER SCRIPTS";
 

@@ -31,11 +31,16 @@ namespace big
 			rage::scrNativeHandler handler = it->second;
 
 			handler(&m_call_context);
-			g_pointers->m_fix_vectors(&m_call_context);
+
+			//Exception thrown at 0x00007FF79189A3E7 in GTA5.exe: 0xC0000005: Access violation reading location 0x0000000000000000.
+			if (g_pointers->m_fix_vectors != nullptr)
+				g_pointers->m_fix_vectors(&m_call_context);
+			else g_pointers->m_fix_vectors = 0x0;
 		}
-		//else
-		//{
-		//	//[hash]() { LOG(WARNING) << "Failed to find " << HEX_TO_UPPER(hash) << " native's handler."; }();
-		//}
+		else
+		{
+			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
+			g_running = false;
+		}
 	}
 }

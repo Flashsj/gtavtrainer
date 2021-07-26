@@ -17,9 +17,6 @@ namespace big
 		});
 
 		//83 3D ? ? ? ? ? 75 17 8B 42 20 25 //old
-		//83 3D ? ? ? ? ? 8A D9 74 0A //idk
-		//4C 8D 05 ? ? ? ? 4D 8B 08 4D 85 C9 74 11 //game closes if you do anything but them hack injects with this
-		//48 8B 05 ? ? ? ? 8B CF 48 8B 0C C8 39 59 68 //garbage
 
 		main_batch.add("Game state", "48 85 C9 74 4B 83 3D", [this](memory::handle ptr) //holy shit i think this is right idk
 			{
@@ -47,7 +44,7 @@ namespace big
 			m_get_native_handler = ptr.add(12).rip().as<functions::get_native_handler_t>();
 		});
 
-		main_batch.add("Fix vectors", "83 79 18 00 48 8B D1 74 4A FF 4A 18 48 63 4A 18 48 8D 41 04 48 8B 4C CA", [this](memory::handle ptr)
+		main_batch.add("Fix vectors", "83 79 18 00 48 8B D1 74 4A FF 4A 18 48 63 4A 18 48 8D 41 04 48 8B 4C CA", [this](memory::handle ptr) //needs to be updated
 		{
 			m_fix_vectors = ptr.as<functions::fix_vectors_t>();
 		});

@@ -141,7 +141,7 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Spawner"))
 			{
-				ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "WARNING: THE MODEL SPAWN BYPASS SIG IS OUTDATED. USE AT YOUR OWN RISK!");
+				ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "WARNING: VECTOR FIX SIG IS OUTDATED. SPAWNER WILL CRASH THE GAME.");
 
 				ImGui::Separator();
 

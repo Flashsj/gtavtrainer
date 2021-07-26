@@ -7,6 +7,9 @@
 #include "pointers.hpp"
 #include <script_global.hpp>
 #include "renderer.hpp"
+#include <cstdio>
+#include <windows.h>
+#include <tlhelp32.h>
 
 using namespace rage;
 
@@ -415,6 +418,32 @@ namespace big::features
 
 #pragma endregion
 
+#pragma region Anti Tamper
+
+	//The end goal is have an array of process names that the function scans for. If any of those processes exist, close them and then close the game.
+	//I thought this was right but apparently it's not because the game just closes
+
+	//bool findproc(LPCWSTR str)
+	//{
+	//	HWND hwnd;
+	//	hwnd = FindWindowW(str, nullptr);
+	//	if (hwnd != 0) 
+	//		return true;
+	//	else 
+	//		return false;
+	//}
+
+	//void features::anti_tamper()
+	//{
+	//	LPCWSTR processes[] = { L"notepad", L"test", L"processhacker"};
+	//	for (int a = 0; a < sizeof(processes); a = a + 1)
+	//	{
+	//		findproc(processes[a]);
+	//		cout << "terminated process: " << processes[a] << endl;
+	//	}
+	//}
+#pragma endregion
+
 	void features::kickFunc()
 	{
 		while (true)
@@ -530,39 +559,45 @@ namespace big::features
 
 		QUEUE_JOB_BEGIN_CLAUSE(name)
 		{
-			Hash hash_vehicle;
+			auto hash = GAMEPLAY::GET_HASH_KEY(features::carToSpawn.c_str());
+			while (!STREAMING::HAS_MODEL_LOADED(hash))
+			{
+				STREAMING::REQUEST_MODEL(hash);
+				script::get_current()->yield();
+			}
 
-			auto pos = ENTITY::GET_ENTITY_COORDS(big::features::ped, TRUE);
-			auto forward = ENTITY::GET_ENTITY_FORWARD_VECTOR(big::features::ped);
-			auto heading = ENTITY::GET_ENTITY_HEADING(big::features::ped);
+			auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090;
+			auto veh = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, TRUE, FALSE, FALSE);
+			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
 
-			pos.x += 10 * forward.x;
-			pos.y += 10 * forward.y;
+			script::get_current()->yield();
+			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
 
-			MISC::GET_GROUND_Z_FOR_3D_COORD(pos.x, pos.y, pos.z, &pos.z, FALSE, FALSE);
+			if (*g_pointers->m_is_session_started)
+			{
+				ENTITY::_SET_ENTITY_SOMETHING(vehicle, TRUE); //True means it can be deleted by the engine when switching lobbies/missions/etc, false means the script is expected to clean it up.
+				auto networkId = NETWORK::VEH_TO_NET(vehicle);
+				if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(vehicle))
+					NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, true);
+			}
 
-			int arrSize = sizeof(features::vehicleModels) / sizeof(features::vehicleModels[0]); //TODO: fix, spawns the same random vehicle
-			int RandIndex = rand() % arrSize;
-			static const char* randomModel = features::vehicleModels[RandIndex];
-
-			g_config.Vfeatures_randomizeveh ? hash_vehicle = load(randomModel) : hash_vehicle = load(name);
-
-			//the model spawn bypass needs to be updated
-			//*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090; 
-			auto veh = VEHICLE::CREATE_VEHICLE(hash_vehicle, pos.x, pos.y, pos.z + 3, heading + 90.0f, TRUE, TRUE, FALSE);
-			//*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
-
+			DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
+			VEHICLE::SET_VEHICLE_IS_STOLEN(vehicle, FALSE);
+			VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+			VEHICLE::SET_VEHICLE_ENGINE_ON(vehicle, 1, 1, 0);
 			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
 
 			if (g_config.Vfeatures_randomizecol)
 			{
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_MOD_COLOR_1(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), 0);
-				VEHICLE::SET_VEHICLE_MOD_COLOR_2(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), 0);
+				VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
@@ -571,10 +606,10 @@ namespace big::features
 			{
 				float a, b, c;
 				a = g_config.Vfeatures_vcol[0] * 255, b = g_config.Vfeatures_vcol[1] * 255, c = g_config.Vfeatures_vcol[2] * 255;
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, a, b, c);
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, a, b, c);
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, a, b, c);
-				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(vehicle, a, b, c);
+				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, a, b, c);
+				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, a, b, c);
+				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
+				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, a, b, c);
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, a, b, c);
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, a, b, c);
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
@@ -606,7 +641,7 @@ namespace big::features
 				VEHICLE::SET_VEHICLE_CAN_BE_TARGETTED(veh, FALSE);
 				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, FALSE);
 				VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, FALSE);
-				if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash_vehicle))
+				if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash))
 					VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f);
 			}
 
