@@ -48,7 +48,6 @@ namespace big
 		bool ESPfeatures_snapline = false;
 		struct // i fucking hate your letter shit, heres an idea if you want to redo this shit
 		{
-			bool enable_d3d_esp = false;
 			bool skeleton_enabled = false;
 			float render_distance = 3000.f;
 		}esp;
@@ -56,7 +55,6 @@ namespace big
 		bool Pfeatures_teleport = false;
 		bool Pfeatures_kickfromveh = false;
 		bool Pfeatures_kick = false;
-		bool Vfeatures_boss = false;
 		bool Pfeatures_crash = false;
 		bool Pfeatures_crashall = false;
 		bool Pfeatures_kickall = false;
@@ -74,19 +72,18 @@ namespace big
 		bool Vfeatures_autoclean = false;
 		bool Vfeatures_hornboost = false;
 		bool Vfeatures_godmode = false;
+		bool Vfeatures_perfecthandling = false;
+		bool Vfeatures_invisible = false;
 		struct
 		{
 			bool seatbelt = false;
 		}vehicle;
 
 		float Vfeatures_vcol[3] = { 0.374f, 0.196f, 0.879f };
-		float ESPfeatures_boxcol[3] = { 0.374f, 0.196f, 0.879f };
-		float ESPfeatures_namecol[3] = { 0.374f, 0.196f, 0.879f };
-		float ESPfeatures_snapcol[3] = { 0.374f, 0.196f, 0.879f };
-		float ESPfeatures_markercol[3] = { 0.374f, 0.196f, 0.879f };
+		float ESPfeatures_color[3] = { 0.374f, 0.196f, 0.879f };
 		float menucolor[3] = { 0.374f, 0.196f, 0.879f };
 
-		int log_limit = 0; //5
+		int log_limit = 6;
 
 		bool save(const std::string file_name);
 		bool load(const std::string file_name);

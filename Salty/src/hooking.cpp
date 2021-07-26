@@ -616,7 +616,7 @@ namespace big
 		for (std::uint32_t i = 0; i < argCount; ++i) 
 			argString += fmt::format("{}, ", args[i]);
 
-		LOG(INFO) << fmt::format("ScriptEventHandler | a1: {} sender: {} {} args[{}] = [ {} ]", reinterpret_cast<void*>(NetEventStruct), PLAYER::GET_PLAYER_NAME(senderID), senderID, argCount, argString).c_str();
+		//LOG(INFO) << fmt::format("ScriptEventHandler | a1: {} sender: {} {} args[{}] = [ {} ]", reinterpret_cast<void*>(NetEventStruct), PLAYER::GET_PLAYER_NAME(senderID), senderID, argCount, argString).c_str();
 	}
 
 	void log_ScriptEventHandler_blocked(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer) // yep.
@@ -625,8 +625,8 @@ namespace big
 		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
 		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
 
-		logs.push_back({fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?"), features::network_time + 6000}); // testing purposes 
-		LOG(INFO) << fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?").c_str();
+		//logs.push_back({fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?"), features::network_time + 6000}); // testing purposes 
+		//LOG(INFO) << fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?").c_str();
 	}
 
 	static bool ScriptEventHandler(std::uint64_t NetEventStruct, std::int64_t CNetGamePlayer)

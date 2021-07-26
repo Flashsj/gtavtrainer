@@ -1,25 +1,14 @@
-//#include "common.hpp"
+#include "common.hpp"
 #include "features.hpp"
 #include "script.hpp"
 #include "natives.hpp"
-//#include "gui.hpp"
 #include "gui/misc.h"
 #include "gui.hpp"
-//#include "gui/base_tab.h"
 #include "pointers.hpp"
 #include <script_global.hpp>
-//#include "math.h"
-//#include <gta/replay.hpp>
 #include "renderer.hpp"
 
 using namespace rage;
-
-//The messiest (POOPY STINKY) file on the planet. it's complete garbage. don't say I didnt warn you! (:
-//One day this will be organized
-
-// done
-
-// NOT DONE FUCK YOU
 
 namespace big::features
 {
@@ -113,7 +102,7 @@ namespace big::features
 		}
 	}
 
-#pragma region TO BE RELOCATED
+	#pragma region TO BE RELOCATED
 
 	rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
 
@@ -430,14 +419,6 @@ namespace big::features
 	{
 		while (true)
 		{
-			if (g_config.Vfeatures_boss) 
-			{
-				if (features::localCPed && features::lastVehicle) //fuck you
-				{
-					if (features::owns_veh(ped)) //boss patch function created by god himself
-						features::lastVehicle->gravity = 30.0f;
-				}
-			}
 			if (g_config.Pfeatures_kick)
 			{
 				kick(selectedPlayer);
@@ -566,10 +547,10 @@ namespace big::features
 
 			g_config.Vfeatures_randomizeveh ? hash_vehicle = load(randomModel) : hash_vehicle = load(name);
 
-			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090;
+			//the model spawn bypass needs to be updated
+			//*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090; 
 			auto veh = VEHICLE::CREATE_VEHICLE(hash_vehicle, pos.x, pos.y, pos.z + 3, heading + 90.0f, TRUE, TRUE, FALSE);
-			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
-
+			//*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
 
 			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
 
@@ -633,9 +614,7 @@ namespace big::features
 			{
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
-				//49, 50 = livery
-
-				for (int i = 0; i < 48; i++)
+				for (int i = 0; i < 48; i++) //49, 50 = livery
 				{
 					VEHICLE::TOGGLE_VEHICLE_MOD(veh, i, TRUE);
 					VEHICLE::SET_VEHICLE_MOD(veh, i, VEHICLE::GET_NUM_VEHICLE_MODS(veh, i) - 1, FALSE);
@@ -652,6 +631,8 @@ namespace big::features
 
 	void features_local()
 	{
+		//Invincibility / godmode
+
 		if (g_config.Lfeatures_godmode)
 		{
 			PED::CLEAR_PED_BLOOD_DAMAGE(ped);
@@ -675,6 +656,8 @@ namespace big::features
 			PLAYER::SET_PLAYER_HEALTH_RECHARGE_MULTIPLIER(player, 1);
 		}
 
+		//No ragdoll
+
 		if (g_config.Lfeatures_noragdoll)
 		{
 			PED::SET_PED_CAN_RAGDOLL(ped, FALSE);
@@ -687,6 +670,8 @@ namespace big::features
 			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(ped, TRUE);
 			PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(ped, TRUE);
 		}
+
+		//Never wanted / no police
 
 		if (g_config.Lfeatures_neverwanted) //this needs to be redone, cops are broken when disabled
 		{
@@ -704,160 +689,57 @@ namespace big::features
 			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, TRUE);
 		}
 
-		if (g_config.Lfeatures_offradar)
+		//Ghost organization
+
+		if (g_config.Lfeatures_offradar) //this needs to be updated, it no longer functions
 		{
 			*script_global(2426097).at(player, 443).at(204).as<bool*>() = true;
 			*script_global(2440277).at(70).as<int32_t*>() = NETWORK::GET_NETWORK_TIME();
 			*script_global(2540612).at(4625).as<int32_t*>() = 4;
 		}
 
+		//Fast run
+
 		if (g_config.Lfeatures_fastrun)
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.45f);
 		else
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.f);
 
+		//Ped invisibility
+
+		if (g_config.Lfeatures_invisible)
+			ENTITY::SET_ENTITY_VISIBLE(ped, FALSE, FALSE);
+		else
+			ENTITY::SET_ENTITY_VISIBLE(ped, TRUE, TRUE);
+
 		Ped _ped = ped; //to prevent declaration confusion in the follow statements
 		if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && owns_veh(_ped)) // kinda a ghetto fix but it works for now 
 			_ped = PED::GET_VEHICLE_PED_IS_IN(_ped, FALSE);
 
-		if (g_config.Lfeatures_invisible) //better, but still kinda messy
-			ENTITY::SET_ENTITY_VISIBLE(_ped, FALSE, FALSE);
-		else
-			ENTITY::SET_ENTITY_VISIBLE(_ped, TRUE, TRUE);
+		//Waypoint Teleport
 
-		//if (GetAsyncKeyState(VK_F5) || CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN))
-			//features::Lfeatures_teleportwp = true;
-		if (GetAsyncKeyState(VK_F5)) {
-			if (UI::IS_WAYPOINT_ACTIVE()) // ?
-			{
-				if (!find_blip().z || !find_blip().x || !find_blip().y) // ?
-				{
-					features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-					return;
-				}
-
-				Vector3 coords = find_blip();
-
-				//if you really care then add a ground check so you can teleport to chilliad because i dont
-				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
-					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
-
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
-
-				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
-			}
-			else
-				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-
-			g_config.Lfeatures_teleportwp = false;
-		}
-		if (GetAsyncKeyState(VK_F6)) {
-			if (UI::IS_WAYPOINT_ACTIVE()) // ?
-			{
-				if (!find_mission_blip().z || !find_mission_blip().x || !find_mission_blip().y) // ?
-				{
-					features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-					return;
-				}
-
-				Vector3 coords = find_blip();
-
-				//if you really care then add a ground check so you can teleport to chilliad because i dont
-				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
-					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
-
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
-
-				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
-			}
-			else
-				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-
-			//g_config.Lfeatures_teleportmission = false;
-		}
-
-		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
+		if (GetAsyncKeyState(VK_F5) || g_config.Lfeatures_teleportwp || (UI::IS_WAYPOINT_ACTIVE() && CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN)))
 		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped))
+			if (!find_blip().z || !find_blip().x || !find_blip().y || !UI::IS_WAYPOINT_ACTIVE()) // ?
 			{
-				log_map("Noclip is unavailable as a passenger", logtype::LOG_ERROR);
-				g_config.Lfeatures_noclip = false;
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
 				return;
 			}
 
-			auto speed = GetAsyncKeyState(VK_SHIFT) ? 10.f : 2.f;
-			Vector3 rot = { 0.f, 0.f, 0.f };
-			Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(_ped, 1);
+			Vector3 coords = find_blip();
 
-			ENTITY::SET_ENTITY_COLLISION(_ped, FALSE, FALSE);
-			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, playerCoords.x, playerCoords.y, playerCoords.z, 0, 0, 0);
+			//if you really care then add a ground check so you can teleport to chilliad because i dont
+			if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
+				ped = PED::GET_VEHICLE_PED_IS_USING(ped);
 
-			//forward
-			if (GetAsyncKeyState(VK_KEY_W))
-			{
-				rot = ENTITY::GET_ENTITY_ROTATION(_ped, 0);
-				Vector3 to = get_coords_infront_of_coords(playerCoords, rot, .25f * (speed * 1.5f));
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
-			}
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 50, 0, 0, 1);
 
-			//back
-			if (GetAsyncKeyState(VK_KEY_S))
-			{
-				rot = ENTITY::GET_ENTITY_ROTATION(_ped, 0);
-				Vector3 to = get_coords_infront_of_coords(playerCoords, rot, -.25f * (speed * 1.5f));
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
-			}
-
-			//left
-			if (GetAsyncKeyState(VK_KEY_A))
-				ENTITY::SET_ENTITY_HEADING(_ped, ENTITY::GET_ENTITY_HEADING(_ped) + 2.5f * 2.f);
-
-			//right
-			if (GetAsyncKeyState(VK_KEY_D))
-				ENTITY::SET_ENTITY_HEADING(_ped, ENTITY::GET_ENTITY_HEADING(_ped) - 2.5f * 2.f);
-
-			//up
-			if (GetAsyncKeyState(VK_SPACE))
-			{
-				Vector3 to = get_coords_above_coords(playerCoords, .2f * speed);
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
-			}
-
-			//down
-			if (GetAsyncKeyState(VK_CONTROL))
-			{
-				Vector3 to = get_coords_above_coords(playerCoords, -.2f * speed);
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(_ped, to.x, to.y, to.z, 0, 0, 0);
-			}
-		}
-		else
-			ENTITY::SET_ENTITY_COLLISION(_ped, TRUE, TRUE);
-	
-		if (g_config.Lfeatures_teleportwp) //buggy and needs to be redone
-		{
-			if (UI::IS_WAYPOINT_ACTIVE()) // ?
-			{
-				if (!find_blip().z || !find_blip().x || !find_blip().y) // ?
-				{
-					features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-					return;
-				}
-
-				Vector3 coords = find_blip();
-
-				//this needs to be updated to account for ground check
-				if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0) && owns_veh(ped))
-					ped = PED::GET_VEHICLE_PED_IS_USING(ped);
-
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ped, coords.x, coords.y, coords.z + 100, 0, 0, 1);
-
-				features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
-			}
-			else
-				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+			features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
 
 			g_config.Lfeatures_teleportwp = false;
 		}
+
+		//Noclip
 
 		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
 		{
@@ -919,6 +801,8 @@ namespace big::features
 
 	void features_weapon()
 	{
+		//Infinite ammo
+
 		if (g_config.Wfeatures_infammo)
 		{
 			Hash cur;
@@ -938,8 +822,10 @@ namespace big::features
 				}
 			}
 		}
+		
+		//Instakill
 
-		if (g_config.Wfeatures_instakill) //might wanna pack this into a function because it gets called three times
+		if (g_config.Wfeatures_instakill)
 		{
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
@@ -953,6 +839,8 @@ namespace big::features
 			}
 		}
 
+		//Triggerbot
+
 		if (g_config.Wfeatures_triggerbot)
 		{
 			Entity AimedAtEntity;
@@ -963,7 +851,7 @@ namespace big::features
 
 			if (PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, &AimedAtEntity))
 			{
-				if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started)
+				if (PED::IS_PED_A_PLAYER(AimedAtEntity) && *g_pointers->m_is_session_started) //Online players
 				{
 					auto player = peds[AimedAtEntity];
 					if (getNetGamePlayer(player) && getNetGamePlayer(player)->m_PlayerInfo && getNetGamePlayer(player)->m_PlayerInfo->ped)
@@ -972,13 +860,15 @@ namespace big::features
 						fireBullet(StartCoords, vec);
 					}
 				}
-				else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255)
+				else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255) //Pedestrians
 				{
 					Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
 					fireBullet(StartCoords, Mouth);
 				}
 			}
 		}
+
+		//Add all weapons
 
 		if (g_config.Wfeatures_addweapons)
 		{
@@ -994,9 +884,7 @@ namespace big::features
 
 	void features_vehicle_delay()
 	{
-		/// <summary>
-		/// Vehicle godmode, this is very messy, a few redeclarations, this needs to be redone before any sort of release
-		/// </summary>
+		//Vehicle godmodee
 
 		Vehicle v = PED::GET_VEHICLE_PED_IS_IN(ped, player);
 
@@ -1035,6 +923,8 @@ namespace big::features
 			}
 		}
 
+		//Auto repair
+
 		if (g_config.Vfeatures_autoclean)
 		{
 			if (features::owns_veh(ped))
@@ -1056,6 +946,8 @@ namespace big::features
 
 	void features_vehicle()
 	{
+		//Model import call
+
 		if (g_config.Vfeatures_requestentity)
 		{
 			if (g_config.Vfeatures_randomizeveh)
@@ -1065,6 +957,18 @@ namespace big::features
 			features::spawnvehicle(features::carToSpawn.c_str());
 			g_config.Vfeatures_requestentity = false;
 		}
+
+		//Vehicle invisibility
+
+		if (PED::IS_PED_IN_ANY_VEHICLE(ped, FALSE) && features::owns_veh(ped))
+		{
+			if (g_config.Vfeatures_invisible)
+				ENTITY::SET_ENTITY_VISIBLE(vehicle, TRUE, TRUE);
+			else
+				ENTITY::SET_ENTITY_VISIBLE(vehicle, FALSE, FALSE);
+		}
+
+		//Upgrade current vehicle
 
 		if (g_config.Vfeatures_autoupgrade)
 		{
@@ -1094,6 +998,8 @@ namespace big::features
 			g_config.Vfeatures_autoupgrade = false;
 		}
 
+		//Horn boost
+
 		if (g_config.Vfeatures_hornboost)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0))
@@ -1104,6 +1010,17 @@ namespace big::features
 					if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle))
 						VEHICLE::SET_VEHICLE_FORWARD_SPEED(vehicle, 79);
 				}
+			}
+		}
+		
+		//Perfect vehicle control
+
+		if (g_config.Vfeatures_perfecthandling)
+		{
+			if (features::localCPed && features::lastVehicle) //fuck you
+			{
+				if (features::owns_veh(ped)) //boss patch function created by god himself
+					features::lastVehicle->gravity = 30.0f;
 			}
 		}
 	}
@@ -1136,7 +1053,7 @@ namespace big::features
 		}
 
 		//cache local info real quick
-		if (i == player) { localPed = ped;	localIndex = i; } // why are you doing this here
+		if (i == player) { localPed = ped;	localIndex = i; } // why are you doing this here | this is where its done in niggahack
 
 		NETWORK::NETWORK_HANDLE_FROM_PLAYER(i, netHandle, 13);
 		peds[ped] = i; // fuck you
@@ -1163,109 +1080,75 @@ namespace big::features
 
 	void features_esp(int p)
 	{
-		int handle = PLAYER::GET_PLAYER_PED(p);
-		auto pname = PLAYER::GET_PLAYER_NAME(p);
-
-		Vector3 theircoords = ENTITY::GET_ENTITY_COORDS(handle, TRUE);
-		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
-
-		float xoffset, yoffset;
-
-		float distance = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(theircoords.x, theircoords.y, theircoords.z, mycoords.x, mycoords.y, mycoords.z, true);
-
-		int maxHealth = features::players[p].maxHealth - 100;
-		int health = std::clamp(features::players[p].health - 100, 0, maxHealth);
-
-		Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
-
-		float nColR, nColG, nColB; // i hate this shit so much make a class or struct or something please
-		float snColR, snColG, snColB; // another idea would be to make functions that draw the players box, snapline, etc and theres a color parameter for g_config.ESPfeatures_namecol or whatever you're drawing
-		float mColR, mColG, mColB; 
-		float bColR, bColG, bColB;
-
-		if (g_config.ESPfeatures_health)
+		if (*g_pointers->m_is_session_started)
 		{
-			nColR = healthColor.x,	nColG = healthColor.y,	nColB = healthColor.z;
-			snColR = healthColor.x, snColG = healthColor.y, snColB = healthColor.z;
-			mColR = healthColor.x,	mColG = healthColor.y,	mColB = healthColor.z;
-			bColR = healthColor.x,	bColG = healthColor.y,	bColB = healthColor.z;
-		}
-		else
-		{
-			nColR = g_config.ESPfeatures_namecol[0] * 255,		nColG = g_config.ESPfeatures_namecol[1] * 255,		nColB = g_config.ESPfeatures_namecol[2] * 255;
-			snColR = g_config.ESPfeatures_snapcol[0] * 255,		snColG = g_config.ESPfeatures_snapcol[1] * 255,		snColB = g_config.ESPfeatures_snapcol[2] * 255;
-			mColR = g_config.ESPfeatures_markercol[0] * 255,	mColG = g_config.ESPfeatures_markercol[1] * 255,	mColB = g_config.ESPfeatures_markercol[2] * 255;
-			bColR = g_config.ESPfeatures_boxcol[0] * 255,		bColG = g_config.ESPfeatures_boxcol[1] * 255,		bColB = g_config.ESPfeatures_boxcol[2] * 255;
-		}
+			int handle = PLAYER::GET_PLAYER_PED(p);
+			auto pname = PLAYER::GET_PLAYER_NAME(p);
 
-		if (p < 32 && features::players[p].invincible)
-		{
-			nColR = 255,	nColG = 255,	nColB = 255;
-			snColR = 255,	snColG = 255,	snColB = 255;
-			mColR = 255,	mColG = 255,	mColB = 255;
-			bColR = 255,	bColG = 255,	bColB = 255;
-		}
+			Vector3 theircoords = ENTITY::GET_ENTITY_COORDS(handle, TRUE);
+			Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
 
-		if (features::players[features::selectedPlayer].invincible) { healthColor.x = 255;	healthColor.y = 255;	healthColor.z = 255; }
+			float xoffset, yoffset;
 
-		if (!ENTITY::DOES_ENTITY_EXIST(handle))
-			return;
+			float distance = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(theircoords.x, theircoords.y, theircoords.z, mycoords.x, mycoords.y, mycoords.z, true);
 
-		if (p == player)
-			return;
+			int maxHealth = features::players[p].maxHealth - 100;
+			int health = std::clamp(features::players[p].health - 100, 0, maxHealth);
 
-		if (distance > g_config.esp.render_distance)
-			return;
+			Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
-		if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground
-			return;
+			float ColR, ColG, ColB;
 
-		GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
+			if (g_config.ESPfeatures_health)
+			{
+				ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z;
+				if (p < 32 && features::players[p].invincible) { ColR = 255, ColG = 255, ColB = 255; }
+				if (features::players[features::selectedPlayer].invincible) { ColR = 255, ColG = 255, ColB = 255; }
+			}
+			else
+				ColR = g_config.ESPfeatures_color[0] * 255, ColG = g_config.ESPfeatures_color[1] * 255, ColB = g_config.ESPfeatures_color[2] * 255;
 
-		//if (g_config.ESPfeatures_name)
-		//{
-		//	if (PLAYER::GET_PLAYER_NAME(p))
-		//	{
-		//		UI::SET_TEXT_CENTRE(true);
-		//		UI::SET_TEXT_COLOUR(nColR, nColG, nColB, 255);
-		//		UI::SET_TEXT_FONT(0);
-		//		UI::SET_TEXT_SCALE(0.21f, 0.21f);
-		//		UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 0);
-		//		UI::SET_TEXT_EDGE(1, 0, 0, 0, 0);
-		//		UI::SET_TEXT_OUTLINE();
-		//		UI::BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
-		//		if (g_config.ESPfeatures_distance)
-		//			UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(fmt::format("[{}]m~n~{}", (int)distance, pname).c_str());
-		//		else
-		//			UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(pname);
-		//		UI::END_TEXT_COMMAND_DISPLAY_TEXT(xoffset, yoffset);
-		//	}
-		//}
+			if (!ENTITY::DOES_ENTITY_EXIST(handle))
+				return;
 
-		if (g_config.ESPfeatures_snapline)
-			GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, snColR, snColG, snColB, 255); //snapline
-		if (g_config.ESPfeatures_marker)
-			GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, mColR, mColG, mColB, 100, true, false, 2, true, false, false, false); //marker
+			if (p == player)
+				return;
 
-		if (g_config.ESPfeatures_box)
-		{
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
-			GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, bColR, bColG, bColB, 255);
+			if (distance > g_config.esp.render_distance)
+				return;
+
+			if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground
+				return;
+
+			GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
+
+			if (g_config.ESPfeatures_snapline)
+				GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, ColR, ColG, ColB, 255); //snapline
+			if (g_config.ESPfeatures_marker)
+				GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, ColR, ColG, ColB, 100, true, false, 2, true, false, false, false); //marker
+
+			if (g_config.ESPfeatures_box)
+			{
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z - 0.9f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x + 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
+				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y - 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
+			}
 		}
 	}
 
 	void features_online()
 	{
+		//Initial ESP and player cache call
+
 		if (*g_pointers->m_is_session_started)
 		{
 			for (std::uint32_t i = 0; i < 32; ++i) //initialize functions for each player in the lobby
@@ -1274,16 +1157,23 @@ namespace big::features
 				features_esp(i);
 			}
 		}
+		
+		//Disable phone
 
 		if (g_config.Lfeatures_nophone)
 		{
-			misc::set_global(19664, 1);
+			misc::set_global(19664, 1); //needs to be updated
 			MOBILE::_CELL_CAM_DISABLE_THIS_FRAME(TRUE);
 			PAD::DISABLE_CONTROL_ACTION(2, INPUT_PHONE, TRUE);
 		}
 
+		//No mental state
+
 		if (g_config.Lfeatures_nomental)
 			STATS::STAT_SET_FLOAT(GAMEPLAY::GET_HASH_KEY("MP0_PLAYER_MENTAL_STATE"), 0.1, 1);
+
+		//Skip cutscene
+		//Needs to be reimplemented
 
 		if (g_config.Ofeatures_skipcutscene)
 		{
@@ -1301,6 +1191,8 @@ namespace big::features
 
 	void features_player()
 	{
+		//Teleport to player
+
 		if (g_config.Pfeatures_teleport)
 		{
 			Ped handle = ped; //to prevent redeclaration confusion autism
@@ -1351,11 +1243,11 @@ namespace big::features
 
 	void block_main()
 	{
-		//block afk
+		//block afk, needs to be updated
 		misc::set_global(2550148 + 296, -1000000);
 		misc::set_global(1377236 + 1149, -1000000);
 
-		//block vote
+		//block vote, needs to be updated
 		misc::set_global(1388057, 0);
 		misc::set_global(1388059, 0);
 		misc::set_global(1388060, 0);
@@ -1365,9 +1257,26 @@ namespace big::features
 
 	void dec_var()
 	{
+		//bool a = player || ped || local ||inSession || sessionActive || scriptIndex || vehicle || isHost || network_time || local || localInfo || localCPed || lastVehicle || lastVehicleHandling;
+		//if (a = NULL)
+		//	return;
+
 		player = PLAYER::PLAYER_ID();
 		ped = PLAYER::PLAYER_PED_ID();
 		local = getNetGamePlayer(player);
+		inSession = NETWORK::NETWORK_IS_IN_SESSION();
+		sessionActive = NETWORK::NETWORK_IS_SESSION_ACTIVE();
+		scriptIndex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);
+		vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, player); //calls a function that checks if ur in a vehicle, what seat, and if you're the owner. will make everything else easier.
+		isHost = NETWORK::NETWORK_IS_HOST();
+		network_time = NETWORK::GET_NETWORK_TIME();
+
+		if (inSession)
+		{
+			numberOfPlayers = PLAYER::GET_NUMBER_OF_PLAYERS();
+			scriptHost = NETWORK::NETWORK_GET_HOST_OF_SCRIPT("freemode", -1, 0);
+		}
+
 		if (local)
 		{
 			localInfo = local->m_PlayerInfo;
@@ -1386,18 +1295,6 @@ namespace big::features
 						features::localCPed->seatbelt = (features::localCPed->seatbelt | 0x01) ^ 0x01;
 				}
 			}
-		}
-		inSession = NETWORK::NETWORK_IS_IN_SESSION();
-		sessionActive = NETWORK::NETWORK_IS_SESSION_ACTIVE();
-		scriptIndex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);
-		vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, player); //calls a function that checks if ur in a vehicle, what seat, and if you're the owner. will make everything else easier.
-		isHost = NETWORK::NETWORK_IS_HOST();
-		network_time = NETWORK::GET_NETWORK_TIME();
-
-		if (inSession)
-		{
-			numberOfPlayers = PLAYER::GET_NUMBER_OF_PLAYERS();
-			scriptHost = NETWORK::NETWORK_GET_HOST_OF_SCRIPT("freemode", -1, 0);
 		}
 	}
 
@@ -1419,7 +1316,7 @@ namespace big::features
 				tick_60 = now;
 			}
 
-			//prevents vehicle seizures & allows you to flip your vehicle
+			//Prevents vehicle seizures
 			if (now - tick_1 > 1000) 
 			{
 				features_vehicle_delay();

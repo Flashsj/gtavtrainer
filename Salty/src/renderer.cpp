@@ -161,7 +161,7 @@ namespace big
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		if (g_config.esp.enable_d3d_esp && g_running) // this is a lot better than before but sometimes the esp still glitches out, rarely tho
+		if (g_running && *g_pointers->m_is_session_started) // this is a lot better than before but sometimes the esp still glitches out, rarely tho
 		{
 			for (int i = 0; i < 32; i++)
 			{
@@ -191,10 +191,19 @@ namespace big
 				int maxHealth = features::players[i].maxHealth - 100; // to do: fix the colorpicker, im too lazy rn
 				int health = std::clamp(features::players[i].health - 100, 0, maxHealth);
 				Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
-				if (features::players[i].invincible) 
-					{ healthColor.x = 255; healthColor.y = 255; healthColor.z = 255; }
-				auto color = ImGui::ColorConvertFloat4ToU32(ImVec4(healthColor.x / 255.f, healthColor.y / 255.f, healthColor.z / 255.f, 1.f));
 
+				float ColR, ColG, ColB;
+
+				if (g_config.ESPfeatures_health)
+				{
+					ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z;
+					if (i < 32 && features::players[i].invincible) { ColR = 255, ColG = 255, ColB = 255; }
+					if (features::players[features::selectedPlayer].invincible) { ColR = 255, ColG = 255, ColB = 255; }
+				}
+				else
+					ColR = g_config.ESPfeatures_color[0] * 255, ColG = g_config.ESPfeatures_color[1] * 255, ColB = g_config.ESPfeatures_color[2] * 255;
+
+				auto color = ImGui::ColorConvertFloat4ToU32(ImVec4(ColR / 255.f, ColG / 255.f, ColB / 255.f, 1.f));
 				auto screen_size = ImGui::GetIO().DisplaySize;
 
 				if (g_config.esp.skeleton_enabled)

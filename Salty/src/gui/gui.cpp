@@ -22,7 +22,7 @@ using namespace std;
 namespace big
 {
 	static int selected_tab = 0;
-	static vector<string> tabs = { "Local", "Vehicle", "Online", "Config" };
+	static vector<string> tabs = { "Local", "Vehicle", "Online", "Settings" };
 	static vector<int> blocked_controls = { 22, 23, 75, 145, 14, 15, 16, 17, 27, 99, 115, 199, 244, 245, 246, 247, 248, 1, 2, 3, 4, 5, 6, 24, 25, 68, 69, 70, 91, 92, 106, 114, 122, 135, 142, 144, 176, 177, 257, 329, 346, 157, 158, 159, 160, 161, 162, 163, 164, 165, 26, 79 };
 
 	float width = 750;
@@ -129,20 +129,6 @@ namespace big
 
 	void gui::style()
 	{
-		//constexpr auto ColorFromBytes = [](uint8_t r, uint8_t g, uint8_t b) {return ImVec4((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f); };
-
-		//const ImVec4 bgColor = ColorFromBytes(37, 37, 38);
-		//const ImVec4 lightBgColor = ColorFromBytes(82, 82, 85);
-		//const ImVec4 veryLightBgColor = ColorFromBytes(90, 90, 95);
-
-		//const ImVec4 panelColor = ColorFromBytes(51, 51, 55);
-		//const ImVec4 panelHoverColor = ColorFromBytes(29, 151, 236);
-		//const ImVec4 panelActiveColor = ColorFromBytes(0, 119, 200);
-
-		//const ImVec4 textColor = ColorFromBytes(255, 255, 255);
-		//const ImVec4 textDisabledColor = ColorFromBytes(151, 151, 151);
-		//const ImVec4 borderColor = ColorFromBytes(78, 78, 78);
-
 		auto& style = ImGui::GetStyle();
 		auto& colors = style.Colors;
 
@@ -195,7 +181,7 @@ namespace big
 						base_tab::render_vehicle_tab();
 						break;
 					case 2:
-						(*g_pointers->m_is_session_started ? base_tab::render_online_tab() : ImGui::Text("You must be in a session in order to use online features"));
+						base_tab::render_online_tab();
 						break;
 					case 3:
 						base_tab::render_settings_tab();
@@ -214,8 +200,5 @@ namespace big
 		draw();
 	}
 
-	void gui::dx_init() 
-	{
-		style();
-	}
+	void gui::dx_init() { style(); }
 }
