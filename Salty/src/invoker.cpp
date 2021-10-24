@@ -21,26 +21,24 @@ namespace big
 			m_handler_cache.emplace(mapping.first, handler);
 		}
 	}
-
+	
 	void native_invoker::begin_call() { m_call_context.reset(); }
 
 	void native_invoker::end_call(rage::scrNativeHash hash)
 	{
-		if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
+		try
 		{
-			rage::scrNativeHandler handler = it->second;
-
-			handler(&m_call_context);
-
-			//Exception thrown at 0x00007FF79189A3E7 in GTA5.exe: 0xC0000005: Access violation reading location 0x0000000000000000.
-			if (g_pointers->m_fix_vectors != nullptr)
+			if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
+			{
+				rage::scrNativeHandler handler = it->second;
+				handler(&m_call_context);
 				g_pointers->m_fix_vectors(&m_call_context);
-			else g_pointers->m_fix_vectors = 0x0;
+			}
+			else
+			{
+				[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
+			}
 		}
-		else
-		{
-			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
-			g_running = false;
-		}
+		catch (std::exception const& ex) { g_running = false; } //should probably log the problem but fuck you the game hangs up anyway
 	}
 }
