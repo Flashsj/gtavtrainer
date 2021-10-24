@@ -307,7 +307,7 @@ namespace big::features
 
 	void fireBullet(Vector3 startCoords, Vector3 target, bool instakill = false)
 	{
-		if (g_config.Wfeatures_instakill)
+		if (g_config.weapons.instakill)
 		{
 			for (int i = 0; i < 6; i++)
 				GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(startCoords.x, startCoords.y, startCoords.z, target.x, target.y, target.z, 250, true, GAMEPLAY::GET_HASH_KEY("WEAPON_REMOTESNIPER"), ped, true, true, -1.0f);
@@ -448,7 +448,7 @@ namespace big::features
 	{
 		while (true)
 		{
-			if (g_config.Pfeatures_kick)
+			/*if (g_config.Pfeatures_kick)
 			{
 				kick(selectedPlayer);
 				log_map(fmt::format("Attempting to kick player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
@@ -547,7 +547,7 @@ namespace big::features
 				}
 				else
 					g_config.auto_host_kick = false;
-			}
+			}*/
 
 			script::get_current()->yield();
 		}
@@ -589,7 +589,7 @@ namespace big::features
 			VEHICLE::SET_VEHICLE_ENGINE_ON(vehicle, 1, 1, 0);
 			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
 
-			if (g_config.Vfeatures_randomizecol)
+			if (g_config.vehicle.randomizecolor)
 			{
 				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
@@ -615,7 +615,7 @@ namespace big::features
 				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
 			}
 
-			if (g_config.Vfeatures_spawninveh)
+			if (g_config.vehicle.spawninvehicle)
 			{
 				for (int i = -1; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(veh); i++)
 				{
@@ -628,7 +628,7 @@ namespace big::features
 				}
 			}
 
-			if (g_config.Vfeatures_spawngodmode)
+			if (g_config.vehicle.spawnggodmode)
 			{
 				ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
 				ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, FALSE);
@@ -645,7 +645,7 @@ namespace big::features
 					VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f);
 			}
 
-			if (g_config.Vfeatures_spawnupgraded)
+			if (g_config.vehicle.spawnupgraded)
 			{
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
@@ -668,7 +668,7 @@ namespace big::features
 	{
 		//Invincibility / godmode
 
-		if (g_config.Lfeatures_godmode)
+		if (g_config.localped.godmode)
 		{
 			PED::CLEAR_PED_BLOOD_DAMAGE(ped);
 			PED::CLEAR_PED_DECORATIONS(ped);
@@ -693,7 +693,7 @@ namespace big::features
 
 		//No ragdoll
 
-		if (g_config.Lfeatures_noragdoll)
+		if (g_config.localped.ragdoll)
 		{
 			PED::SET_PED_CAN_RAGDOLL(ped, FALSE);
 			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(ped, FALSE);
@@ -708,7 +708,7 @@ namespace big::features
 
 		//Never wanted / no police
 
-		if (g_config.Lfeatures_neverwanted) //this needs to be redone, cops are broken when disabled
+		if (g_config.localped.neverwanted) //this needs to be redone, cops are broken when disabled
 		{
 			PLAYER::SET_MAX_WANTED_LEVEL(0);
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
@@ -726,7 +726,7 @@ namespace big::features
 
 		//Ghost organization
 
-		if (g_config.Lfeatures_offradar) //this needs to be updated, it no longer functions
+		if (g_config.localped.offradar) //this needs to be updated, it no longer functions
 		{
 			*script_global(2426097).at(player, 443).at(204).as<bool*>() = true;
 			*script_global(2440277).at(70).as<int32_t*>() = NETWORK::GET_NETWORK_TIME();
@@ -735,14 +735,14 @@ namespace big::features
 
 		//Fast run
 
-		if (g_config.Lfeatures_fastrun)
+		if (g_config.localped.fastrun)
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.45f);
 		else
 			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.f);
 
 		//Ped invisibility
 
-		if (g_config.Lfeatures_invisible)
+		if (g_config.localped.invisible)
 			ENTITY::SET_ENTITY_VISIBLE(ped, FALSE, FALSE);
 		else
 			ENTITY::SET_ENTITY_VISIBLE(ped, TRUE, TRUE);
@@ -753,11 +753,11 @@ namespace big::features
 
 		//Waypoint Teleport
 
-		if (GetAsyncKeyState(VK_F5) || g_config.Lfeatures_teleportwp || (UI::IS_WAYPOINT_ACTIVE() && CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN)))
+		if (GetAsyncKeyState(VK_F5) || g_config.localped.teleportwp || (UI::IS_WAYPOINT_ACTIVE() && CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN)))
 		{
 			if (!find_blip().z || !find_blip().x || !find_blip().y || !UI::IS_WAYPOINT_ACTIVE()) // ?
 			{
-				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR); //can sometimes be randomly triggered?
 				return;
 			}
 
@@ -771,17 +771,17 @@ namespace big::features
 
 			features::log_map(fmt::format("Teleporting to ~g~x{} y{} z{}", coords.x, coords.y, coords.z), logtype::LOG_INFO);
 
-			g_config.Lfeatures_teleportwp = false;
+			g_config.localped.teleportwp = false;
 		}
 
 		//Noclip
 
-		if (g_config.Lfeatures_noclip) //needs to be completely redone using local face camera angles. it's also messy.
+		if (g_config.localped.noclip) //needs to be completely redone using local face camera angles. it's also messy.
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(_ped, FALSE) && !features::owns_veh(ped))
 			{
 				log_map("Noclip is unavailable as a passenger", logtype::LOG_ERROR);
-				g_config.Lfeatures_noclip = false;
+				g_config.localped.noclip = false;
 				return;
 			}
 
@@ -838,7 +838,7 @@ namespace big::features
 	{
 		//Infinite ammo
 
-		if (g_config.Wfeatures_infammo)
+		if (g_config.weapons.infammo)
 		{
 			Hash cur;
 			if (WEAPON::GET_CURRENT_PED_WEAPON(ped, &cur, 1))
@@ -860,7 +860,7 @@ namespace big::features
 		
 		//Instakill
 
-		if (g_config.Wfeatures_instakill)
+		if (g_config.weapons.instakill)
 		{
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
 			Vector3 CamRotation = CAM::GET_GAMEPLAY_CAM_ROT(0);
@@ -876,7 +876,7 @@ namespace big::features
 
 		//Triggerbot
 
-		if (g_config.Wfeatures_triggerbot)
+		if (g_config.weapons.triggerbot)
 		{
 			Entity AimedAtEntity;
 			Vector3 CamCoords = CAM::_GET_GAMEPLAY_CAM_COORDS();
@@ -908,14 +908,14 @@ namespace big::features
 
 		//Add all weapons
 
-		if (g_config.Wfeatures_addweapons)
+		if (g_config.weapons.addweapons)
 		{
 			log_map("Adding all weapons to weapon wheel", logtype::LOG_INFO);
 
 			for (int i = 0; i < (sizeof(features::Weapons) / 4); i++)
 			{
 				WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, features::Weapons[i], 9999, 1);
-				g_config.Wfeatures_addweapons = false;
+				g_config.weapons.addweapons = false;
 			}
 		}
 	}
@@ -926,7 +926,7 @@ namespace big::features
 
 		Vehicle v = PED::GET_VEHICLE_PED_IS_IN(ped, player);
 
-		if (g_config.Vfeatures_godmode) //a little cleaner but still messy
+		if (g_config.vehicle.godmode) //a little cleaner but still messy
 		{
 			if (features::owns_veh(ped)) //boss patch
 			{
@@ -963,7 +963,7 @@ namespace big::features
 
 		//Auto repair
 
-		if (g_config.Vfeatures_autoclean)
+		if (g_config.vehicle.autorepair)
 		{
 			if (features::owns_veh(ped))
 			{
@@ -986,29 +986,29 @@ namespace big::features
 	{
 		//Model import call
 
-		if (g_config.Vfeatures_requestentity)
+		if (g_config.vehicle.requestentity)
 		{
-			if (g_config.Vfeatures_randomizeveh)
+			if (g_config.vehicle.randomizevehicle)
 				log_map("Importing random vehicle model", logtype::LOG_INFO);
 			else
 				log_map(fmt::format("Importing vehicle model ~g~{}", features::carToSpawn), logtype::LOG_INFO);
 			features::spawnvehicle(features::carToSpawn.c_str());
-			g_config.Vfeatures_requestentity = false;
+			g_config.vehicle.requestentity = false;
 		}
 
 		//Vehicle invisibility
 
 		if (PED::IS_PED_IN_ANY_VEHICLE(ped, FALSE) && features::owns_veh(ped))
 		{
-			if (g_config.Vfeatures_invisible)
-				ENTITY::SET_ENTITY_VISIBLE(vehicle, TRUE, TRUE);
-			else
+			if (g_config.localped.invisible)
 				ENTITY::SET_ENTITY_VISIBLE(vehicle, FALSE, FALSE);
+			else
+				ENTITY::SET_ENTITY_VISIBLE(vehicle, TRUE, TRUE);
 		}
 
 		//Upgrade current vehicle
 
-		if (g_config.Vfeatures_autoupgrade)
+		if (g_config.vehicle.upgrade)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(ped, FALSE))
 			{
@@ -1033,12 +1033,12 @@ namespace big::features
 			else
 				log_map("You are not in a vehicle", logtype::LOG_ERROR);
 
-			g_config.Vfeatures_autoupgrade = false;
+			g_config.vehicle.upgrade = false;
 		}
 
 		//Horn boost
 
-		if (g_config.Vfeatures_hornboost)
+		if (g_config.vehicle.hornboost)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0))
 			{
@@ -1053,7 +1053,7 @@ namespace big::features
 		
 		//Perfect vehicle control
 
-		if (g_config.Vfeatures_perfecthandling)
+		if (g_config.vehicle.phandling)
 		{
 			if (features::localCPed && features::lastVehicle) //fuck you
 			{
@@ -1137,7 +1137,7 @@ namespace big::features
 
 			float ColR, ColG, ColB;
 
-			if (g_config.ESPfeatures_health)
+			if (g_config.esp.health)
 			{
 				ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z;
 				if (p < 32 && features::players[p].invincible) { ColR = 255, ColG = 255, ColB = 255; }
@@ -1155,17 +1155,17 @@ namespace big::features
 			if (distance > g_config.esp.render_distance)
 				return;
 
-			if (g_config.ESPfeatures_visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground
+			if (g_config.esp.visible && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(ped, PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(p), 17)) // to do: fix this for players under the ground
 				return;
 
 			GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(theircoords.x, theircoords.y, theircoords.z + 1.3f, &xoffset, &yoffset);
 
-			if (g_config.ESPfeatures_snapline)
+			if (g_config.esp.snapline)
 				GRAPHICS::DRAW_LINE(mycoords.x, mycoords.y, mycoords.z, theircoords.x, theircoords.y, theircoords.z, ColR, ColG, ColB, 255); //snapline
-			if (g_config.ESPfeatures_marker)
+			if (g_config.esp.marker)
 				GRAPHICS::DRAW_MARKER(20, theircoords.x, theircoords.y, theircoords.z + 2.0f, 0, 0, 0, 180.0f, 360.0f, 0, 1.5f, 1.5f, 1.5f, ColR, ColG, ColB, 100, true, false, 2, true, false, false, false); //marker
 
-			if (g_config.ESPfeatures_box)
+			if (g_config.esp.box)
 			{
 				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x + 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, ColR, ColG, ColB, 255);
 				GRAPHICS::DRAW_LINE(theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z + 1.f, theircoords.x - 0.5f, theircoords.y + 0.5f, theircoords.z - 0.9f, ColR, ColG, ColB, 255);
@@ -1198,7 +1198,7 @@ namespace big::features
 		
 		//Disable phone
 
-		if (g_config.Lfeatures_nophone)
+		if (g_config.localped.nophone)
 		{
 			misc::set_global(19664, 1); //needs to be updated
 			MOBILE::_CELL_CAM_DISABLE_THIS_FRAME(TRUE);
@@ -1207,13 +1207,13 @@ namespace big::features
 
 		//No mental state
 
-		if (g_config.Lfeatures_nomental)
+		if (g_config.localped.nomental)
 			STATS::STAT_SET_FLOAT(GAMEPLAY::GET_HASH_KEY("MP0_PLAYER_MENTAL_STATE"), 0.1, 1);
 
 		//Skip cutscene
 		//Needs to be reimplemented
 
-		if (g_config.Ofeatures_skipcutscene)
+		/*if (g_config.Ofeatures_skipcutscene)
 		{
 			if (CUTSCENE::IS_CUTSCENE_ACTIVE() || CUTSCENE::IS_CUTSCENE_PLAYING())
 			{
@@ -1224,14 +1224,14 @@ namespace big::features
 				log_map("No cutscene is currently active", logtype::LOG_ERROR);
 
 			g_config.Ofeatures_skipcutscene = false;
-		}
+		}*/
 	}
 
 	void features_player()
 	{
 		//Teleport to player
 
-		if (g_config.Pfeatures_teleport)
+		if (g_config.players.teleport)
 		{
 			Ped handle = ped; //to prevent redeclaration confusion autism
 			Vector3 coords = ENTITY::GET_ENTITY_COORDS(PLAYER::GET_PLAYER_PED(features::selectedPlayer), FALSE);
@@ -1273,7 +1273,7 @@ namespace big::features
 				ENTITY::SET_ENTITY_COORDS(handle, coords.x, coords.y, coords.z, 0, 0, 0, 1);
 
 			log_map(fmt::format("Teleporting to ~g~{}", features::players[features::selectedPlayer].name), logtype::LOG_INFO);
-			g_config.Pfeatures_teleport = false;
+			g_config.players.teleport = false;
 		}
 	}
 

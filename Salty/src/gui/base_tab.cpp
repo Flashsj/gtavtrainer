@@ -72,47 +72,47 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Player"))
 			{
-				ImGui::Checkbox("Godmode", &g_config.Lfeatures_godmode);
-				ImGui::Checkbox("Ragdoll prevention", &g_config.Lfeatures_noragdoll);
-				ImGui::Checkbox("Fast run", &g_config.Lfeatures_fastrun);
+				ImGui::Checkbox("Godmode", &g_config.localped.godmode);
+				ImGui::Checkbox("Ragdoll prevention", &g_config.localped.ragdoll);
+				ImGui::Checkbox("Fast run", &g_config.localped.fastrun);
 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
-				ImGui::Checkbox("No wanted level", &g_config.Lfeatures_neverwanted);
+				ImGui::Checkbox("No wanted level", &g_config.localped.neverwanted);
 				if (ImGui::IsItemHovered())
 					ImGui::SetTooltip("This feature is only partially working as of now");
 				ImGui::PopStyleColor();
 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-				ImGui::Checkbox("Off radar", &g_config.Lfeatures_offradar);
+				ImGui::Checkbox("Off radar", &g_config.localped.offradar);
 				if (ImGui::IsItemHovered())
 					ImGui::SetTooltip("This feature is not working as of now");
 				ImGui::PopStyleColor();
 
-				ImGui::Checkbox("No mental state", &g_config.Lfeatures_nomental);
+				ImGui::Checkbox("No mental state", &g_config.localped.nomental);
 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.0f, 0.2f, 1.f));
-				ImGui::Checkbox("No phone", &g_config.Lfeatures_nophone);
+				ImGui::Checkbox("No phone", &g_config.localped.nophone);
 				if (ImGui::IsItemHovered())
 					ImGui::SetTooltip("This feature is only partially working as of now");
 				ImGui::PopStyleColor();
 
-				ImGui::Checkbox("Ped invisibility", &g_config.Lfeatures_invisible);
-				ImGui::Checkbox("Noclip", &g_config.Lfeatures_noclip);
+				ImGui::Checkbox("Ped invisibility", &g_config.localped.invisible);
+				ImGui::Checkbox("Noclip", &g_config.localped.noclip);
 
 				if (ImGui::Button("Teleport to waypoint"))
-					g_config.Lfeatures_teleportwp = true;
+					g_config.localped.teleportwp = true;
 
 				ImGui::EndTabItem();
 			}
 
 			if (ImGui::BeginTabItem("Weapon"))
 			{
-				ImGui::Checkbox("Infinite ammo", &g_config.Wfeatures_infammo);
-				ImGui::Checkbox("Insta kill", &g_config.Wfeatures_instakill);
-				ImGui::Checkbox("Triggerbot", &g_config.Wfeatures_triggerbot);
+				ImGui::Checkbox("Infinite ammo", &g_config.weapons.infammo);
+				ImGui::Checkbox("Insta kill", &g_config.weapons.instakill);
+				ImGui::Checkbox("Triggerbot", &g_config.weapons.triggerbot);
 
 				if (ImGui::Button("Give all weapons"))
-					g_config.Wfeatures_addweapons = true;
+					g_config.weapons.addweapons = true;
 
 				ImGui::EndTabItem();
 			}
@@ -126,15 +126,15 @@ namespace big::base_tab
 		{
 			if (ImGui::BeginTabItem("Main"))
 			{
-				ImGui::Checkbox("Indestructible vehicle", &g_config.Vfeatures_godmode);
-				ImGui::Checkbox("Clean vehicle", &g_config.Vfeatures_autoclean);
+				ImGui::Checkbox("Indestructible vehicle", &g_config.vehicle.godmode);
+				ImGui::Checkbox("Clean vehicle", &g_config.vehicle.autorepair);
 				ImGui::Checkbox("Seatbelt", &g_config.vehicle.seatbelt);
-				ImGui::Checkbox("Horn boost", &g_config.Vfeatures_hornboost);
-				ImGui::Checkbox("Vehicle invisibility", &g_config.Vfeatures_invisible);
-				ImGui::Checkbox("Perfect handling", &g_config.Vfeatures_perfecthandling);
+				ImGui::Checkbox("Horn boost", &g_config.vehicle.hornboost);
+				ImGui::Checkbox("Vehicle invisibility", &g_config.vehicle.invisible);
+				ImGui::Checkbox("Perfect handling", &g_config.vehicle.phandling);
 
 				if (ImGui::Button("Upgrade current vehicle"))
-					g_config.Vfeatures_autoupgrade = true;
+					g_config.vehicle.upgrade = true;
 
 				ImGui::EndTabItem();
 			}
@@ -153,7 +153,7 @@ namespace big::base_tab
 				{
 					InputText("Search", &currentModelSearch, 0);
 
-					for (int n = 0; n < IM_ARRAYSIZE(features::vehicleModels); n++) //update and add new vehicle hashes
+					for (int n = 0; n < IM_ARRAYSIZE(features::vehicleModels); n++) //update and add new vehicle hashes for LOS SANTOS TUNERS (WIP)
 					{
 						string str = features::vehicleModels[n], search = currentModelSearch;
 						transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return tolower(c); });
@@ -174,13 +174,13 @@ namespace big::base_tab
 
 				InputText("Custom vehicle", &features::carToSpawn, 0);
 
-				ImGui::Checkbox("Spawn indestructible", &g_config.Vfeatures_spawngodmode);
-				ImGui::Checkbox("Spawn fully upgraded", &g_config.Vfeatures_spawnupgraded);
-				ImGui::Checkbox("Spawn in vehicle", &g_config.Vfeatures_spawninveh);
-				ImGui::Checkbox("Spawn with random colors", &g_config.Vfeatures_randomizecol);
+				ImGui::Checkbox("Spawn indestructible", &g_config.vehicle.spawnggodmode);
+				ImGui::Checkbox("Spawn fully upgraded", &g_config.vehicle.spawnupgraded);
+				ImGui::Checkbox("Spawn in vehicle", &g_config.vehicle.spawninvehicle);
+				ImGui::Checkbox("Spawn with random colors", &g_config.vehicle.randomizecolor);
 
 				if (ImGui::Button("Import model"))
-					g_config.Vfeatures_requestentity = true;
+					g_config.vehicle.requestentity = true;
 
 				ImGui::EndTabItem();
 			}
@@ -245,24 +245,24 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("ESP")) // to do: fix color pickers and esp entirely before alpha release
+			if (ImGui::BeginTabItem("ESP")) //todo fix esp alignment
 			{
 				ImGui::ColorEdit3("ESP Color", g_config.ESPfeatures_color, ImGuiColorEditFlags_AlphaBar);
-				ImGui::Checkbox("Name", &g_config.ESPfeatures_name);
-				ImGui::Checkbox("Box", &g_config.ESPfeatures_box);
-				ImGui::Checkbox("Snapline", &g_config.ESPfeatures_snapline);
-				ImGui::Checkbox("Skeleton", &g_config.esp.skeleton_enabled);
-				ImGui::Checkbox("Marker", &g_config.ESPfeatures_marker);
+				ImGui::Checkbox("Name", &g_config.esp.name);
+				ImGui::Checkbox("Box", &g_config.esp.box);
+				ImGui::Checkbox("Snapline", &g_config.esp.snapline);
+				ImGui::Checkbox("Skeleton", &g_config.esp.skeleton);
+				ImGui::Checkbox("Marker", &g_config.esp.marker);
 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, .0f, .0f, 1.f));
-				ImGui::Checkbox("Display distance", &g_config.ESPfeatures_distance);
+				ImGui::Checkbox("Display distance", &g_config.esp.distance);
 				if (ImGui::IsItemHovered())
 					ImGui::SetTooltip("This feature is not working as of now");
 				ImGui::PopStyleColor();
 		
-				ImGui::Checkbox("Health based colors", &g_config.ESPfeatures_health);
-				ImGui::Checkbox("Visible only", &g_config.ESPfeatures_visible);
-				ImGui::SliderFloat("Render distance", &g_config.esp.render_distance, 100.f, 10000.f); // dont know why you removed this
+				ImGui::Checkbox("Health based colors", &g_config.esp.health);
+				ImGui::Checkbox("Visible only", &g_config.esp.visible);
+				ImGui::SliderFloat("Render distance", &g_config.esp.render_distance, 100.f, 10000.f);
 
 				ImGui::EndTabItem();
 			}
@@ -302,6 +302,9 @@ namespace big::base_tab
 								if (ImGui::Selectable(name.c_str(), features::selectedPlayer == i))
 									features::selectedPlayer = i;
 
+								ImGui::SameLine();
+								ImGui::TextColored(ImVec4(0.f, 1.f, 0.f, 1.f), format("{}", features::players[i].index).c_str());
+
 								if (features::players[i].index == features::localIndex)
 								{
 									ImGui::SameLine();
@@ -317,8 +320,21 @@ namespace big::base_tab
 									ImGui::SameLine();
 									ImGui::TextColored(ImVec4(1.1f, 1.f, 0.1f, 1.f), "HOST");
 								}
+								if (features::players[i].invehicle > 0)
+								{
+									ImGui::SameLine();
+									ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, 1.f), "[Driving]");
+								}
+								if (features::players[i].interior > 0)
+								{
+									ImGui::SameLine();
+									ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, 1.f), "[Inside]");
+								}
 
-								if (g_config.devOptions)
+								//ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
+								//ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
+
+								if (g_config.debug.enabled)
 								{
 									if (features::scriptHost == i)
 									{
@@ -357,11 +373,6 @@ namespace big::base_tab
 								ImGui::Text(format("{}/{}", features::players[features::selectedPlayer].health, features::players[features::selectedPlayer].maxHealth).c_str());
 								ImGui::PopStyleColor();
 
-								ImGui::Text(format("Rank: {}", features::players[features::selectedPlayer].rank).c_str());
-								ImGui::Text(format("Lobby index: {}", features::players[features::selectedPlayer].index).c_str());
-								ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
-								ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
-
 								ImGui::PushItemWidth(150);
 
 								if (features::players[features::selectedPlayer].player && features::players[features::selectedPlayer].info)
@@ -381,10 +392,10 @@ namespace big::base_tab
 								ImGui::PopItemWidth();
 
 								if (ImGui::Button("Teleport to player"))
-									g_config.Pfeatures_teleport = true;
+									g_config.players.teleport = true;
 
-								if (ImGui::Button("Kick from vehicle"))
-									g_config.Pfeatures_kickfromveh = true;
+								/*if (ImGui::Button("Kick from vehicle"))
+									g_config.players.kickfromvehicle = true;*/
 
 								//kicks and crashes dont work anymore ):
 
@@ -402,7 +413,7 @@ namespace big::base_tab
 								}
 								ImGui::PopStyleColor();*/
 
-								if (features::players[features::selectedPlayer].player && g_config.devOptions)
+								if (features::players[features::selectedPlayer].player && g_config.debug.enabled)
 								{
 									ImGui::Separator();
 									string debug = fmt::format("CNetGamePlayer: {}", reinterpret_cast<void*>(features::players[features::selectedPlayer].player));
@@ -462,7 +473,7 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Misc"))
 			{
-				ImGui::Checkbox("Enable debug mode", &g_config.devOptions);
+				ImGui::Checkbox("Enable debug mode", &g_config.debug.enabled);
 				if (ImGui::Button("Unload"))
 				{
 					exit(0);
@@ -471,7 +482,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (g_config.devOptions && *g_pointers->m_is_session_started)
+			if (g_config.debug.enabled && *g_pointers->m_is_session_started)
 			{
 				if (ImGui::BeginTabItem("Debug"))
 				{
@@ -489,7 +500,7 @@ namespace big::base_tab
 					ImGui::Text(fmt::format("script: {}", features::script).c_str());
 					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());
 
-					ImGui::SliderInt("In game log length", &g_config.log_limit, 0, 100);
+					ImGui::SliderInt("In game log length", &g_config.debug.log_limit, 0, 100);
 
 					ImGui::EndTabItem();
 				}

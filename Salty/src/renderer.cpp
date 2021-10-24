@@ -177,13 +177,13 @@ namespace big
 				if (!features::players[i].exists)
 					continue;
 
-				if (!g_config.Lfeatures_invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
+				if (!g_config.localped.invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
 					continue;													// to do: figure out edit and continue and the performance profiler since i can attach a debugger now
 
-				if (features::players[i].distanceToLocal > g_config.esp.render_distance)
+				if (features::players[i].distanceToLocal > g_config.esp.render_distance) //important that this is 'render_distance' and not 'distance'
 					continue;
 
-				if (g_config.ESPfeatures_visible && !features::players[i].visible)
+				if (g_config.esp.visible && !features::players[i].visible)
 					continue;
 
 				//add visible check for skeleton DONE
@@ -194,7 +194,7 @@ namespace big
 
 				float ColR, ColG, ColB;
 
-				if (g_config.ESPfeatures_health)
+				if (g_config.esp.health)
 				{
 					ColR = healthColor.x, ColG = healthColor.y, ColB = healthColor.z;
 					if (i < 32 && features::players[i].invincible) { ColR = 255, ColG = 255, ColB = 255; }
@@ -206,7 +206,7 @@ namespace big
 				auto color = ImGui::ColorConvertFloat4ToU32(ImVec4(ColR / 255.f, ColG / 255.f, ColB / 255.f, 1.f));
 				auto screen_size = ImGui::GetIO().DisplaySize;
 
-				if (g_config.esp.skeleton_enabled)
+				if (g_config.esp.skeleton)
 				{
 					storeSkeleton(features::players[i].info->ped, SKEL_Head, screen_size, features::players[i].skeleton.head); // to do: redo this with less autism next time (for loop)
 					storeSkeleton(features::players[i].info->ped, SKEL_Neck_1, screen_size, features::players[i].skeleton.neck1);
@@ -259,7 +259,7 @@ namespace big
 				if (i == features::localIndex)
 					continue;
 
-				if (g_config.ESPfeatures_name)
+				if (g_config.esp.name)
 				{
 					//visible only is not accounted for. enabling it still causes the name to be visible across the map.
 
@@ -282,7 +282,7 @@ namespace big
 		
 		//logger not intended for any sort of release, it is for debugging purposes only
 
-		if (g_config.devOptions)
+		if (g_config.debug.enabled)
 		{
 			for (size_t i = 0; i < logs.size(); i++)
 			{
@@ -298,7 +298,7 @@ namespace big
 					continue;
 				}
 
-				if (i >= g_config.log_limit)
+				if (i >= g_config.debug.log_limit)
 					continue;
 
 				ImGui::GetBackgroundDrawList()->AddText({ 8.f, 5.f + (i * 15.f) }, ImGui::ColorConvertFloat4ToU32(ImVec4(1.f, 1.f, 1.f, 1.f)), logs.at(i).log.c_str());
@@ -332,7 +332,7 @@ namespace big
 			g_gui.m_opened ^= true;
 		}
 			
-		if (g_config.devOptions)
+		if (g_config.debug.enabled)
 		{
 			if (msg == WM_KEYUP && wparam == VK_END)
 				g_running = false;
