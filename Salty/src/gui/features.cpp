@@ -1001,9 +1001,9 @@ namespace big::features
 		if (PED::IS_PED_IN_ANY_VEHICLE(ped, FALSE) && features::owns_veh(ped))
 		{
 			if (g_config.Vfeatures_invisible)
-				ENTITY::SET_ENTITY_VISIBLE(vehicle, FALSE, FALSE);
-			else
 				ENTITY::SET_ENTITY_VISIBLE(vehicle, TRUE, TRUE);
+			else
+				ENTITY::SET_ENTITY_VISIBLE(vehicle, FALSE, FALSE);
 		}
 
 		//Upgrade current vehicle
