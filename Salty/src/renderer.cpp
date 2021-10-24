@@ -53,13 +53,6 @@ namespace big
 		font_cfg.FontDataOwnedByAtlas = false;
 
 		ImGui::GetIO().Fonts->Clear();
-		//m_font = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg); //obsolete
-
-		//mainfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 14.f, &font_cfg);
-		//(mainfont != NULL) ? ImGui::GetIO().FontDefault = mainfont : ImGui::GetIO().Fonts->AddFontDefault();
-		//tabfont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Users\\cland\\Documents\\GTA Stuff\\gtavtrainer\\font.ttf", 14.f); // use binary_to_compressed_c, if you dont want to make a new vs project for this i already remade this in rotorhack and theres an example, it just puts the array in a text document in the csgo folder
-		//(tabfont != NULL) ? ImGui::GetIO().FontDefault = tabfont : ImGui::GetIO().Fonts->AddFontDefault();
-		//m_monospace_font = ImGui::GetIO().Fonts->AddFontDefault();
 
 		mainfont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 14.f);
 		m_monospace_font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(verdana_compressed_data, verdana_compressed_size, 14.f);
@@ -178,7 +171,7 @@ namespace big
 					continue;
 
 				if (!g_config.localped.invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
-					continue;													// to do: figure out edit and continue and the performance profiler since i can attach a debugger now
+					continue;												   // to do: figure out edit and continue and the performance profiler since i can attach a debugger now
 
 				if (features::players[i].distanceToLocal > g_config.esp.render_distance) //important that this is 'render_distance' and not 'distance'
 					continue;
@@ -186,9 +179,7 @@ namespace big
 				if (g_config.esp.visible && !features::players[i].visible)
 					continue;
 
-				//add visible check for skeleton DONE
-
-				int maxHealth = features::players[i].maxHealth - 100; // to do: fix the colorpicker, im too lazy rn
+				int maxHealth = features::players[i].maxHealth - 100; // to do: fix the colorpicker
 				int health = std::clamp(features::players[i].health - 100, 0, maxHealth);
 				Vector3 healthColor = features::FromHSB(std::clamp((float)(health) / (float)(maxHealth * 3.6f), 0.f, 0.277777777778f), 1.f, 1.f);
 
@@ -208,7 +199,7 @@ namespace big
 
 				if (g_config.esp.skeleton)
 				{
-					storeSkeleton(features::players[i].info->ped, SKEL_Head, screen_size, features::players[i].skeleton.head); // to do: redo this with less autism next time (for loop)
+					storeSkeleton(features::players[i].info->ped, SKEL_Head, screen_size, features::players[i].skeleton.head); // to do: redo this with a for loop
 					storeSkeleton(features::players[i].info->ped, SKEL_Neck_1, screen_size, features::players[i].skeleton.neck1);
 					storeSkeleton(features::players[i].info->ped, SKEL_Spine0, screen_size, features::players[i].skeleton.spine0);
 					storeSkeleton(features::players[i].info->ped, SKEL_Spine1, screen_size, features::players[i].skeleton.spine1);
@@ -281,7 +272,6 @@ namespace big
 		}
 		
 		//logger not intended for any sort of release, it is for debugging purposes only
-
 		if (g_config.debug.enabled)
 		{
 			for (size_t i = 0; i < logs.size(); i++)
@@ -334,7 +324,7 @@ namespace big
 			
 		if (g_config.debug.enabled)
 		{
-			if (msg == WM_KEYUP && wparam == VK_END)
+			if (msg == WM_KEYUP && (wparam == VK_END))
 				g_running = false;
 		}
 

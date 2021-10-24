@@ -2,6 +2,7 @@
 #include "invoker.hpp"
 #include "crossmap.hpp"
 #include "pointers.hpp"
+#include "script.hpp"
 
 namespace big
 {
@@ -26,21 +27,27 @@ namespace big
 
 	void native_invoker::end_call(rage::scrNativeHash hash)
 	{
-		if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
+		TRY_CLAUSE
 		{
+			if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
+			{
 			rage::scrNativeHandler handler = it->second;
 
 			handler(&m_call_context);
 
-			//Exception thrown at 0x00007FF79189A3E7 in GTA5.exe: 0xC0000005: Access violation reading location 0x0000000000000000.
+			//m_fix_vectors is what is causing the crashes (mostly involving vehicles)
+
 			if (g_pointers->m_fix_vectors != nullptr)
 				g_pointers->m_fix_vectors(&m_call_context);
-			else g_pointers->m_fix_vectors = 0x0;
+			else
+			{
+				g_pointers->m_fix_vectors = 0x0;
+				g_running = false;
+			}
 		}
 		else
-		{
 			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
-			g_running = false;
 		}
+		EXCEPT_CLAUSE
 	}
 }
