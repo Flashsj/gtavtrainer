@@ -271,8 +271,6 @@ namespace big::misc
 
 	string get_address(uint32_t ip, uint16_t port) { return format("{}.{}.{}.{}:{}", (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff, port); }
 
-	// i had to remove all the fucking stupid ass commas i couldnt take it anymore looking at that shit in the console
-
 	void log_buff(bool __log, int32_t sync_type, int16_t object_type, int index, int length, uint32_t value, bool blocked, const char* status)
 	{
 		if (__log)
@@ -283,8 +281,6 @@ namespace big::misc
 			string _sync_type = sync_type >= rage::PACK && sync_type < rage::END ? rage::name_sync_type[sync_type] : CSV("INVALID");
 
 			log += CSV(_sync_type);
-
-			//log += CSV(",,,,");
 
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : _sync_type);
 			log += CSV("");
@@ -335,8 +331,6 @@ namespace big::misc
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
-			//else
-			//	log += CSV(",,,,");
 
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : "INVALID");
 			log += CSV(object_id);
@@ -368,8 +362,6 @@ namespace big::misc
 			string log = CSV(string("SYNC") + (blocked ? (string(" | ") + status).c_str() : ",OK"));
 			log += CSV(type);
 
-			//log += CSV(",,,,");
-
 			log += CSV(object_type >= 0 && object_type < LEN(rage::name_object_type) ? rage::name_object_type[object_type] : "INVALID");
 			log += CSV(object_hash);
 
@@ -391,10 +383,7 @@ namespace big::misc
 				log += CSV(src->get_net_data()->m_host_token);
 				log += CSV(get_address(src->get_net_data()->m_online_ip.m_raw, src->get_net_data()->m_online_port));
 			}
-			//else
-			//	log += CSV(",,,,");
 
-			//log += CSV(",,,,");
 			log += CSV(event_id);
 			log += CSV(bitset);
 

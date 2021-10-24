@@ -809,7 +809,9 @@ namespace big
 		}
 	}
 
-	bool hooks::run_script_threads(uint32_t ops_to_execute)
+	//hooking.cpp L: 819 big::hooks::run_script_threads
+	//features.cpp L: 1374 `<lambda_4cf14728c32d79bc50966c6789a20d29>::operator()'::`1'::filt$0
+	bool hooks::run_script_threads(uint32_t ops_to_execute) //can cause sigabrt when i tab out in fullscreen mode
 	{
 		TRY_CLAUSE
 		{

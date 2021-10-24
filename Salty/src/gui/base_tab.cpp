@@ -245,7 +245,7 @@ namespace big::base_tab
 				ImGui::EndTabItem();
 			}
 
-			if (ImGui::BeginTabItem("ESP")) //todo fix esp alignment
+			if (ImGui::BeginTabItem("ESP")) //todo: fix esp alignment
 			{
 				ImGui::ColorEdit3("ESP Color", g_config.ESPfeatures_color, ImGuiColorEditFlags_AlphaBar);
 				ImGui::Checkbox("Name", &g_config.esp.name);
@@ -330,9 +330,6 @@ namespace big::base_tab
 									ImGui::SameLine();
 									ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, 1.f), "[Inside]");
 								}
-
-								//ImGui::Text(format("Interior: {}", features::players[features::selectedPlayer].interior).c_str());
-								//ImGui::Text(format("Vehicle: {}", features::players[features::selectedPlayer].invehicle).c_str());
 
 								if (g_config.debug.enabled)
 								{
