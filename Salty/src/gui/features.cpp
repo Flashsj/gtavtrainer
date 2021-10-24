@@ -299,7 +299,7 @@ namespace big::features
 		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(_ped, player);
 		if (ENTITY::DOES_ENTITY_EXIST(vehicle) || ENTITY::IS_ENTITY_A_VEHICLE(vehicle))
 		{
-			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1) == _ped)
+			if (NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle) && VEHICLE::GET_PED_IN_VEHICLE_SEAT(vehicle, -1, FALSE) == _ped)
 				return true;
 		}
 		return false;
@@ -587,7 +587,7 @@ namespace big::features
 			VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
 			VEHICLE::SET_VEHICLE_ENGINE_ON(vehicle, 1, 1, 0);
-			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
+			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE, FALSE);
 
 			if (g_config.Vfeatures_randomizecol)
 			{
@@ -619,7 +619,7 @@ namespace big::features
 			{
 				for (int i = -1; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(veh); i++)
 				{
-					if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i))
+					if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i, FALSE))
 					{
 						RequestControlOfEnt(veh);
 						PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i);
@@ -641,8 +641,8 @@ namespace big::features
 				VEHICLE::SET_VEHICLE_CAN_BE_TARGETTED(veh, FALSE);
 				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, FALSE);
 				VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, FALSE);
-				if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash))
-					VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f);
+				//if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash))
+				//	VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f, FALSE);
 			}
 
 			if (g_config.Vfeatures_spawnupgraded)
@@ -848,7 +848,7 @@ namespace big::features
 					int maxAmmo;
 					if (WEAPON::GET_MAX_AMMO(ped, cur, &maxAmmo))
 					{
-						WEAPON::SET_PED_AMMO(ped, cur, maxAmmo);
+						WEAPON::SET_PED_AMMO(ped, cur, maxAmmo, FALSE);
 
 						maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(ped, cur, 1);
 						if (maxAmmo > 0)
@@ -897,7 +897,7 @@ namespace big::features
 							fireBullet(StartCoords, vec);
 						}
 					}
-					else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255) //Pedestrians
+					else if (ENTITY::IS_ENTITY_A_PED(AimedAtEntity) && !ENTITY::IS_ENTITY_DEAD(AimedAtEntity, FALSE) && ENTITY::GET_ENTITY_ALPHA(AimedAtEntity) == 255) //Pedestrians
 					{
 						Vector3 Mouth = PED::GET_PED_BONE_COORDS(AimedAtEntity, 31086, 0.1f, 0.0f, 0.0f);
 						fireBullet(StartCoords, Mouth);
@@ -1251,7 +1251,7 @@ namespace big::features
 				{
 					for (int i = 0; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(playersVehicle); i++)
 					{
-						if (VEHICLE::IS_VEHICLE_SEAT_FREE(playersVehicle, i))
+						if (VEHICLE::IS_VEHICLE_SEAT_FREE(playersVehicle, i, FALSE))
 						{
 							RequestControlOfEnt(playersVehicle);
 							PED::SET_PED_INTO_VEHICLE(handle, playersVehicle, i);
