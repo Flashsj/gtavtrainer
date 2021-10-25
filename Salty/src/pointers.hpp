@@ -84,6 +84,9 @@ namespace big
 		GetBoneFromMask2 getBone2;
 
 		rage::CViewPort* viewport;
+		CViewportGame** g_viewportGame;
+		rage::spdViewport** rage__spdViewport__sm_Current;
+
 	};
 
 	inline pointers* g_pointers{};

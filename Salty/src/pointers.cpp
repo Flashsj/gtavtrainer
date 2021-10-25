@@ -227,6 +227,16 @@ namespace big
 			viewport = *reinterpret_cast<rage::CViewPort**>(addr + *(int*)(addr + 3) + 7);
 		});
 
+		main_batch.add("viewport 2", "33 C0 48 39 05 ? ? ? ? 74 2E 48 8B 0D ? ? ? ? 48 85 C9 74 22", [this](memory::handle ptr)
+		{
+			g_viewportGame = ptr.add(5).rip().as<CViewportGame**>();
+		});
+
+		main_batch.add("rage__spdViewport__sm_Current", "48 8B 3D ? ? ? ? 40 8A F2 48 8B D9 75 14", [this](memory::handle ptr)
+		{
+			rage__spdViewport__sm_Current = ptr.add(3).rip().as<rage::spdViewport**>();
+		});
+
 		main_batch.run(memory::module(nullptr)); // to do: make this throw exceptions and unload the cheat if it cant find a sig, because crashing is really annoying and retarded
 
 		m_hwnd = FindWindowW(L"grcWindow", nullptr);
