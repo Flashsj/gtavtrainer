@@ -458,7 +458,7 @@ namespace big
 		return blocked;
 	}
 
-	//what the fuck is the point of this if ScriptEventHandler exists??? or vice versa???
+	//handles game event categories
 	static bool network_event(void* event_manager, rage::CNetGamePlayer* src, rage::CNetGamePlayer* dst, int32_t _event_type, int32_t event_id, int32_t bitset, int64_t unk, rage::datBitBuffer* buffer)
 	{
 		int32_t n = (buffer->m_maxBit + 7) >> 3;
@@ -470,7 +470,6 @@ namespace big
 		sync_type = rage::NETWORK;
 		sync_object_type = -1;
 
-		//used to be (features::features_kickprotection || features::features_maleventprotection) for some reason. those arent passed through here anymore. just game event types.
 		if (features::features_gameeventprotection && big::features::injected && src != features::local)
 		{
 			if (event_blocked(src, dst, buffer, event_type, event_id, bitset))
@@ -616,6 +615,7 @@ namespace big
 		for (std::uint32_t i = 0; i < argCount; ++i) 
 			argString += fmt::format("{}, ", args[i]);
 
+		//add a toggle for this debug information
 		//LOG(INFO) << fmt::format("ScriptEventHandler | a1: {} sender: {} {} args[{}] = [ {} ]", reinterpret_cast<void*>(NetEventStruct), PLAYER::GET_PLAYER_NAME(senderID), senderID, argCount, argString).c_str();
 	}
 
@@ -625,6 +625,9 @@ namespace big
 		auto senderID = *reinterpret_cast<std::int8_t*>(CNetGamePlayer + 0x0021);
 		auto argCount = *reinterpret_cast<DWORD*>(NetEventStruct + 548);
 
+
+		//add a toggle for this debug information
+		// 
 		//logs.push_back({fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?"), features::network_time + 6000}); // testing purposes 
 		//LOG(INFO) << fmt::format("{} blocked from {}", args[0], senderID >= 0 && senderID < 32 ? features::players[senderID].name : "?").c_str();
 	}
@@ -639,18 +642,7 @@ namespace big
 
 		log_ScriptEventHandler(NetEventStruct, CNetGamePlayer); //please find a better way to do this there are two indentical functions
 
-		//look at block_user you fucking retard it will always pass the event and never block. i made it this way because people getting blocked for false positives was extremely annoying
-		//and i didnt wanna remove every instance where it was called
-
-		/*if (misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), false))
-		{
-			features::script++;
-			return true;
-		}*/
-
-		//here you check to see if the game event protection is enabled but you never actually search the array? i commented it out. game event protection is now only in network_event and kicks/malformed data is handled here
-
-		if (/*(features::features_gameeventprotection ||*/ features::features_kickprotection/*)*/ && FIND(args[0], misc::blocked_kick))
+		if (features::features_kickprotection && FIND(args[0], misc::blocked_kick))
 		{
 			features::script2++;
 			log_ScriptEventHandler_blocked(NetEventStruct, CNetGamePlayer); //please find a better way to do this there are two indentical functions
@@ -665,11 +657,7 @@ namespace big
 		}
 
 		__try { return g_hooking->ScriptEventHandler_hook.get_original<decltype(&ScriptEventHandler)>()(NetEventStruct, CNetGamePlayer); }
-		__except (EXCEPTION_EXECUTE_HANDLER)
-		{
-			features::script2++;
-			//misc::block_user(reinterpret_cast<rage::CNetGamePlayer*>(CNetGamePlayer), true); //again this literally does fucking nothing 
-		}
+		__except (EXCEPTION_EXECUTE_HANDLER) { features::script2++; }
 	}
 
 	hooking::hooking() :
@@ -810,7 +798,6 @@ namespace big
 	}
 
 	//hooking.cpp L: 819 big::hooks::run_script_threads
-	//features.cpp L: 1374 `<lambda_4cf14728c32d79bc50966c6789a20d29>::operator()'::`1'::filt$0
 	bool hooks::run_script_threads(uint32_t ops_to_execute) //can cause sigabrt when i tab out in fullscreen mode
 	{
 		TRY_CLAUSE

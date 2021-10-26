@@ -31,22 +31,20 @@ namespace big
 		{
 			if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
 			{
-			rage::scrNativeHandler handler = it->second;
+				rage::scrNativeHandler handler = it->second;
 
-			handler(&m_call_context);
+				handler(&m_call_context);
 
-			//m_fix_vectors is what is causing the crashes (mostly involving vehicles)
-
-			if (g_pointers->m_fix_vectors != nullptr)
-				g_pointers->m_fix_vectors(&m_call_context);
-			else
-			{
-				g_pointers->m_fix_vectors = 0x0;
-				g_running = false;
+				if (g_pointers->m_fix_vectors != nullptr)
+					g_pointers->m_fix_vectors(&m_call_context);
+				else
+				{
+					g_pointers->m_fix_vectors = 0x0;
+					g_running = false;
+				}
 			}
-		}
-		else
-			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
+			else
+				[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
 		}
 		EXCEPT_CLAUSE
 	}

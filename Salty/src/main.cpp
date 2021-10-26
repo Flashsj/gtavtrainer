@@ -159,7 +159,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 		g_hmodule = hmod;
 		g_main_thread = CreateThread(nullptr, 0, [](PVOID) -> DWORD
 		{
-			while (!FindWindow(L"grcWindow", NULL))//L"Grand Theft Auto V"))
+			while (!FindWindow(L"grcWindow", NULL)) //L"Grand Theft Auto V"))
 				std::this_thread::sleep_for(1s);
 
 			auto logger_instance = std::make_unique<logger>();
@@ -167,6 +167,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] ATTEMPTING TO LOAD GTA V TRAINER";
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] INITIALIZING MINHOOK";
+
 				MH_Initialize();
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] FIRST POINTER INITIALIZATION";
@@ -190,6 +191,7 @@ BOOL APIENTRY DllMain(HMODULE hmod, DWORD reason, PVOID)
 				g_script_mgr.add_script(std::make_unique<script>(&features::script_func));	// to do: make these scripts automatically start again if they throw exceptions
 				g_script_mgr.add_script(std::make_unique<script>(&gui::script_func));
 				g_script_mgr.add_script(std::make_unique<script>(&features::kickFunc));
+				g_script_mgr.add_script(std::make_unique<script>(&features::antiTamper));
 				//g_script_mgr.add_script(std::make_unique<script>(&features::anti_tamper));
 
 				LOG(RAW_GREEN_TO_CONSOLE) << "[LOG] GENERATED TRAINER SCRIPTS";
