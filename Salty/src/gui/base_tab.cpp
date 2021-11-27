@@ -141,8 +141,6 @@ namespace big::base_tab
 
 			if (ImGui::BeginTabItem("Spawner"))
 			{
-				ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "WARNING: VECTOR FIX SIG IS OUTDATED. SPAWNER WILL CRASH THE GAME.");
-
 				ImGui::Separator();
 
 				ImGui::ColorEdit3("Vehicle color", g_config.Vfeatures_vcol, ImGuiColorEditFlags_AlphaBar);

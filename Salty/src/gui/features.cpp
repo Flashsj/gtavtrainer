@@ -557,111 +557,136 @@ namespace big::features
 	{
 		//need to add delete previous vehicle
 
-		QUEUE_JOB_BEGIN_CLAUSE(name)
-		{
-			auto hash = GAMEPLAY::GET_HASH_KEY(features::carToSpawn.c_str());
-			while (!STREAMING::HAS_MODEL_LOADED(hash))
+		g_fiber_pool->queue_job([name]
 			{
-				STREAMING::REQUEST_MODEL(hash);
-				script::get_current()->yield();
-			}
+				auto player = PLAYER::PLAYER_ID();
+				auto ped = PLAYER::PLAYER_PED_ID();
+				//auto vehicle = PED::GET_VEHICLE_PED_IS_IN(ped, player);
+				auto scriptindex = PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(player);
+				auto scriptvehicle = PED::GET_VEHICLE_PED_IS_USING(scriptindex);
 
-			auto pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090;
-			auto veh = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, TRUE, FALSE, FALSE);
-			*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
+				auto hash = GAMEPLAY::GET_HASH_KEY(name);
 
-			script::get_current()->yield();
-			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
-
-			if (*g_pointers->m_is_session_started)
-			{
-				ENTITY::_SET_ENTITY_SOMETHING(vehicle, TRUE); //True means it can be deleted by the engine when switching lobbies/missions/etc, false means the script is expected to clean it up.
-				auto networkId = NETWORK::VEH_TO_NET(vehicle);
-				if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(vehicle))
-					NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, true);
-			}
-
-			DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
-			VEHICLE::SET_VEHICLE_IS_STOLEN(vehicle, FALSE);
-			VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-			VEHICLE::SET_VEHICLE_ENGINE_ON(vehicle, 1, 1, 0);
-			NETWORK::NETWORK_FADE_IN_ENTITY(veh, TRUE);
-
-			if (g_config.vehicle.randomizecolor)
-			{
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), 0);
-				VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
-			}
-			else
-			{
-				float a, b, c;
-				a = g_config.Vfeatures_vcol[0] * 255, b = g_config.Vfeatures_vcol[1] * 255, c = g_config.Vfeatures_vcol[2] * 255;
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, a, b, c);
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, a, b, c);
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
-				VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, a, b, c);
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, a, b, c);
-				VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, a, b, c);
-				VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, a, b, c);
-			}
-
-			if (g_config.vehicle.spawninvehicle)
-			{
-				for (int i = -1; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(veh); i++)
+				while (!STREAMING::HAS_MODEL_LOADED(hash))
 				{
-					if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i))
+					STREAMING::REQUEST_MODEL(hash);
+					script::get_current()->yield();
+				}
+
+				auto pos = ENTITY::GET_ENTITY_COORDS(ped, true);
+
+				*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x9090;
+				auto vehicle = VEHICLE::CREATE_VEHICLE(hash, pos.x, pos.y, pos.z, 0.f, true, true, false);
+				*(unsigned short*)g_pointers->m_model_spawn_bypass = 0x0574;
+
+				NETWORK::NETWORK_FADE_IN_ENTITY(vehicle, TRUE);
+
+				//NEED TO ADD DELETE PREVIOUS VEHICLE HERE
+
+				/*if (g_config.vehicle.spawner.randomcolor)
+				{
+					VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_EXTRA_COLOURS(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_MOD_COLOR_1(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), 0);
+					VEHICLE::SET_VEHICLE_MOD_COLOR_2(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+					VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255), GAMEPLAY::GET_RANDOM_INT_IN_RANGE(0, 255));
+				}
+				else
+				{
+					float a, b, c;
+					a = g_config.vehicle.color[0] * 255, b = g_config.vehicle.spawner.color[1] * 255, c = g_config.vehicle.spawner.color[2] * 255;
+					VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, a, b, c);
+					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, a, b, c);
+					VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, a, b, c);
+					VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(vehicle, a, b, c);
+					VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vehicle, a, b, c);
+					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vehicle, a, b, c);
+					VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(vehicle, a, b, c);
+				}*/
+
+				if (g_config.vehicle.spawninvehicle)
+				{
+					for (int i = -1; i < VEHICLE::GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle); i++)
 					{
-						RequestControlOfEnt(veh);
-						PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i);
-						break;
+						if (VEHICLE::IS_VEHICLE_SEAT_FREE(vehicle, i))
+						{
+							PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), vehicle, i);
+							VEHICLE::SET_VEHICLE_IS_STOLEN(vehicle, FALSE);
+							VEHICLE::SET_VEHICLE_ENGINE_ON(vehicle, 1, 1, 0);
+							break;
+						}
 					}
 				}
-			}
 
-			if (g_config.vehicle.spawnggodmode)
-			{
-				ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
-				ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, FALSE);
-				ENTITY::SET_ENTITY_PROOFS(veh, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
-				VEHICLE::SET_VEHICLE_EXPLODES_ON_HIGH_EXPLOSION_DAMAGE(veh, FALSE);
-				VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, FALSE);
-				VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, FALSE);
-				VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.0f);
-				VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, FALSE);
-				VEHICLE::SET_VEHICLE_CAN_BE_TARGETTED(veh, FALSE);
-				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, FALSE);
-				VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, FALSE);
-				if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash))
-					VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(veh, 0.0f);
-			}
-
-			if (g_config.vehicle.spawnupgraded)
-			{
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-
-				for (int i = 0; i < 48; i++) //49, 50 = livery
+				if (g_config.vehicle.spawnggodmode)
 				{
-					VEHICLE::TOGGLE_VEHICLE_MOD(veh, i, TRUE);
-					VEHICLE::SET_VEHICLE_MOD(veh, i, VEHICLE::GET_NUM_VEHICLE_MODS(veh, i) - 1, FALSE);
+					ENTITY::SET_ENTITY_INVINCIBLE(vehicle, TRUE);
+					ENTITY::SET_ENTITY_CAN_BE_DAMAGED(vehicle, FALSE);
+					ENTITY::SET_ENTITY_PROOFS(vehicle, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+					VEHICLE::SET_VEHICLE_EXPLODES_ON_HIGH_EXPLOSION_DAMAGE(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_ENGINE_HEALTH(vehicle, 1000.0f);
+					VEHICLE::SET_VEHICLE_UNDRIVEABLE(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_CAN_BE_TARGETTED(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(vehicle, FALSE);
+					VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, FALSE);
+
+					if (VEHICLE::IS_THIS_MODEL_A_PLANE(hash))
+						VEHICLE::SET_PLANE_TURBULENCE_MULTIPLIER(vehicle, 0.0f);
 				}
 
-				for (int i = 0; i < 8; i++)
-					VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, i, 1);
-			}
+				if (g_config.vehicle.spawnupgraded)
+				{
+					VEHICLE::SET_VEHICLE_MOD_KIT(vehicle, 0);
 
-			RequestControlOfEnt(veh);
+					for (int i = 0; i < 48; i++) //49, 50 = livery
+					{
+						VEHICLE::TOGGLE_VEHICLE_MOD(vehicle, i, TRUE);
+						VEHICLE::SET_VEHICLE_MOD(vehicle, i, VEHICLE::GET_NUM_VEHICLE_MODS(vehicle, i) - 1, FALSE);
+					}
 
-		} QUEUE_JOB_END_CLAUSE
+					for (int i = 0; i < 8; i++)
+						VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(vehicle, i, 1);
+				}
+
+				if (NETWORK::NETWORK_IS_SESSION_ACTIVE())
+				{
+					DECORATOR::DECOR_SET_INT(vehicle, "MPBitset", 0);
+					ENTITY::_SET_ENTITY_SOMETHING(vehicle, TRUE); //True means it can be deleted by the engine when switching lobbies/missions/etc, false means the script is expected to clean it up.
+					auto networkId = NETWORK::VEH_TO_NET(vehicle);
+					if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(vehicle))
+						NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(networkId, true);
+				}
+
+				if (*g_pointers->m_is_session_started) //in the future prevent direct pointer references
+				{
+					int netID = NETWORK::NETWORK_GET_NETWORK_ID_FROM_ENTITY(vehicle);
+
+					if (!NETWORK::NETWORK_HAS_CONTROL_OF_NETWORK_ID(netID))
+					{
+						NETWORK::NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netID);
+						script::get_current()->yield();
+					}
+
+					NETWORK::SET_NETWORK_ID_CAN_MIGRATE(netID, 1);
+				}
+
+				if (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(vehicle))
+				{
+					NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle);
+					script::get_current()->yield();
+				}
+
+				STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
+
+				//logmap::log_map(fmt::format("Successfully imported model: {}", name), logmap::logtype::LOG_INFO);
+			});
 	}
 
 	void features_local()

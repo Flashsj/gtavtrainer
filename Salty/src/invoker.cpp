@@ -27,38 +27,15 @@ namespace big
 
 	void native_invoker::end_call(rage::scrNativeHash hash)
 	{
-		TRY_CLAUSE
+		if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
 		{
-			if (auto it = m_handler_cache.find(hash); it != m_handler_cache.end())
-			{
 			rage::scrNativeHandler handler = it->second;
-
 			handler(&m_call_context);
-
-<<<<<<< HEAD
-			//m_fix_vectors is what is causing the crashes (mostly involving vehicles)
-
-			if (g_pointers->m_fix_vectors != nullptr)
-				g_pointers->m_fix_vectors(&m_call_context);
-=======
-				if (g_pointers->m_fix_vectors != nullptr)
-					g_pointers->m_fix_vectors(&m_call_context);
-				else
-				{
-					g_pointers->m_fix_vectors = 0x0;
-					g_running = false;
-				}
-			}
->>>>>>> parent of 9720bfa (b)
-			else
-			{
-				g_pointers->m_fix_vectors = 0x0;
-				g_running = false;
-			}
+			g_pointers->m_fix_vectors(&m_call_context);
 		}
 		else
-			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << "'s native handler."; }();
+		{
+			[hash]() { LOG(WARNING) << "Failed to find " << (hash) << " native's handler."; }();
 		}
-		EXCEPT_CLAUSE
 	}
 }
