@@ -32,7 +32,7 @@ namespace big::features
 	//features added by me
 
 	void kickFunc();
-	void antiTamper();
+	//void anti_tamper();
 
 	extern bool features_kickprotection;
 	extern bool features_gameeventprotection;

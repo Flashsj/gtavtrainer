@@ -241,13 +241,9 @@ namespace rage
         0x6D60976C,0x4D36C349,0x96B412A3,0x3A4C2AD2,0xEF2B7390,0x1CD604C7,0xFE2A352C,0xC5B72713,0x3DE942BD,0x968339D,0x5A26FE0,0x7C119D58,0xCC90A373,0xFD16169E,
         0xDDE4181A,0xEBF89D5F,0xE5121369,
 
-        //CAYO
+        //ADDED BY ME
 
-        0x4b69a42d,
-        
-        //TUNERS
-
-        0x898f0575,
+        0x4b69a42d, 
     };
 
     const uint32_t pickup_model[] =
@@ -590,8 +586,6 @@ namespace rage
         0x9ede356c,
 
         //tuners
-
-        0x2be8b90a
    
     };
 

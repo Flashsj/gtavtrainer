@@ -19,9 +19,9 @@ namespace big
 		//83 3D ? ? ? ? ? 75 17 8B 42 20 25 //old
 
 		main_batch.add("Game state", "48 85 C9 74 4B 83 3D", [this](memory::handle ptr) //holy shit i think this is right idk
-		{
-			m_game_state = ptr.add(7).rip().as<eGameState*>();
-		});
+			{
+				m_game_state = ptr.add(7).rip().as<eGameState*>();
+			});
 
 		main_batch.add("Is session started", "40 38 35 ? ? ? ? 75 0E 4C 8B C3 49 8B D7 49 8B CE", [this](memory::handle ptr)
 		{

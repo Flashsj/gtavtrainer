@@ -17,11 +17,12 @@ namespace big::features
 {
 	bool injected = false;
 
-	//these values are non configurable on purpose.
+	// why do you have this shit here when theres g_config
 	bool protection = true; //crash protection
 	bool features_kickprotection = true; //kick protection
 	bool features_gameeventprotection = true; //game event protection
 	bool features_maleventprotection = false; //malicious event protection
+	bool god_mode = true;
 
 	volatile Player player = 0;
 	volatile Ped ped = 0;
@@ -34,7 +35,6 @@ namespace big::features
 
 	std::list<std::string> user;
 	std::mutex mutex;
-	rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
 
 	bool first = true;
 
@@ -106,6 +106,8 @@ namespace big::features
 	}
 
 	#pragma region TO BE RELOCATED
+
+	rage::CNetGamePlayer* getNetGamePlayer(int player) { return reinterpret_cast<rage::CNetGamePlayer*>(g_pointers->m_net_player(player)); }
 
 	double wDegreeToRadian(double n) { return n * 0.017453292519943295; }
 
@@ -350,6 +352,7 @@ namespace big::features
 		std::int64_t args18[8] = { 0xF5CB92DB, 1337, -1, 1, 1, 0, 0, 0 };
 		std::int64_t args19[9] = { 0xF5CB92DB, player, 1337, -1, 1, 1, 0, 0, 0 };
 
+
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args1, 3, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args2, 24, 1 << player);
 		SCRIPT::TRIGGER_SCRIPT_EVENT(1, args3, 4, 1 << player);
@@ -439,37 +442,27 @@ namespace big::features
 	//		cout << "terminated process: " << processes[a] << endl;
 	//	}
 	//}
-
-	void features::antiTamper()
-	{
-		while (true)
-		{
-
-			script::get_current()->yield();
-		}
-	}
-
 #pragma endregion
 
 	void features::kickFunc()
 	{
 		while (true)
 		{
-			if (g_config.players.kick)
+			/*if (g_config.Pfeatures_kick)
 			{
 				kick(selectedPlayer);
 				log_map(fmt::format("Attempting to kick player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
-				g_config.players.kick = false;
+				g_config.Pfeatures_kick = false;
 			}
 
-			if (g_config.players.crash)
+			if (g_config.Pfeatures_crash)
 			{
 				log_map(fmt::format("Attempting to crash player ~r~{}", features::players[features::selectedPlayer].name), logtype::LOG_WARN);
 				scriptCrash(selectedPlayer);
-				g_config.players.crash = false;
+				g_config.Pfeatures_crash = false;
 			}
 
-			if (g_config.players.kickfromvehicle)
+			if (g_config.Pfeatures_kickfromveh)
 			{
 				if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::GET_PLAYER_PED_SCRIPT_INDEX(features::selectedPlayer), FALSE))
 				{
@@ -485,10 +478,10 @@ namespace big::features
 				else
 					log_map(fmt::format("~g~{}~w~ is not operating a vehicle", features::players[features::selectedPlayer].name), logtype::LOG_ERROR);
 
-				g_config.players.kickfromvehicle = false;
+				g_config.Pfeatures_kickfromveh = false;
 			}
 
-			if (g_config.players.kickall)
+			if (g_config.Pfeatures_kickall)
 			{
 				log_map("Attempting to kick ~r~all players", logtype::LOG_WARN);
 
@@ -507,10 +500,10 @@ namespace big::features
 
 					script::get_current()->yield();
 				}
-				g_config.players.kickall = false;
+				g_config.Pfeatures_kickall = false;
 			}
 
-			if (g_config.players.crashall)
+			if (g_config.Pfeatures_crashall)
 			{
 				log_map("Attempting to desktop ~r~all players", logtype::LOG_WARN);
 
@@ -529,10 +522,10 @@ namespace big::features
 
 					script::get_current()->yield();
 				}
-				g_config.players.crashall = false;
+				g_config.Pfeatures_crashall = false;
 			}
 
-			if (g_config.players.ahk)
+			if (g_config.auto_host_kick)
 			{
 				if (features::isHost)
 				{
@@ -553,8 +546,8 @@ namespace big::features
 					}
 				}
 				else
-					g_config.players.ahk = false;
-			}
+					g_config.auto_host_kick = false;
+			}*/
 
 			script::get_current()->yield();
 		}
@@ -715,7 +708,7 @@ namespace big::features
 
 		//Never wanted / no police
 
-		if (g_config.localped.neverwanted) //this needs to be redone, cops still ignore you when this feature is disabled
+		if (g_config.localped.neverwanted) //this needs to be redone, cops are broken when disabled
 		{
 			PLAYER::SET_MAX_WANTED_LEVEL(0);
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
@@ -762,10 +755,9 @@ namespace big::features
 
 		if (GetAsyncKeyState(VK_F5) || g_config.localped.teleportwp || (UI::IS_WAYPOINT_ACTIVE() && CONTROLS::IS_CONTROL_PRESSED(2, INPUT_SCRIPT_PAD_DOWN)))
 		{
-			if (!find_blip().z || !find_blip().x || !find_blip().y || !UI::IS_WAYPOINT_ACTIVE())
+			if (!find_blip().z || !find_blip().x || !find_blip().y || !UI::IS_WAYPOINT_ACTIVE()) // ?
 			{
-				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR);
-				g_config.localped.teleportwp = false;
+				features::log_map("You do not have a waypoint set", logtype::LOG_ERROR); //can sometimes be randomly triggered?
 				return;
 			}
 
@@ -1346,7 +1338,6 @@ namespace big::features
 
 	void run_tick()
 	{
-		//this should be moved somewhere else and doesnt need to be called every frame
 		dec_var(); //global variable declaration function, see above
 
 		QUEUE_JOB_BEGIN_CLAUSE()
