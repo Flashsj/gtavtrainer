@@ -6,7 +6,6 @@
 #include <gui/gui.hpp>
 #include <gui/features.hpp>
 #include "../fonts.hpp"
-#include <DirectXMath.h>
 
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -137,7 +136,7 @@ namespace big
 		out.x *= screen_size.x;
 		out.y *= screen_size.y;
 	} 
-	 
+
 	void renderer::on_present()
 	{
 		if (g_gui.m_opened)
@@ -171,8 +170,8 @@ namespace big
 				if (!features::players[i].exists)
 					continue;
 
-				//if (!g_config.localped.invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
-				//	continue;												   // to do: figure out edit and continue and the performance profiler since i can attach a debugger now
+				if (!g_config.localped.invisible && i == features::localIndex) // unloaded the cheat to recompile, tab into vs and my game fucking closes itself 10 seconds later i fucking love this game
+					continue;												   // to do: figure out edit and continue and the performance profiler since i can attach a debugger now
 
 				if (features::players[i].distanceToLocal > g_config.esp.render_distance) //important that this is 'render_distance' and not 'distance'
 					continue;
