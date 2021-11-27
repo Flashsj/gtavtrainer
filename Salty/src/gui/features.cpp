@@ -564,13 +564,11 @@ namespace big::features
 	{
 		//need to add delete previous vehicle
 
-		//QUEUE_JOB_BEGIN_CLAUSE(name)
+		QUEUE_JOB_BEGIN_CLAUSE(name)
 		{
 			auto hash = GAMEPLAY::GET_HASH_KEY(features::carToSpawn.c_str());
-			script::get_current()->yield();
 			while (!STREAMING::HAS_MODEL_LOADED(hash))
 			{
-				script::get_current()->yield();
 				STREAMING::REQUEST_MODEL(hash);
 				script::get_current()->yield();
 			}
@@ -670,7 +668,7 @@ namespace big::features
 
 			RequestControlOfEnt(veh);
 
-		} //QUEUE_JOB_END_CLAUSE
+		} QUEUE_JOB_END_CLAUSE
 	}
 
 	void features_local()
@@ -996,15 +994,15 @@ namespace big::features
 	{
 		//Model import call
 
-		//if (g_config.vehicle.requestentity)
-		//{
-		//	if (g_config.vehicle.randomizevehicle)
-		//		log_map("Importing random vehicle model", logtype::LOG_INFO);
-		//	else
-		//		log_map(fmt::format("Importing vehicle model ~g~{}", features::carToSpawn), logtype::LOG_INFO);
-		//	features::spawnvehicle(features::carToSpawn.c_str());
-		//	g_config.vehicle.requestentity = false;
-		//}
+		if (g_config.vehicle.requestentity)
+		{
+			if (g_config.vehicle.randomizevehicle)
+				log_map("Importing random vehicle model", logtype::LOG_INFO);
+			else
+				log_map(fmt::format("Importing vehicle model ~g~{}", features::carToSpawn), logtype::LOG_INFO);
+			features::spawnvehicle(features::carToSpawn.c_str());
+			g_config.vehicle.requestentity = false;
+		}
 
 		//Vehicle invisibility
 
@@ -1291,19 +1289,16 @@ namespace big::features
 
 	void block_main()
 	{
-		// to update these open the newest decompiled freemode script (https://github.com/Sainan/GTA-V-Decompiled-Scripts) and an older one and search for the shit below
-		// now ctrl f misc::set_global and script_global and update all of those as well as the hashes for the kick shit :)
+		//block afk, needs to be updated
+		misc::set_global(2550148 + 296, -1000000);
+		misc::set_global(1377236 + 1149, -1000000);
 
-		//block afk
-		misc::set_global(2554029 + 296, -1000000); // search for PLAYSTATS_IDLE_KICK or MP_IDLE_KICK
-		misc::set_global(1379108 + 1149, -1000000);
-
-		//block vote
-		misc::set_global(1390387, 0); // mpply_became_cheater_num
-		misc::set_global(1390389, 0); // mpply_offensive_language
-		misc::set_global(1390390, 0); // mpply_griefing
-		misc::set_global(1390392, 0); // mpply_offensive_tagplate
-		misc::set_global(1390393, 0); // mpply_offensive_ugc
+		//block vote, needs to be updated
+		misc::set_global(1388057, 0);
+		misc::set_global(1388059, 0);
+		misc::set_global(1388060, 0);
+		misc::set_global(1388062, 0);
+		misc::set_global(1388063, 0);
 	}
 
 	void dec_var()

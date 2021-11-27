@@ -454,7 +454,7 @@ namespace big::base_tab
 			{
 				ImGui::ColorEdit3("Menu color", g_config.menucolor, ImGuiColorEditFlags_AlphaBar);
 
-				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Nigger", "Golf", "Hotel", "India" };
+				vector<string> configs = { "Alpha", "Bravo", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India" };
 				Combo("Configs", &selectedConfig, configs);
 
 				if (ImGui::Button("Save"))
@@ -473,7 +473,7 @@ namespace big::base_tab
 				ImGui::Checkbox("Enable debug mode", &g_config.debug.enabled);
 				if (ImGui::Button("Unload"))
 				{
-					//exit(0); // funny
+					exit(0);
 					g_running = false;
 				}
 				ImGui::EndTabItem();
@@ -498,13 +498,6 @@ namespace big::base_tab
 					ImGui::Text(fmt::format("script2: {}", features::script2).c_str());
 
 					ImGui::SliderInt("In game log length", &g_config.debug.log_limit, 0, 100);
-
-					ImGui::Separator();
-
-					InputText("g_viewportGame", &format("{}", reinterpret_cast<void*>(g_pointers->g_viewportGame)), 0);
-					InputText("viewport", &format("{}", reinterpret_cast<void*>(g_pointers->viewport)), 0);
-					InputText("rage__spdViewport__sm_Current", &format("{}", reinterpret_cast<void*>(g_pointers->rage__spdViewport__sm_Current)), 0);
-
 
 					ImGui::EndTabItem();
 				}
