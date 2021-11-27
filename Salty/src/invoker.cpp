@@ -35,10 +35,21 @@ namespace big
 
 			handler(&m_call_context);
 
+<<<<<<< HEAD
 			//m_fix_vectors is what is causing the crashes (mostly involving vehicles)
 
 			if (g_pointers->m_fix_vectors != nullptr)
 				g_pointers->m_fix_vectors(&m_call_context);
+=======
+				if (g_pointers->m_fix_vectors != nullptr)
+					g_pointers->m_fix_vectors(&m_call_context);
+				else
+				{
+					g_pointers->m_fix_vectors = 0x0;
+					g_running = false;
+				}
+			}
+>>>>>>> parent of 9720bfa (b)
 			else
 			{
 				g_pointers->m_fix_vectors = 0x0;
